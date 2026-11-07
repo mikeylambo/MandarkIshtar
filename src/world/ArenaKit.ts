@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { EncounterDef } from "../sim/encounter";
-import { mesh, toon } from "../look/LookKit";
+import { mesh, toon, toonUnique } from "../look/LookKit";
 import { PALETTE, THEME_ACCENT } from "../look/palette";
 import { DeterministicRng } from "@slu/web-shell";
 
@@ -92,7 +92,7 @@ export function buildArena(def: EncounterDef): ArenaView {
   const anims: ((t: number) => void)[] = [];
 
   // floor slab with glyph inlay + bevel ring
-  const floorMat = new THREE.MeshToonMaterial({ map: glyphFloorTexture(theme, accent), gradientMap: toon(0).gradientMap });
+  const floorMat = toonUnique(0xffffff, 0, 0, { map: glyphFloorTexture(theme, accent) });
   const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 96), floorMat);
   floor.rotation.x = -Math.PI / 2; floor.name = "floor";
   group.add(floor);
@@ -167,7 +167,7 @@ function landmark(def: EncounterDef, g: THREE.Group, R: number, accent: number, 
     case "reflection": { // prism garden beyond the wall
       for (let i = 0; i < 10; i++) {
         const a = (i / 10) * Math.PI * 2 + 0.2, r = R + 4 + rng.range(0, 4);
-        const c = mesh(new THREE.OctahedronGeometry(1), new THREE.MeshToonMaterial({ color: 0xcfe8ff, gradientMap: toon(0).gradientMap, emissive: accent, emissiveIntensity: 0.25 }));
+        const c = mesh(new THREE.OctahedronGeometry(1), toon(0xcfe8ff, accent, 0.25));
         c.scale.set(0.6, rng.range(2, 4), 0.6); c.position.set(Math.sin(a) * r, 1.5, Math.cos(a) * r); g.add(c);
       }
       break;
@@ -214,7 +214,7 @@ function landmark(def: EncounterDef, g: THREE.Group, R: number, accent: number, 
       for (let i = 0; i < 26; i++) {
         const a = rng.range(0, Math.PI * 2), r = R + rng.range(1.5, 9);
         const stem = mesh(new THREE.CylinderGeometry(0.06, 0.08, 1.6, 5), toon(0xffffff)); stem.position.set(Math.sin(a) * r, 0.8, Math.cos(a) * r); g.add(stem);
-        const bloom = mesh(new THREE.IcosahedronGeometry(0.45, 0), new THREE.MeshToonMaterial({ color: 0xffffff, gradientMap: toon(0).gradientMap, emissive: 0xfff6e0, emissiveIntensity: theme === "ascent" ? 0.6 : 0.15 }));
+        const bloom = mesh(new THREE.IcosahedronGeometry(0.45, 0), toon(0xffffff, 0xfff6e0, theme === "ascent" ? 0.6 : 0.15));
         bloom.position.set(Math.sin(a) * r, 1.8, Math.cos(a) * r); g.add(bloom);
       }
       break;

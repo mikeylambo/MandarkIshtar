@@ -56,3 +56,7 @@ Append-only. Format: `YYYY-MM-DD — Decision — Why — Status (LOCKED / provi
 - 2026-11-07 — Hold-to-toggle is implemented in the device layer (InputDevice), not the sim, so replays stay device-agnostic — LOCKED
 - 2026-11-07 — Upstream bug found: shell `mountRecoveryUI` sets `hidden` but inline `display:grid` overrides it, so it shows at mount. Game CSS works around it — report upstream
 - 2026-11-07 — First compound teach: instead of auto-triggering a compound (which would play for the player), Trial 5 shows the two-glyph hint after 5 s without a compound; the GDD "auto-triggered once with slow-mo" is approximated — provisional
+- 2026-11-08 — Shell upgraded to **@slu/web-shell 1.3.0 = main@7003ec7a46f0de4c86b8dbb28fea81c10d4f21fa** ("Release v1.3.0"). No `v1.3.0` tag exists on the remote; pinned by commit — LOCKED
+- 2026-11-08 — Adopted the shell Look Kit (slu.lit, outline material, PostStack, palette tokens, pooled VFX) and Game-Feel Kit (FeelDirector trauma shake + impact bundles). Kept game-side only: welded-hull outline, inversion pass, stepped afterimages (UPSTREAM.md). Look values are canon JSON in `tuning/` loaded with `loadTuningCanon` — LOCKED
+- 2026-11-08 — Grade gain colour set to neutral white: the shell default (warm "highlight") tinted the white stone beige, against the "white architecture" visual thesis — provisional
+- 2026-11-08 — Hitstop stays in the sim (deterministic replays); FeelDirector bundles use `hitstopMs: 0` — LOCKED

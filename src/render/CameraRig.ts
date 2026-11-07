@@ -26,7 +26,8 @@ export class CameraRig {
   skipIntro(): void { this.introT = 0; }
   flourish(): void { if (!this.reducedMotion) this.flourishT = CAMERA.roomClearFrames; }
 
-  update(w: World, mx: number, mz: number, punch: { x: number; z: number; t: number }, shake: number, rand: () => number): void {
+  /** shake: the shell TraumaShake offset (already scaled by the accessibility slider). */
+  update(w: World, mx: number, mz: number, punch: { x: number; z: number; t: number }, shake: { x: number; y: number; z: number }): void {
     const def = w.def;
     let pitch: number = CAMERA.pitchDeg, dist: number = CAMERA.distance;
     if (def.boss === "giant") { pitch = CAMERA.giant.pitchDeg; dist = CAMERA.giant.distance; }
@@ -61,7 +62,7 @@ export class CameraRig {
     const pf = punch.t > 0 ? punch.t / 10 : 0;
     const cx = this.focus.x + punch.x * pf, cz = this.focus.z + punch.z * pf;
     this.cam.position.set(cx - Math.sin(yaw) * Math.cos(pr) * d, Math.sin(pr) * d, cz - Math.cos(yaw) * Math.cos(pr) * d);
-    if (shake > 0) { this.cam.position.x += (rand() - 0.5) * shake; this.cam.position.y += (rand() - 0.5) * shake; }
+    this.cam.position.x += shake.x; this.cam.position.y += shake.y; this.cam.position.z += shake.z;
     const lookY = def.boss === "ishtar" && (w.flags.ishtarPhase ?? 0) >= 3 ? 6 : 0;
     this.cam.lookAt(cx, lookY, cz);
   }

@@ -262,7 +262,7 @@ export class WorldView {
   private makeProp(p: Prop): THREE.Object3D {
     const g = new THREE.Group();
     switch (p.type) {
-      case "prism": { const c = mesh(new THREE.OctahedronGeometry(0.6), new THREE.MeshToonMaterial({ color: 0xdff0ff, gradientMap: toon(0).gradientMap, emissive: 0x7fc4ff, emissiveIntensity: 0.35, transparent: true, opacity: 0.85 })); c.scale.y = 1.9; c.position.y = 1.2; c.name = "spin"; g.add(c); break; }
+      case "prism": { const c = mesh(new THREE.OctahedronGeometry(0.6), toonUnique(0xdff0ff, 0x7fc4ff, 0.35, { transparent: true, opacity: 0.85 })); c.scale.y = 1.9; c.position.y = 1.2; c.name = "spin"; g.add(c); break; }
       case "sconce": { const b = mesh(new THREE.BoxGeometry(0.6, 1.2, 0.4), toon(PALETTE.stone)); b.position.y = 1.6; g.add(b); const fl = new THREE.Mesh(new THREE.ConeGeometry(0.22, 0.6, 8), new THREE.MeshBasicMaterial({ color: 0xff9a3a })); fl.position.y = 2.5; fl.name = "flame"; g.add(fl); break; }
       case "light": case "pedestal": { if (p.tag !== "lantern") { const ped = mesh(new THREE.CylinderGeometry(0.45, 0.55, 0.9, 10), toon(PALETTE.stone)); ped.position.y = 0.45; g.add(ped); } const orb = new THREE.Mesh(new THREE.SphereGeometry(p.tag === "lantern" ? 0.35 : 0.5, 16, 10), new THREE.MeshBasicMaterial({ color: 0xf6f8ff })); orb.position.y = p.tag === "lantern" ? 2.6 : 1.4; orb.name = "orb"; g.add(orb); break; }
       case "hazardGlyph": { const d = new THREE.Mesh(new THREE.ShapeGeometry(sigilShape(p.radius)), new THREE.MeshBasicMaterial({ color: PALETTE.blueDeep, transparent: true, opacity: 0.55, depthWrite: false })); d.rotation.x = -Math.PI / 2; d.position.y = 0.03; g.add(d); break; }

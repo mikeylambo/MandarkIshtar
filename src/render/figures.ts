@@ -112,7 +112,7 @@ export function bossFigure(type: ActorType): THREE.Group {
       break;
     }
     case "mirror": {
-      const m = markovFigure(); m.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) { const mm = o.material.clone(); mm.color.setHex(0xffffff - mm.color.getHex()); o.material = mm; } });
+      const m = markovFigure(); m.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) { const src = o.material; o.material = toonUnique(0xffffff - src.color.getHex(), src.emissive.getHex(), src.emissiveIntensity); } });
       body.add(m);
       const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 2.4), new THREE.MeshBasicMaterial({ color: 0xbfd0ff, transparent: true, opacity: 0.12, side: THREE.DoubleSide })); pane.position.y = 1.1; body.add(pane);
       break;

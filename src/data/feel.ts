@@ -1,10 +1,10 @@
 import type { SimEventType } from "../sim/events";
 
 /** Game Feel Bible (GDD §8) per event: VFX family, SFX key, camera, inversion, haptic. Hitstop is owned by the sim. */
-export interface FeelRecipe { vfx?: string; sfx?: string; shake?: number; punch?: number; punchFrames?: number; inversionFrames?: number; haptic?: string; hitstopLocal?: number }
+export interface FeelRecipe { impact?: string; vfx?: string; sfx?: string; shake?: number; punch?: number; punchFrames?: number; inversionFrames?: number; haptic?: string; hitstopLocal?: number }
 export const FEEL: Partial<Record<SimEventType, FeelRecipe>> = {
   OpCast: { vfx: "glyph-spark", sfx: "op.cast" },
-  Redirect: { vfx: "vector-line", sfx: "op.vector", punch: 0.1, punchFrames: 6, haptic: "vector", hitstopLocal: 3 },
+  Redirect: { impact: "mi.redirect", vfx: "vector-line", sfx: "op.vector", punch: 0.1, punchFrames: 6, haptic: "vector", hitstopLocal: 3 },
   OrbitStart: { vfx: "orbit-ring", sfx: "op.orbit" },
   OrbitContact: { sfx: "op.orbitChime" },
   PhaseIn: { vfx: "phase-ripple", sfx: "op.phaseIn" },
@@ -14,9 +14,9 @@ export const FEEL: Partial<Record<SimEventType, FeelRecipe>> = {
   NullImplode: { vfx: "null-implode", sfx: "op.null" },
   PropertyPeel: { vfx: "property-peel", sfx: "op.strip" },
   CompoundCast: { vfx: "glyph-spark", sfx: "op.compound", shake: 0.05 },
-  Contradiction: { vfx: "contradiction-fracture", sfx: "break.contradiction", shake: 0.3, punch: 0.3, punchFrames: 8, haptic: "contradiction" },
+  Contradiction: { impact: "mi.contradiction", vfx: "contradiction-fracture", sfx: "break.contradiction", shake: 0.3, punch: 0.3, punchFrames: 8, haptic: "contradiction" },
   Broken: { sfx: "break.broken" },
-  QED: { vfx: "qed-fold", sfx: "break.qed", punch: 0.3, punchFrames: 10, inversionFrames: 8, haptic: "qed", shake: 0.15 },
+  QED: { impact: "mi.qed", vfx: "qed-fold", sfx: "break.qed", punch: 0.3, punchFrames: 10, inversionFrames: 8, haptic: "qed", shake: 0.15 },
   QEDMissed: { sfx: "break.plink" },
   RingOut: { vfx: "qed-fold", sfx: "break.qed", inversionFrames: 6, haptic: "qed" },
   Flourish: { sfx: "ui.flourish", inversionFrames: 6 },
@@ -25,15 +25,15 @@ export const FEEL: Partial<Record<SimEventType, FeelRecipe>> = {
   StrikeSwing: { sfx: "strike.swing" },
   StrikeHit: { vfx: "glyph-spark", sfx: "strike.tik" },
   HubrisTaunt: { vfx: "glyph-spark", sfx: "hubris.choir" },
-  HubrisShatter: { vfx: "hubris-shatter", sfx: "hubris.shatter", shake: 0.4, haptic: "hubrisShatter" },
-  SealLost: { sfx: "markov.hit", shake: 0.25, haptic: "sealLost" },
+  HubrisShatter: { impact: "mi.shatter", vfx: "hubris-shatter", sfx: "hubris.shatter", shake: 0.4, haptic: "hubrisShatter" },
+  SealLost: { impact: "mi.sealLost", sfx: "markov.hit", shake: 0.25, haptic: "sealLost" },
   InsightStart: { vfx: "insight-lines", sfx: "insight.start" },
   LawDeclared: { vfx: "law-card-slam", sfx: "law.slam", shake: 0.2 },
   RegaliaLost: { sfx: "gate.take", haptic: "gate", shake: 0.1 },
   RegaliaReturned: { vfx: "dawn-light", sfx: "gate.give" },
   RegaliaClick: { sfx: "ui.click.dull" },
   DawnProgress: {},
-  NameReveal: { vfx: "dawn-light", sfx: "dawn.chord", haptic: "dawn" },
+  NameReveal: { impact: "mi.dawn", vfx: "dawn-light", sfx: "dawn.chord", haptic: "dawn" },
   Shockwave: { sfx: "enemy.shock", shake: 0.08 },
   Telegraph: { sfx: "enemy.telegraph" },
   EnemyAttack: { sfx: "enemy.attack" },
@@ -50,7 +50,7 @@ export const FEEL: Partial<Record<SimEventType, FeelRecipe>> = {
   MiniLaw: { sfx: "law.mini" },
   MiniLawFailed: { sfx: "op.null" },
   PrismPass: { vfx: "vector-line", sfx: "world.prism" },
-  Stomp: { sfx: "giant.stomp", shake: 0.35 },
+  Stomp: { impact: "mi.stomp", sfx: "giant.stomp", shake: 0.35 },
   Copy: { sfx: "mirror.copy" },
   Echo: { sfx: "op.echo" },
   Erase: { vfx: "null-implode", sfx: "op.null" },

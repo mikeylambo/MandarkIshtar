@@ -38,6 +38,7 @@ import { AssetLoader } from "./AssetLoader";
 import { installDevHooks } from "../dev/devHooks";
 import type { Bark } from "../data/barks";
 import { PERF } from "../data/perf";
+import { tunables } from "@slu/web-shell/tuning";
 
 export interface GameSettings extends CoreSettings { a11y: GameAccessibility; bindings: Binding[]; difficulty: DifficultyId; slot: number }
 const DEFAULT_SETTINGS: GameSettings = { ...defaultCoreSettings, a11y: DEFAULT_ACCESSIBILITY, bindings: DEFAULT_BINDINGS, difficulty: "savant", slot: 0 };
@@ -75,12 +76,12 @@ export class App {
   seed = 1;
   private acc = 0;
   private last = 0;
+  private lastDt = STEP_MS;
   private t = 0;
   private renderFrame = 0;
   private noOpFrames = 0;
   private hintShown = "";
   readonly perf = { frameMs: [] as number[], simMs: [] as number[], drawCalls: 0, triangles: 0, heapMB: 0 };
-  private presentRng = 1;
   readonly allEvents: string[] = [];
   private onArenaDone: ((status: "clear" | "lost") => void) | null = null;
   private recovery: ReturnType<typeof mountRecoveryUI> | null = null;
@@ -112,8 +113,13 @@ export class App {
     this.input.setBindings(this.settings.get("bindings"));
     this.ui = new Ui(uiRoot, (k) => this.audio.sfx(k));
     this.view = new WorldView(this.rig.scene);
-    this.vfx = new Vfx(this.rig.scene, this.view.afterimages);
-    this.feel = new FeelKit(() => ({ shake: this.a11y.screenShake, flash: this.a11y.flashIntensity, rim: this.a11y.inversionAsRim }));
+    this.vfx = new Vfx(this.rig.scene, this.view.afterimages, this.rig.look);
+    const look = this.rig.look;
+    this.feel = new FeelKit({
+      vfx: (id, position, scale, tint) => { look.play(id, { ...(position ? { position } : {}), scale, ...(tint ? { tint } : {}) }); },
+      post: (id, amount) => look.pulse(id, amount),
+      flash: (token, amount) => look.post.flashColor(token, amount),
+    }, tunables, () => ({ shake: this.a11y.screenShake, flash: this.a11y.flashIntensity, reducedMotion: this.a11y.reducedMotion, vibration: this.settings.get("vibration") }));
     this.camera = new CameraRig(this.rig.camera);
     this.mixer = new AudioMixer(this.audio);
     bindAudioSettings(this.settings as unknown as SettingsStore<CoreSettings>, this.mixer);
@@ -185,6 +191,7 @@ export class App {
     const t0 = performance.now();
     const dt = Math.min(100, this.last ? now - this.last : STEP_MS);
     this.last = now;
+    this.lastDt = dt;
     this.t += dt / 1000;
     this.renderFrame++;
     this.input.poll();
@@ -230,12 +237,11 @@ export class App {
 
   private renderScene(): void {
     const w = this.world;
-    if (!this.frozen) this.feel.tick();
+    if (!this.frozen) { this.feel.tick(this.lastDt / 1000); this.rig.update(this.lastDt / 1000); }
     if (w) {
       const alpha = this.mode === "play" ? this.acc / STEP_MS : 1;
       this.view.update(w, Math.min(1, alpha), this.t, this.renderFrame);
-      const rnd = () => { this.presentRng = (this.presentRng * 16807) % 2147483647; return this.presentRng / 2147483647; };
-      this.camera.update(w, this.view.markovPos.x, this.view.markovPos.z, this.feel.punch, this.feel.shake, rnd);
+      this.camera.update(w, this.view.markovPos.x, this.view.markovPos.z, this.feel.punch, this.feel.shakeOffset);
       this.ui.updateHud(w, this.liveRank(w));
     }
     if (!this.frozen) this.vfx.update(w);
