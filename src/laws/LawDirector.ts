@@ -41,6 +41,9 @@ export class LawDirector {
     return Math.min(2, t);
   }
 
+  /** Dev/Laboratory: force a Law and tier. */
+  force(law: string, tier: number): void { this.active.add(law); this.tier = tier; this.w.emit("LawTierChanged", { value: tier, kind: law }); }
+
   onHubrisChanged(): void {
     const t = this.computeTier();
     if (t !== this.tier) { this.tier = t; this.w.emit("LawTierChanged", { value: t, kind: this.w.def.law ?? "" }); }

@@ -62,4 +62,7 @@ export const FEEL: Partial<Record<SimEventType, FeelRecipe>> = {
   Kneel: { sfx: "king.kneel" },
   SlowMoTeach: {},
   BossIntro: { sfx: "boss.intro" },
+  InsightEnd: { sfx: "op.phaseOut" },
+  Temptation: { sfx: "ishtar.take" },
+  WaveStart: { sfx: "enemy.spawn" },
 };

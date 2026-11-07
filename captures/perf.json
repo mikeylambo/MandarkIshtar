@@ -1,0 +1,22 @@
+{
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "resolution": "1920x1080",
+  "counts": {
+    "actors": 40,
+    "projectiles": 400
+  },
+  "frameP50": 9.299999999988358,
+  "frameP95": 51.29999999998836,
+  "simP50": 5.2000000000116415,
+  "simP95": 31.5,
+  "drawCalls": 250,
+  "triangles": 50866,
+  "heapMB": 9.5367431640625,
+  "afterimages": 60,
+  "projectiles": 397,
+  "enemies": 40,
+  "targetFrameMs": 16.6,
+  "targetSimMs": 3,
+  "targetDrawCalls": 250,
+  "note": "SwiftShader (CPU software rasterizer) in a headless container — NOT representative of the 2019 MBP target GPU"
+}

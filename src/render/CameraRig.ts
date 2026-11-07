@@ -7,8 +7,8 @@ export class CameraRig {
   private focus = new THREE.Vector3();
   private yaw = 0;
   private yawTarget = 0;
-  private pitch = CAMERA.pitchDeg;
-  private distance = CAMERA.distance;
+  private pitch: number = CAMERA.pitchDeg;
+  private distance: number = CAMERA.distance;
   private flourishT = 0;
   private introT = 0;
   zoom = 1;
@@ -19,6 +19,8 @@ export class CameraRig {
   reset(w: World): void {
     this.yaw = this.yawTarget = (w.def.arena.yawDeg * Math.PI) / 180;
     this.focus.set(w.markov.pos.x, 0, w.markov.pos.z);
+    this.pitch = w.def.boss === "giant" ? CAMERA.giant.pitchDeg : CAMERA.pitchDeg;
+    this.distance = w.def.boss === "giant" ? CAMERA.giant.distance : CAMERA.distance;
     this.introT = w.def.kind === "boss" && !w.def.echo ? CAMERA.bossIntroFrames : 0;
   }
   skipIntro(): void { this.introT = 0; }

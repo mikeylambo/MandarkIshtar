@@ -43,7 +43,7 @@ export interface GameSettings extends CoreSettings { a11y: GameAccessibility; bi
 const DEFAULT_SETTINGS: GameSettings = { ...defaultCoreSettings, a11y: DEFAULT_ACCESSIBILITY, bindings: DEFAULT_BINDINGS, difficulty: "savant", slot: 0 };
 
 type Mode = "boot" | "title" | "menu" | "play" | "paused" | "results" | "cutscene";
-interface Run { kind: "campaign" | "arcade"; stages: { def: EncounterDef; regalia: Regalia[]; opts: Partial<WorldOptions> }[]; index: number; seals?: number; trial?: number; plan?: ModePlan; retries: number; startPhase: number; segment: string; frames: number; score: number }
+interface Run { kind: "campaign" | "arcade"; stages: { def: EncounterDef; regalia: Regalia[]; opts: Partial<WorldOptions> }[]; index: number; seals?: number; trial?: number; plan?: ModePlan; retries: number; startPhase: number; segment: string; frames: number; total: number }
 
 const STEP_MS = 1000 / 60;
 
@@ -69,6 +69,9 @@ export class App {
   run: Run | null = null;
   bot: Bot | null = null;
   timeScale = 1;
+  /** Dev capture: freeze the whole presentation the instant an event of this type fires. */
+  freezeOn: string | null = null;
+  frozen = false;
   seed = 1;
   private acc = 0;
   private last = 0;
@@ -197,7 +200,7 @@ export class App {
         this.acc += dt * speed;
         let steps = 0;
         const s0 = performance.now();
-        while (this.acc >= STEP_MS && steps < 6 && this.world) {
+        while (this.acc >= STEP_MS && steps < 6 && this.world && !this.frozen) {
           this.acc -= STEP_MS; steps++;
           this.stepWorld();
           if (this.mode !== "play") break;
@@ -227,7 +230,7 @@ export class App {
 
   private renderScene(): void {
     const w = this.world;
-    this.feel.tick();
+    if (!this.frozen) this.feel.tick();
     if (w) {
       const alpha = this.mode === "play" ? this.acc / STEP_MS : 1;
       this.view.update(w, Math.min(1, alpha), this.t, this.renderFrame);
@@ -235,7 +238,7 @@ export class App {
       this.camera.update(w, this.view.markovPos.x, this.view.markovPos.z, this.feel.punch, this.feel.shake, rnd);
       this.ui.updateHud(w, this.liveRank(w));
     }
-    this.vfx.update(w);
+    if (!this.frozen) this.vfx.update(w);
     const u = this.rig.inversion.uniforms;
     const inv = this.feel.inversion > 0 ? 1 : 0;
     u.amount!.value = this.a11y.inversionAsRim ? 0 : inv * this.a11y.flashIntensity;
@@ -259,6 +262,7 @@ export class App {
   // ======================= events → presentation =======================
   private onEvent(e: SimEvent, w: World): void {
     this.allEvents.push(e.type); if (this.allEvents.length > 2000) this.allEvents.shift();
+    if (this.freezeOn && (this.freezeOn === e.type || this.freezeOn === `${e.type}:${e.kind ?? ""}` || this.freezeOn === `${e.type}:${e.value ?? ""}`)) { this.frozen = true; this.timeScale = 0; this.freezeOn = null; }
     this.vfx.onEvent(e, w);
     this.feel.onEvent(e, (id) => this.haptics.pulse(id), w.markov.pos.x, w.markov.pos.z);
     const sfx = FEEL[e.type]?.sfx;
@@ -384,10 +388,10 @@ export class App {
   startCampaignFrom(segment: "coldOpen" | "descent"): void {
     if (segment === "coldOpen") {
       const stages = [{ def: COLD_OPEN, regalia: COLD_OPEN.regalia!, opts: { teach: true } }, ...TRIALS[0]!.arenas.concat(TRIALS[0]!.bossArena).map((def) => ({ def, regalia: regaliaForTrial(1), opts: {} }))];
-      this.run = { kind: "campaign", stages, index: 0, trial: 1, retries: 0, startPhase: 1, segment: "trial", frames: 0, score: 0 };
+      this.run = { kind: "campaign", stages, index: 0, trial: 1, retries: 0, startPhase: 1, segment: "trial", frames: 0, total: 0 };
     } else {
       const stages = [...DESCENT_GATES.map((def) => ({ def, regalia: def.regalia!, opts: {} })), { def: ISHTAR_ARENA, regalia: [] as Regalia[], opts: {} }, ...ASCENT.map((def) => ({ def, regalia: def.regalia!, opts: {} }))];
-      this.run = { kind: "campaign", stages, index: 0, trial: 8, retries: 0, startPhase: 1, segment: "descent", frames: 0, score: 0 };
+      this.run = { kind: "campaign", stages, index: 0, trial: 8, retries: 0, startPhase: 1, segment: "descent", frames: 0, total: 0 };
       this.progress.unlockCodex("story:engine");
       this.progress.unlockCodex("story:descent");
     }
@@ -398,12 +402,12 @@ export class App {
     if (n === 8) { this.startCampaignFrom("descent"); return; }
     const t = TRIALS[n - 1]!;
     const stages = [...t.arenas, t.bossArena].map((def) => ({ def, regalia: regaliaForTrial(n), opts: {} }));
-    this.run = { kind: "campaign", stages, index: 0, trial: n, retries: 0, startPhase: 1, segment: "trial", frames: 0, score: 0 };
+    this.run = { kind: "campaign", stages, index: 0, trial: n, retries: 0, startPhase: 1, segment: "trial", frames: 0, total: 0 };
     this.playStage();
   }
 
   startPlan(plan: ModePlan): void {
-    this.run = { kind: "arcade", plan, stages: plan.stages.map((s) => ({ def: s.def, regalia: s.regalia, opts: s.opts })), index: 0, retries: 0, startPhase: 1, segment: plan.mode, frames: 0, score: 0 };
+    this.run = { kind: "arcade", plan, stages: plan.stages.map((s) => ({ def: s.def, regalia: s.regalia, opts: s.opts })), index: 0, retries: 0, startPhase: 1, segment: plan.mode, frames: 0, total: 0 };
     this.playStage();
   }
 
@@ -440,6 +444,7 @@ export class App {
     this.acc = 0;
     this.input.clearToggles();
     this.onArenaDone = done;
+    this.barks.scriptedEncounter = def.kind === "coldOpen";
     for (const e of w.events) this.onEvent(e, w);
     return w;
   }
@@ -461,7 +466,7 @@ export class App {
       return;
     }
     const r = w.scorer.finalized!;
-    run.score += r.score;
+    run.total += r.score;
     this.progress.recordArena(st.def.id, r);
     if (st.def.kind === "coldOpen") this.progress.data.seenColdOpen = true;
     run.seals = w.markov.seals;
@@ -505,10 +510,10 @@ export class App {
     const run = this.run!, plan = run.plan!;
     const key = `${plan.mode}:${plan.label}`;
     if (plan.mode === "timeAttack" && complete) { const best = this.progress.data.bestTimes[key]; if (!best || run.frames < best) this.progress.data.bestTimes[key] = run.frames; }
-    if (plan.mode === "scoreAttack" || plan.mode === "bossRush") { const best = this.progress.data.bestScores[key] ?? 0; if (run.score > best) this.progress.data.bestScores[key] = Math.round(run.score); }
+    if (plan.mode === "scoreAttack" || plan.mode === "bossRush") { const best = this.progress.data.bestScores[key] ?? 0; if (run.total > best) this.progress.data.bestScores[key] = Math.round(run.total); }
     if (plan.mode === "theorems") { const ok = complete && (this.world?.scorer.finalized?.constraintOk ?? false); if (ok) this.progress.data.theorems[plan.label.split(" ")[0]!] = true; }
     void this.saveProgress();
-    const body = el("div", "", `<div style="font-size:30px;text-align:center;font-variant-numeric:tabular-nums">${plan.mode === "timeAttack" ? (run.frames / 60).toFixed(2) + "s" : Math.round(run.score).toLocaleString("en-US")}</div>`);
+    const body = el("div", "", `<div style="font-size:30px;text-align:center;font-variant-numeric:tabular-nums">${plan.mode === "timeAttack" ? (run.frames / 60).toFixed(2) + "s" : Math.round(run.total).toLocaleString("en-US")}</div>`);
     const m = new Menu([{ label: "Retry", onSelect: () => this.startPlan(plan) }, { label: "Observatory", onSelect: () => this.toHub() }], (k) => this.audio.sfx(k), () => this.toHub());
     this.mode = "results";
     this.ui.show(this.ui.panel(plan.label, m, body), m);
@@ -744,7 +749,7 @@ export class App {
     if (def.kind === "hub") { this.toHub(); return; }
     const trial = def.trial ?? 7;
     const regalia = def.regalia ?? (def.kind === "lab" ? [...REGALIA_ORDER] : regaliaForTrial(trial));
-    this.run = { kind: "campaign", stages: [{ def, regalia, opts: {} }], index: 0, trial, retries: 0, startPhase: 1, segment: def.kind === "gate" || def.kind === "ishtar" || def.kind === "ascent" ? "jump" : "jump", frames: 0, score: 0 };
+    this.run = { kind: "campaign", stages: [{ def, regalia, opts: {} }], index: 0, trial, retries: 0, startPhase: 1, segment: def.kind === "gate" || def.kind === "ishtar" || def.kind === "ascent" ? "jump" : "jump", frames: 0, total: 0 };
     this.playStage();
   }
 }

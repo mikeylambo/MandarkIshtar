@@ -70,8 +70,8 @@ export function theoremGeometry(type: ActorType): THREE.BufferGeometry {
 
 export function theoremFigure(type: ActorType): THREE.Group {
   const g = new THREE.Group();
+  // No per-Theorem contact shadow: the Certainty ring grounds them and keeps peak density inside the draw-call budget.
   const mat = toonUnique(0xfbfaf6, PALETTE.blue, 0.12);
-  g.add(blob(0.7));
   const body = mesh(theoremGeometry(type), mat);
   body.name = "body";
   body.position.y = type === "herald" ? 1.0 : 0.85;

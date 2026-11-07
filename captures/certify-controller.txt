@@ -1,0 +1,14 @@
+SLU CERTIFY // CONTROLLER // mandark-ishtar
+PASS file:src/main.ts — required file src/main.ts
+PASS file:index.html — required file index.html
+PASS file:AGENTS.md — required file AGENTS.md
+PASS file:assets/manifest.json — required file assets/manifest.json
+PASS file:assets/manifest.webmanifest — required file assets/manifest.webmanifest
+PASS script:build — required npm script build
+PASS script:check — required npm script check
+PASS script:verify — required npm script verify
+PASS capability:controller-ui — declare capability 'controller-ui' in slu-certification.json
+PASS forbidden:TODO_PLAYER
+PASS forbidden:PLACEHOLDER_PLAYER
+PASS forbidden:LOREM_IPSUM
+CERTIFIED

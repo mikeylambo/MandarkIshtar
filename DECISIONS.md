@@ -1,0 +1,58 @@
+# DECISIONS — Mandark Ishtar
+
+Append-only. Format: `YYYY-MM-DD — Decision — Why — Status (LOCKED / provisional)`
+
+## Seeded from design (2026-11-05)
+
+- 2026-11-05 — The character seed is "Mandark Ishtar" (Mandark × Marik Ishtar). It stays the **internal codename only** — Both source names are owned characters — LOCKED
+- 2026-11-05 — The protagonist's shipping name is **Lazar Markov**. He goes by "Markov" all game; "Lazar" is first spoken at the ending (the renaming-at-transformation beat) — Markov phonetically fuses the seeds and is his worldview (Markov chains = prediction); Lazar is Lazarus, "God has helped". "Marduk" was rejected (the idol mocked in Jer 50:2) — LOCKED
+- 2026-11-05 — The game is standalone (not part of Spectral: Recode) — Michael's call — LOCKED
+- 2026-11-05 — Core thesis: **solve, don't fight**. Enemies have Certainty, not HP; exploiting the principle causes a Contradiction; Q.E.D. finisher — From GPT's first concept, which Michael liked most — LOCKED
+- 2026-11-05 — The moveset is 4 operations (Vector, Phase, Order, Null) + Step + Strike + Hubris. There are 12 ordered compounds with an 18f window — Elegance over move-list size — LOCKED
+- 2026-11-05 — Strike deals 2 Certainty; raw force is never the answer — Pillar P1 — LOCKED
+- 2026-11-05 — Perspective: 3D arena with a high-angle camera (Hades/ZoE readability); web; KBM + pad — Round 1 lock — LOCKED
+- 2026-11-05 — v1 structure: 7 Law Trials → the Descent → Ishtar → the Ascent, plus arcade modes (Time Attack, Score Attack, Boss Rush, Theorems, Laboratory) — Round 1 lock — LOCKED
+- 2026-11-05 — Faith content is embedded in the mechanics and arc, plus an optional Codex with KJV references (Marginalia). There are no in-game sermons — Round 1 lock — LOCKED
+- 2026-11-05 — The story frame is Babel → kenosis. The Ishtar Engine is the counterfeit morning star (Isa 14, Jer 7 "Queen of Heaven", Gen 3:5). The Descent removes regalia in order: Hubris, Vector, Phase, Order, Null, Step, Strike. Ishtar is received through Stillness, not solved — Round 2 approved — LOCKED
+- 2026-11-05 — The Dawn/Dusk polarity idea was cut — Phase already carries duality; two duality systems would be clutter — LOCKED
+- 2026-11-05 — The Prophet boss is literally an order-1/2/3 Markov chain over the player's action states — Theme made mechanical; it is beaten by Stillness and feints — LOCKED
+- 2026-11-05 — The Child can't be damaged or modeled; the solve is following it — Matt 18:3; the arc turn — LOCKED
+- 2026-11-05 — Ishtar P2 is Temptation: regalia offered back; taking one resets phase 1. P3 has no fail state — It teaches refusal without punishing the player — provisional (tune in playtest)
+- 2026-11-05 — Foundation: @slu/web-shell canonical main at build time (the shell is being consolidated to v1.3 with the Look Kit + game-feel kit), pinned as a git dependency in its own repo. Use the kits if landed, else game-local with `// UPSTREAM:` markers — Michael is mid-upgrade on the shell — LOCKED
+- 2026-11-05 — Shell v1.1.0 (`main` @ 6f08d17) was inspected at design time. It has `character-action` + `arcade` frames, ranking/results/leaderboards/replay/training/dialogue modules, InputManager, DeterministicRNG, SaveManager, SimulationSpeed and OnboardingManager — Basis for the Reuse Map — reference only; re-verify at build
+- 2026-11-05 — The arenas, Observatory, Theorem enemies and VFX are procedural at final quality. Only Markov, the 7 bosses and Ishtar's core go through GPT concept → Meshy → Blender — The math/cathedral theme makes procedural native — LOCKED
+- 2026-11-05 — The Markov character art must be redesigned before ship (hair crest, visible eyes with hex half-rims, original 7-point sigil, no ring motifs; keep the palette, coat, earrings and composed menace) — The codename sheet reads as Mandark/Marik and Sonic rings — LOCKED
+- 2026-11-05 — Michael is the intended VO for Markov — He has a voice-acting background — provisional
+- 2026-11-05 — The shipping title is open; the lean is FIRST PRINCIPLE — Non-blocking — provisional
+- 2026-11-05 — Audio as proof: each Law motif stays unresolved; Contradictions add harmonic steps; Q.E.D. resolves the cadence; the Descent removes one instrument per gate — Makes solving audible — LOCKED
+
+## Build-time log
+(Claude Code appends here.)
+- 2026-11-07 — Shell canonical = `main` @ **6f08d17c2f1012b19e6e26c87c640762354eb0ec** (package `@slu/web-shell` 1.1.0; README says 1.0.1). No v1.3 consolidation branch/tag exists or is named canonical — README/CHANGELOG checked; branches are feature/studio work — LOCKED for this build
+- 2026-11-07 — The v1.3 **Look Kit and game-feel kit are absent** in the shell (no toon/outline/hitstop code). Implemented game-local in `src/look/LookKit.ts` and `src/feel/FeelKit.ts` with `// UPSTREAM:` markers — LOCKED
+- 2026-11-07 — Repo: the session repo `mikeylambo/MandarkIshtar` is the game's own repo (brief: "new repo mandark-ishtar"); the shell is never modified and is a git dependency pinned to the commit (`git+https://github.com/mikeylambo/web-game-shell-v1.02.git#6f08d17…`) — LOCKED
+- 2026-11-07 — Reuse map → real symbols: GameSession/EventBus → `SLUWebShell` (shell.events/session); DeterministicRNG → `DeterministicRngRegistry`/`DeterministicRng`; InputManager → `InputManager` + `BrowserInputSource` + `applyRadialDeadzone`; Ranking → `RankingSystem`; Save → `SaveManager`/`SettingsStore`/`BrowserStorage`/`IndexedDBStorage`/`MemoryStorage`; Audio → `AudioMixer` + `bindAudioSettings` (game implements `AudioSystem`); Onboarding → `shell.production.onboarding` (`OnboardingManager`); Seeds → `scheduledSeed`; Haptics → `BrowserHaptics`; lifecycle → `installBrowserLifecycle`; input family → `BrowserInputFamilyDetector`; PWA → `PWAController`; diagnostics → `shell.studio.diagnostics`, `exportPlaytestBundle`, `mountRecoveryUI`; dev console → `shell.studio.dev` + `mountBrowserDevConsole`; renderer seam → `ThreeAdapter`; procedural visuals → `createVisualRegistry` (scaffold) — provisional
+- 2026-11-07 — The generator's `createGameApp` DOMGameUI flow (generic Mode/Stage select copy) is **not used**: the GDD flow (glyph title, cold open on first boot, Observatory as hub) conflicts with it and with constitution §8. The shell's lower-level systems are used directly instead — LOCKED
+- 2026-11-07 — Test runner: **Vitest** (scaffold had none; Node's runner can't run TS without strip-types caveats). Lint: ESLint + typescript-eslint with sim-purity rules (no Math.random/Date.now/performance.now, no Three/render/UI/audio imports in sim folders) — LOCKED
+- 2026-11-07 — Sim is a pure TS fixed 60 Hz step (`World.step(InputFrame)`), runnable in Node; bots and tests play the real sim headless. Accessibility game speed (70–100%) is applied by running fewer sim steps per second, never by changing dt (keeps determinism) — LOCKED
+- 2026-11-07 — Targeting: (1) hostile projectiles inside a 3.4 u catch radius, (2) aim cone (30° widened by the auto-aim slider), (3) proximity fallback. Push direction is always the aim. Rationale: the GDD's "aim = selection" makes redirecting incoming fire unplayable — provisional
+- 2026-11-07 — Compound timing: the window is measured between the two ops' **input frames** (a tap's frame is its release). The second op may arrive during the first op's startup/recovery; it fuses and pays (A+B)×0.8 − A. A compound counts as **one** operation for par — provisional
+- 2026-11-07 — "Breaks and expires": a Broken Theorem struck by any non-Strike, non-op hit (redirected shot, thrown body) **collapses** (defeated; +400 if by an enemy). Q.E.D. remains the finisher — provisional
+- 2026-11-07 — Variable exploit: Markov cannot Strike while spectral (GDD state table), so "hit it while it's spectral" = **spectral body contact or any op** on a spectral Variable while Markov is spectral — provisional
+- 2026-11-07 — Prisms refract Markov-owned shots to the nearest unvisited prism within 50°/12 u, else back to the shot's **origin** (the Law of Reflection made spatial). Flame exploit = ≥1 prism (P3: ≥3) — provisional
+- 2026-11-07 — Giant exploit glyphs: three floor "hazard glyph" sigils are the "other hazards" the shadow must lie on when its stomp is Delayed (20%) — provisional
+- 2026-11-07 — Mirror P3 "immune to any op used in the last 10 s" is checked on the **delivering** op of the copy that hits it (Vector redirect, Order reverse, or a compound) — provisional
+- 2026-11-07 — Judge echo (gate 5, Step+Strike only): plain Strike vs Step-Strike (Strike within 30f of a Step) are different acts; alternating = 12% each; repeating within 300f = Sentence — provisional
+- 2026-11-07 — Bosses take the non-exploit 6 from raw redirected shots/bodies (Giant's shadow: 12). Without this, generic redirects bypassed every boss's principle (bot evidence: Judge died in 22 s to sconce fire) — provisional
+- 2026-11-07 — Freed subjects (Dominion/King) land **one** blow (25) and are filed. With repeated blows the King died in ~10 s to a swarm (bot evidence) — provisional
+- 2026-11-07 — Prophet: window states are chosen by priority op > step > strike > dominant move quadrant (≥40% of window) > idle. Idle windows add no transition; two consecutive idle windows stall it. A stall lasts ≤ 300f and closes after one Stillness exploit (keeps the echo from a passive stalemate) — provisional
+- 2026-11-07 — Hitstun is invulnerable (per the Markov state table "No (20f mercy i-frames after)"). Fixes multi-Seal loss from one 3-shot fan — LOCKED (spec)
+- 2026-11-07 — Seals carry across a Trial's arenas; a loss retries the encounter at full Seals; bosses resume from the phase reached (checkpoint assist) after the first retry — provisional
+- 2026-11-07 — Ishtar P2 "can't be lost": Seals refill and hits don't remove Seals; taking a temptation grants that regalia and restarts P1; P3 removes all regalia again. P3 has no fail state (hits dissolve) — provisional (GDD row was already provisional)
+- 2026-11-07 — Codex count: the GDD itemization (7 Laws + 7 bosses + 8 Theorems + Ishtar + Engine + Name + Babel + Descent) is **27**, not the stated 26. All itemized entries ship (Stillness and Dawn Marginalia are attached to the Oracle and Name/Descent entries) — provisional (non-blocking spec slip)
+- 2026-11-07 — Assets: `assets/` is Vite's public dir; `assets/manifest.json` (290 keys) maps key → file; delivered files dropped at `assets/<file>` override stand-ins with no code change — LOCKED
+- 2026-11-07 — Presentation randomness uses a seeded presentation RNG; the sim's RNG streams are never touched by presentation — LOCKED
+- 2026-11-07 — Gamepad remapping capture uses a probe `BrowserInputSource` (no direct `navigator.*` in game code) — LOCKED
+- 2026-11-07 — Hold-to-toggle is implemented in the device layer (InputDevice), not the sim, so replays stay device-agnostic — LOCKED
+- 2026-11-07 — Upstream bug found: shell `mountRecoveryUI` sets `hidden` but inline `display:grid` overrides it, so it shows at mount. Game CSS works around it — report upstream
+- 2026-11-07 — First compound teach: instead of auto-triggering a compound (which would play for the player), Trial 5 shows the two-glyph hint after 5 s without a compound; the GDD "auto-triggered once with slow-mo" is approximated — provisional

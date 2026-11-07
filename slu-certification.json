@@ -2,7 +2,10 @@
   "schemaVersion": 1,
   "requiredFiles": [
     "src/main.ts",
-    "index.html"
+    "index.html",
+    "AGENTS.md",
+    "assets/manifest.json",
+    "assets/manifest.webmanifest"
   ],
   "requiredScripts": [
     "build",

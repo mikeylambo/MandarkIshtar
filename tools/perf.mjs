@@ -1,0 +1,20 @@
+// Browser perf sample at peak density (40 enemies + 400 projectiles + 60 afterimages) → captures/perf.json
+import { createRequire } from "node:module";
+import { writeFileSync } from "node:fs";
+import { serve } from "./serve.mjs";
+const { chromium } = createRequire(import.meta.url)("playwright");
+const gpu = process.argv.includes("--gpu");
+const { url, close } = await serve(4183);
+const browser = await chromium.launch({ args: gpu ? [] : ["--use-gl=angle", "--use-angle=swiftshader", "--enable-unsafe-swiftshader"] });
+const page = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+await page.goto(url);
+await page.waitForFunction(() => window.__dev && window.__dev.app.mode === "title", null, { timeout: 30000 });
+const counts = await page.evaluate(() => { const r = window.__dev.stress(); window.__dev.runBot("solver"); window.__dev.app.perf.frameMs.length = 0; window.__dev.app.perf.simMs.length = 0; return r; });
+await page.waitForTimeout(8000);
+const perf = await page.evaluate(() => window.__dev.perf());
+const renderer = await page.evaluate(() => { const gl = window.__dev.app.rig.renderer.getContext(); const d = gl.getExtension("WEBGL_debug_renderer_info"); return d ? gl.getParameter(d.UNMASKED_RENDERER_WEBGL) : "unknown"; });
+await page.screenshot({ path: "captures/60-perf-stress.png" });
+const out = { renderer, resolution: "1920x1080", counts, ...perf, note: gpu ? "hardware GPU" : "SwiftShader (CPU software rasterizer) in a headless container — NOT representative of the 2019 MBP target GPU" };
+writeFileSync("captures/perf.json", JSON.stringify(out, null, 2));
+console.log(JSON.stringify(out, null, 2));
+await browser.close(); await close();

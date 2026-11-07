@@ -32,9 +32,12 @@ export class BarkSystem {
     return b;
   }
 
+  /** Cold open keeps its scripted door lines. */
+  scriptedEncounter = false;
   onEvent(e: SimEvent, frame: number): void {
     if (e.type === "Bark" && e.kind) { this.pick(e.kind, frame, true); return; }
-    if (e.type === "Flourish") { this.pick(this.arc === "joy" ? "clearJoy" : this.arc === "soft" ? "clearSoft" : "clear", frame, true); return; }
+    if (e.type === "Flourish") {
+      if (this.scriptedEncounter) return; this.pick(this.arc === "joy" ? "clearJoy" : this.arc === "soft" ? "clearSoft" : "clear", frame, true); return; }
     const c = CONTEXT[e.type];
     if (c && (e.type !== "Contradiction" || frame % 3 === 0)) this.pick(c, frame);
   }
