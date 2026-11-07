@@ -118,13 +118,16 @@ export const prophet: Behavior = {
       }
     }
     if (a.d.stalled) {
-      if (w.def.echo) moveToward(w, a, m.pos, 3, dt, 1.2);
-      return;
+      a.d.stallT = (a.d.stallT ?? 0) + 1;
+      // The model re-fits after a while: a stall is a window, not a surrender.
+      if (a.d.stallT > P.stallTimeout) { a.d.stalled = 0; a.d.idleRun = -2; a.d.stallT = 0; w.emit("ProphetStall", { id: a.id, value: 0 }); }
+      else { if (w.def.echo) moveToward(w, a, m.pos, 3, dt, 1.2); return; }
     }
+    a.d.stallT = 0;
     keepRange(w, a, m.pos, w.def.echo ? 4 : 7, P.speed, dt);
     a.d.volley -= dt;
-    if (a.d.volley <= 0 && !w.def.echo) {
-      a.d.volley = P.volley.every;
+    if (a.d.volley <= 0) {
+      a.d.volley = P.volley.every * (w.def.echo ? 2 : 1);
       const base = dirTo(a.pos, m.pos);
       for (let i = 0; i < P.volley.count; i++) fire(w, a, rotate(base, ((i - (P.volley.count - 1) / 2) * P.volley.spreadDeg * Math.PI) / 180), P.volley.speed, "prophecy", 0.42);
     }

@@ -48,6 +48,7 @@ export class MarkovController {
   tauntGranted = false;
   qedTarget = 0;
   hitsTaken = 0;
+  steps = 0;
   pushSlow = false;
   actionState: ActionState = "idle";
   readonly actionLog: ActionRecord[] = [];
@@ -275,6 +276,7 @@ export class MarkovController {
     this.state = "step"; this.stepT = STEP.frames;
     this.actionState = "step";
     this.lastStepFrame = w.frame;
+    this.steps++;
     w.ops.cancelStartup();
     if (this.stepCharges > 0) {
       this.stepCharges--; this.stepRecharge.push(STEP.rechargeFrames); this.stepStutter = false;

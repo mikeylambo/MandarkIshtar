@@ -31,6 +31,8 @@ export class CertaintyLedger {
   qeds = 0;
   ringOuts = 0;
   enemyDefeats = 0;
+  /** Breaks not caused by an enemy body or an enemy's own attack (Theorem "all kills by enemies"). */
+  selfBreaks = 0;
   private lastContradictionFrame = -999;
 
   damage(w: World, a: Actor, amount: number, info: DamageInfo): number {
@@ -68,7 +70,7 @@ export class CertaintyLedger {
       this.lastContradictionFrame = w.frame;
       w.emit("Contradiction", { id: a.id, kind: a.type, x: a.pos.x, z: a.pos.z, value: info.exploit, text: info.label ?? "" });
     }
-    if (a.certainty <= 0 && a.alive) this.break(w, a);
+    if (a.certainty <= 0 && a.alive) { if (!info.byEnemy) this.selfBreaks++; this.break(w, a); }
     return dealt;
   }
 

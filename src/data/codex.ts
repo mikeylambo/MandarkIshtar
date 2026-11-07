@@ -1,0 +1,38 @@
+/**
+ * Codex: 27 entries — the GDD itemization (7 Laws + 7 bosses + 8 Theorems + Ishtar + Engine + Name + Babel + Descent).
+ * Notes are Markov's marginal scribbles. Marginalia: KJV (public domain), one line, no commentary.
+ * Marginalia unlock on a Proof+ boss rank or Trial clear; story entries on their story beat.
+ */
+export interface CodexDef { id: string; category: "law" | "boss" | "theorem" | "story"; title: string; note: string; marginalia: { ref: string; text: string }[]; unlock: string }
+
+const M = (ref: string, text: string) => ({ ref, text });
+
+export const CODEX: CodexDef[] = [
+  { id: "law:reflection", category: "law", title: "Law of Reflection", unlock: "trial:1", note: "Every attack returns to its origin. I have always found this to be true of other people.", marginalia: [M("Prov 16:18", "Pride goeth before destruction, and an haughty spirit before a fall."), M("Gal 6:7", "Be not deceived; God is not mocked: for whatsoever a man soweth, that shall he also reap.")] },
+  { id: "law:shadow", category: "law", title: "Law of Shadow", unlock: "trial:2", note: "Only shadows are real. A rule invented by something that has never met a lamp.", marginalia: [M("John 1:5", "And the light shineth in darkness; and the darkness comprehended it not.")] },
+  { id: "law:recurrence", category: "law", title: "Law of Recurrence", unlock: "trial:3", note: "Everything happens twice. Including, apparently, my mistakes. Noted. Twice.", marginalia: [M("Acts 3:19", "Repent ye therefore, and be converted, that your sins may be blotted out.")] },
+  { id: "law:dominion", category: "law", title: "Law of Dominion", unlock: "trial:4", note: "The strong command the weak. I agreed with this for an embarrassingly long time.", marginalia: [M("Mark 10:45", "For even the Son of man came not to be ministered unto, but to minister.")] },
+  { id: "law:judgment", category: "law", title: "Law of Judgment", unlock: "trial:5", note: "Repetition is punished. Finally, a law that respects originality.", marginalia: [M("Lam 3:22–23", "His compassions fail not. They are new every morning: great is thy faithfulness.")] },
+  { id: "law:prophecy", category: "law", title: "Law of Prophecy", unlock: "trial:6", note: "The future is fixed. So is a stopped clock, and it is right twice a day.", marginalia: [M("1 Cor 1:25", "Because the foolishness of God is wiser than men; and the weakness of God is stronger than men."), M("Isa 55:8", "For my thoughts are not your thoughts, neither are your ways my ways, saith the LORD.")] },
+  { id: "law:innocence", category: "law", title: "Law of Innocence", unlock: "trial:7", note: "The measured cannot enter. I measured the door. It did not help.", marginalia: [M("Matt 18:3", "Except ye be converted, and become as little children, ye shall not enter into the kingdom of heaven.")] },
+  { id: "boss:flame", category: "boss", title: "The Flame", unlock: "boss:flame", note: "It grew every time I hit it. I respect the strategy. I invented the strategy.", marginalia: [M("Prov 16:18", "Pride goeth before destruction.")] },
+  { id: "boss:giant", category: "boss", title: "The Giant", unlock: "boss:giant", note: "Enormous, invulnerable, and entirely dependent on where I put the lamps.", marginalia: [M("John 1:5", "And the light shineth in darkness.")] },
+  { id: "boss:mirror", category: "boss", title: "The Mirror", unlock: "boss:mirror", note: "It did everything I did. I have never been so annoyed by good taste.", marginalia: [M("Acts 3:19", "Repent ye therefore, and be converted.")] },
+  { id: "boss:king", category: "boss", title: "The King", unlock: "boss:king", note: "His subjects left him the moment they were free. Mine would never. I think.", marginalia: [M("Mark 10:43", "Whosoever will be great among you, shall be your minister.")] },
+  { id: "boss:judge", category: "boss", title: "The Judge", unlock: "boss:judge", note: "Punished every formula. Rang a bell every morning and forgot the ledger. Infuriating. Kind.", marginalia: [M("Lam 3:23", "They are new every morning: great is thy faithfulness.")] },
+  { id: "boss:prophet", category: "boss", title: "The Prophet", unlock: "boss:prophet", note: "A Markov chain named after nobody, predicting a Markov. Beaten by standing still. I'd like that struck from the record.", marginalia: [M("1 Cor 1:25", "The foolishness of God is wiser than men.")] },
+  { id: "boss:child", category: "boss", title: "The Child", unlock: "boss:child", note: "Could not be measured. Would not hold still. Took my hand anyway.", marginalia: [M("Matt 18:3", "Except ye be converted, and become as little children.")] },
+  { id: "theorem:axiom", category: "theorem", title: "Axiom", unlock: "seen:axiom", note: "Charges in a straight line. So did I, at its age.", marginalia: [] },
+  { id: "theorem:corollary", category: "theorem", title: "Corollary", unlock: "seen:corollary", note: "Break it and it becomes two Axioms. Aim the two somewhere useful.", marginalia: [] },
+  { id: "theorem:variable", category: "theorem", title: "Variable", unlock: "seen:variable", note: "Here, then not. To catch something unreal, become briefly unreal.", marginalia: [] },
+  { id: "theorem:constant", category: "theorem", title: "Constant", unlock: "seen:constant", note: "Immovable until told otherwise. I told it otherwise.", marginalia: [] },
+  { id: "theorem:iterator", category: "theorem", title: "Iterator", unlock: "seen:iterator", note: "Three shots, forever. Send them home.", marginalia: [] },
+  { id: "theorem:paradox", category: "theorem", title: "Paradox", unlock: "seen:paradox", note: "Two that heal each other. Cut the thread, or prove them both at once.", marginalia: [] },
+  { id: "theorem:oracle", category: "theorem", title: "Oracle", unlock: "seen:oracle", note: "Shoots where I will be. So I will be somewhere else. Or nowhere at all.", marginalia: [M("Ps 46:10", "Be still, and know that I am God."), M("Prov 3:5", "Trust in the LORD with all thine heart; and lean not unto thine own understanding.")] },
+  { id: "theorem:herald", category: "theorem", title: "Herald", unlock: "seen:herald", note: "Makes announcements. I make them shorter.", marginalia: [] },
+  { id: "story:ishtar", category: "story", title: "Ishtar", unlock: "story:ishtar", note: "The morning star that wasn't. She offered everything back. Every piece fit.", marginalia: [M("Isa 14:12", "How art thou fallen from heaven, O Lucifer, son of the morning!"), M("Jer 7:18", "To make cakes to the queen of heaven.")] },
+  { id: "story:engine", category: "story", title: "The Ishtar Engine", unlock: "story:engine", note: "My greatest invention. I did not invent it.", marginalia: [M("Gen 3:5", "Your eyes shall be opened, and ye shall be as gods, knowing good and evil.")] },
+  { id: "story:name", category: "story", title: "Lazar", unlock: "story:name", note: "Eleazar: God has helped. I had been calling myself something else.", marginalia: [M("John 11:25", "I am the resurrection, and the life."), M("Rev 22:16", "I am the root and the offspring of David, and the bright and morning star.")] },
+  { id: "story:babel", category: "story", title: "The Observatory", unlock: "story:babel", note: "I built it to see everything. Mostly it showed me.", marginalia: [M("Gen 11:4", "Let us build us a city and a tower, whose top may reach unto heaven; and let us make us a name.")] },
+  { id: "story:descent", category: "story", title: "The Descent", unlock: "story:descent", note: "Seven gates. One thing left at each. It got lighter.", marginalia: [M("Phil 2:7", "But made himself of no reputation, and took upon him the form of a servant."), M("2 Pet 1:19", "Until the day dawn, and the day star arise in your hearts.")] },
+];

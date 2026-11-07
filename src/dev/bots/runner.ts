@@ -47,3 +47,23 @@ export function runCampaign(makeBot: () => Bot, opts: Partial<WorldOptions> = {}
   report.completed = true;
   return report;
 }
+
+import type { ModePlan } from "../../modes/ModeRun";
+export interface ModeReport { mode: string; label: string; completed: boolean; score: number; frames: number; stages: { id: string; status: string; score: number; constraintOk: boolean }[] }
+
+/** Plays an arcade plan once (no retries: arcade runs end on loss). */
+export function runMode(plan: ModePlan, makeBot: () => Bot, maxFrames = TEN_MINUTES, stageHook?: (w: World) => void): ModeReport {
+  const rep: ModeReport = { mode: plan.mode, label: plan.label, completed: false, score: 0, frames: 0, stages: [] };
+  let seals: number | undefined;
+  let seed = plan.seed;
+  for (const st of plan.stages) {
+    const r = runEncounter(st.def, { seed: seed++, regalia: st.regalia, seals, ...st.opts }, makeBot(), maxFrames, stageHook);
+    rep.frames += r.frames;
+    rep.score += r.result?.score ?? r.world.scorer.score;
+    rep.stages.push({ id: st.def.id, status: r.status, score: Math.round(r.result?.score ?? 0), constraintOk: r.result?.constraintOk ?? false });
+    if (r.status !== "clear") { if (plan.endOnLoss) return rep; continue; }
+    seals = plan.carrySeals ? Math.min(r.world.markov.maxSeals, r.world.markov.seals + plan.sealBonus) : undefined;
+  }
+  rep.completed = true;
+  return rep;
+}

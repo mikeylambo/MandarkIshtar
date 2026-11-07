@@ -20,6 +20,7 @@ import type { SimEvent, SimEventType } from "./events";
 import { clamp, dist, hashMix, len, norm, v } from "./math";
 import type { ActorType, InputFrame, Owner, ProjectileShape, PropType, Regalia, Vec } from "./types";
 import { REGALIA_ORDER } from "./types";
+import type { Constraint } from "../data/theorems";
 
 export type RngStream = "ai" | "spawn" | "law" | "boss" | "mode";
 export type WorldStatus = "intro" | "playing" | "flourish" | "clear" | "lost";
@@ -41,7 +42,7 @@ export interface WorldOptions {
   /** Feature flags for onboarding (cold open slow-mo on first Vector). */
   teach?: boolean;
   /** Theorem-challenge / mode constraints, evaluated by the scorer. */
-  constraint?: string;
+  constraint?: Constraint;
   /** Boss retry assist: start from this phase checkpoint. */
   startPhase?: number;
 }

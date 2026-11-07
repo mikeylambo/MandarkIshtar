@@ -61,6 +61,11 @@ export class EleganceScorer {
     if (rank === "qed" && this.ops > par.ops) rank = "proof";
     const breakdown: Record<string, number> = {};
     for (const e of this.log) breakdown[e.kind] = (breakdown[e.kind] ?? 0) + e.points * e.mult;
+    const c = this.w.opts.constraint;
+    if (c) {
+      const ok = c.kind === "maxOps" ? this.ops <= c.n : c.kind === "noStep" ? this.w.markov.steps === 0 : c.kind === "finishersOnly" ? this.strikeDamageHits === 0 : this.w.ledger.selfBreaks === 0;
+      if (!ok) this.constraintViolations.push(c.kind);
+    }
     this.finalized = { score: Math.round(this.score), rank, pct, ops: this.ops, parOps: par.ops, parScore: par.score, noDamage: !this.tookDamage, frames: this.w.frame, breakdown, constraintOk: this.constraintViolations.length === 0 };
     return this.finalized;
   }
