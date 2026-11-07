@@ -1,0 +1,1456 @@
+{
+ "version": 1,
+ "note": "Drop a file at assets/<file> to override its stand-in; no code change.",
+ "assets": {
+  "model.markov": {
+   "file": "models/markov.glb",
+   "kind": "model",
+   "standIn": "procedural figure (render/figures.ts markovFigure)"
+  },
+  "model.markov.anims": {
+   "file": "models/markov_anims.glb",
+   "kind": "model",
+   "standIn": "procedural pose offsets"
+  },
+  "model.boss.flame": {
+   "file": "models/boss_flame.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"flame\")"
+  },
+  "model.boss.giant": {
+   "file": "models/boss_giant.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"giant\")"
+  },
+  "model.boss.mirror": {
+   "file": "models/boss_mirror.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"mirror\")"
+  },
+  "model.boss.king": {
+   "file": "models/boss_king.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"king\")"
+  },
+  "model.boss.judge": {
+   "file": "models/boss_judge.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"judge\")"
+  },
+  "model.boss.prophet": {
+   "file": "models/boss_prophet.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"prophet\")"
+  },
+  "model.boss.child": {
+   "file": "models/boss_child.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"child\")"
+  },
+  "model.boss.ishtar": {
+   "file": "models/boss_ishtar.glb",
+   "kind": "model",
+   "standIn": "procedural bossFigure(\"ishtar\")"
+  },
+  "lawcard.reflection": {
+   "file": "cards/law_reflection.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.shadow": {
+   "file": "cards/law_shadow.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.recurrence": {
+   "file": "cards/law_recurrence.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.dominion": {
+   "file": "cards/law_dominion.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.judgment": {
+   "file": "cards/law_judgment.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.prophecy": {
+   "file": "cards/law_prophecy.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.innocence": {
+   "file": "cards/law_innocence.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "lawcard.ishtar": {
+   "file": "cards/law_ishtar.webp",
+   "kind": "image",
+   "standIn": "SVG sigil card"
+  },
+  "codex.law:reflection": {
+   "file": "codex/law_reflection.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:shadow": {
+   "file": "codex/law_shadow.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:recurrence": {
+   "file": "codex/law_recurrence.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:dominion": {
+   "file": "codex/law_dominion.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:judgment": {
+   "file": "codex/law_judgment.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:prophecy": {
+   "file": "codex/law_prophecy.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.law:innocence": {
+   "file": "codex/law_innocence.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:flame": {
+   "file": "codex/boss_flame.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:giant": {
+   "file": "codex/boss_giant.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:mirror": {
+   "file": "codex/boss_mirror.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:king": {
+   "file": "codex/boss_king.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:judge": {
+   "file": "codex/boss_judge.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:prophet": {
+   "file": "codex/boss_prophet.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.boss:child": {
+   "file": "codex/boss_child.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:axiom": {
+   "file": "codex/theorem_axiom.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:corollary": {
+   "file": "codex/theorem_corollary.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:variable": {
+   "file": "codex/theorem_variable.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:constant": {
+   "file": "codex/theorem_constant.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:iterator": {
+   "file": "codex/theorem_iterator.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:paradox": {
+   "file": "codex/theorem_paradox.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:oracle": {
+   "file": "codex/theorem_oracle.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.theorem:herald": {
+   "file": "codex/theorem_herald.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.story:ishtar": {
+   "file": "codex/story_ishtar.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.story:engine": {
+   "file": "codex/story_engine.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.story:name": {
+   "file": "codex/story_name.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.story:babel": {
+   "file": "codex/story_babel.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "codex.story:descent": {
+   "file": "codex/story_descent.webp",
+   "kind": "image",
+   "standIn": "text-only entry"
+  },
+  "ui.glyphs": {
+   "file": "ui/glyphs.svg",
+   "kind": "image",
+   "standIn": "inline CSS/SVG glyphs"
+  },
+  "sfx.op.cast": {
+   "file": "sfx/op.cast.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.vector": {
+   "file": "sfx/op.vector.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.orbit": {
+   "file": "sfx/op.orbit.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.orbitChime": {
+   "file": "sfx/op.orbitChime.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.phaseIn": {
+   "file": "sfx/op.phaseIn.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.phaseOut": {
+   "file": "sfx/op.phaseOut.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.delay": {
+   "file": "sfx/op.delay.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.reverse": {
+   "file": "sfx/op.reverse.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.null": {
+   "file": "sfx/op.null.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.strip": {
+   "file": "sfx/op.strip.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.compound": {
+   "file": "sfx/op.compound.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.echo": {
+   "file": "sfx/op.echo.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.clash": {
+   "file": "sfx/op.clash.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.op.fizzle": {
+   "file": "sfx/op.fizzle.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.step.fsst": {
+   "file": "sfx/step.fsst.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.step.thud": {
+   "file": "sfx/step.thud.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.strike.swing": {
+   "file": "sfx/strike.swing.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.strike.tik": {
+   "file": "sfx/strike.tik.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.hubris.choir": {
+   "file": "sfx/hubris.choir.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.hubris.shatter": {
+   "file": "sfx/hubris.shatter.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.markov.hit": {
+   "file": "sfx/markov.hit.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.break.contradiction": {
+   "file": "sfx/break.contradiction.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.break.broken": {
+   "file": "sfx/break.broken.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.break.qed": {
+   "file": "sfx/break.qed.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.break.plink": {
+   "file": "sfx/break.plink.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ui.flourish": {
+   "file": "sfx/ui.flourish.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ui.click.dull": {
+   "file": "sfx/ui.click.dull.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ui.move": {
+   "file": "sfx/ui.move.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ui.confirm": {
+   "file": "sfx/ui.confirm.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ui.back": {
+   "file": "sfx/ui.back.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.insight.start": {
+   "file": "sfx/insight.start.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.law.slam": {
+   "file": "sfx/law.slam.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.law.mini": {
+   "file": "sfx/law.mini.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.gate.take": {
+   "file": "sfx/gate.take.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.gate.give": {
+   "file": "sfx/gate.give.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.dawn.chord": {
+   "file": "sfx/dawn.chord.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.enemy.shock": {
+   "file": "sfx/enemy.shock.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.enemy.telegraph": {
+   "file": "sfx/enemy.telegraph.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.enemy.attack": {
+   "file": "sfx/enemy.attack.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.enemy.spawn": {
+   "file": "sfx/enemy.spawn.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.judge.sentence": {
+   "file": "sfx/judge.sentence.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.judge.bell": {
+   "file": "sfx/judge.bell.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.prophet.ring": {
+   "file": "sfx/prophet.ring.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.prophet.stall": {
+   "file": "sfx/prophet.stall.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.child.giggle": {
+   "file": "sfx/child.giggle.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.child.collapse": {
+   "file": "sfx/child.collapse.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.ishtar.take": {
+   "file": "sfx/ishtar.take.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.world.impact": {
+   "file": "sfx/world.impact.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.world.prism": {
+   "file": "sfx/world.prism.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.king.freed": {
+   "file": "sfx/king.freed.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.king.kneel": {
+   "file": "sfx/king.kneel.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.giant.stomp": {
+   "file": "sfx/giant.stomp.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.mirror.copy": {
+   "file": "sfx/mirror.copy.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.door.hum": {
+   "file": "sfx/door.hum.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.boss.phase": {
+   "file": "sfx/boss.phase.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.boss.intro": {
+   "file": "sfx/boss.intro.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.music.cadence": {
+   "file": "sfx/music.cadence.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "sfx.voice.blip": {
+   "file": "sfx/voice.blip.ogg",
+   "kind": "audio",
+   "standIn": "WebAudio synth recipe (data/audio.ts)"
+  },
+  "music.observatory.harpsichord": {
+   "file": "music/observatory_harpsichord.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.observatory.pad": {
+   "file": "music/observatory_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.pad": {
+   "file": "music/law.reflection_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.bass": {
+   "file": "music/law.reflection_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.arp": {
+   "file": "music/law.reflection_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.motif": {
+   "file": "music/law.reflection_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.perc": {
+   "file": "music/law.reflection_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.choir": {
+   "file": "music/law.reflection_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.reflection.bells": {
+   "file": "music/law.reflection_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.pad": {
+   "file": "music/law.shadow_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.bass": {
+   "file": "music/law.shadow_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.arp": {
+   "file": "music/law.shadow_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.motif": {
+   "file": "music/law.shadow_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.perc": {
+   "file": "music/law.shadow_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.choir": {
+   "file": "music/law.shadow_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.shadow.bells": {
+   "file": "music/law.shadow_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.pad": {
+   "file": "music/law.recurrence_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.bass": {
+   "file": "music/law.recurrence_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.arp": {
+   "file": "music/law.recurrence_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.motif": {
+   "file": "music/law.recurrence_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.perc": {
+   "file": "music/law.recurrence_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.choir": {
+   "file": "music/law.recurrence_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.recurrence.bells": {
+   "file": "music/law.recurrence_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.pad": {
+   "file": "music/law.dominion_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.bass": {
+   "file": "music/law.dominion_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.arp": {
+   "file": "music/law.dominion_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.motif": {
+   "file": "music/law.dominion_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.perc": {
+   "file": "music/law.dominion_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.choir": {
+   "file": "music/law.dominion_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.dominion.bells": {
+   "file": "music/law.dominion_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.pad": {
+   "file": "music/law.judgment_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.bass": {
+   "file": "music/law.judgment_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.arp": {
+   "file": "music/law.judgment_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.motif": {
+   "file": "music/law.judgment_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.perc": {
+   "file": "music/law.judgment_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.choir": {
+   "file": "music/law.judgment_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.judgment.bells": {
+   "file": "music/law.judgment_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.pad": {
+   "file": "music/law.prophecy_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.bass": {
+   "file": "music/law.prophecy_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.arp": {
+   "file": "music/law.prophecy_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.motif": {
+   "file": "music/law.prophecy_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.perc": {
+   "file": "music/law.prophecy_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.choir": {
+   "file": "music/law.prophecy_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.prophecy.bells": {
+   "file": "music/law.prophecy_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.innocence.musicbox": {
+   "file": "music/law.innocence_musicbox.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.innocence.pad": {
+   "file": "music/law.innocence_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.law.innocence.motif": {
+   "file": "music/law.innocence_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.pad": {
+   "file": "music/descent_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.bass": {
+   "file": "music/descent_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.arp": {
+   "file": "music/descent_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.motif": {
+   "file": "music/descent_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.perc": {
+   "file": "music/descent_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.choir": {
+   "file": "music/descent_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.descent.bells": {
+   "file": "music/descent_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ishtar.choir": {
+   "file": "music/ishtar_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ishtar.pad": {
+   "file": "music/ishtar_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.pad": {
+   "file": "music/ascent_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.bass": {
+   "file": "music/ascent_bass.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.arp": {
+   "file": "music/ascent_arp.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.motif": {
+   "file": "music/ascent_motif.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.perc": {
+   "file": "music/ascent_perc.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.choir": {
+   "file": "music/ascent_choir.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.ascent.bells": {
+   "file": "music/ascent_bells.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "music.title.pad": {
+   "file": "music/title_pad.ogg",
+   "kind": "audio",
+   "standIn": "ResolutionMusic synth layer"
+  },
+  "vo.markov.coldOpenIntro.000": {
+   "file": "vo/markov.coldOpenIntro.000.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.coldOpenBeat.001": {
+   "file": "vo/markov.coldOpenBeat.001.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.doorRude.002": {
+   "file": "vo/markov.doorRude.002.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.doorSolved.003": {
+   "file": "vo/markov.doorSolved.003.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.004": {
+   "file": "vo/markov.clear.004.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.005": {
+   "file": "vo/markov.clear.005.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.006": {
+   "file": "vo/markov.clear.006.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.007": {
+   "file": "vo/markov.clear.007.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.008": {
+   "file": "vo/markov.clear.008.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.009": {
+   "file": "vo/markov.clear.009.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.010": {
+   "file": "vo/markov.clear.010.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clear.011": {
+   "file": "vo/markov.clear.011.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clearSoft.012": {
+   "file": "vo/markov.clearSoft.012.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clearSoft.013": {
+   "file": "vo/markov.clearSoft.013.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clearJoy.014": {
+   "file": "vo/markov.clearJoy.014.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.clearJoy.015": {
+   "file": "vo/markov.clearJoy.015.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.016": {
+   "file": "vo/markov.qed.016.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.017": {
+   "file": "vo/markov.qed.017.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.018": {
+   "file": "vo/markov.qed.018.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.019": {
+   "file": "vo/markov.qed.019.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.020": {
+   "file": "vo/markov.qed.020.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.qed.021": {
+   "file": "vo/markov.qed.021.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.022": {
+   "file": "vo/markov.contradiction.022.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.023": {
+   "file": "vo/markov.contradiction.023.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.024": {
+   "file": "vo/markov.contradiction.024.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.025": {
+   "file": "vo/markov.contradiction.025.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.026": {
+   "file": "vo/markov.contradiction.026.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.contradiction.027": {
+   "file": "vo/markov.contradiction.027.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.redirect.028": {
+   "file": "vo/markov.redirect.028.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.redirect.029": {
+   "file": "vo/markov.redirect.029.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.redirect.030": {
+   "file": "vo/markov.redirect.030.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.chain.031": {
+   "file": "vo/markov.chain.031.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.chain.032": {
+   "file": "vo/markov.chain.032.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.enemyByEnemy.033": {
+   "file": "vo/markov.enemyByEnemy.033.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.enemyByEnemy.034": {
+   "file": "vo/markov.enemyByEnemy.034.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ringOut.035": {
+   "file": "vo/markov.ringOut.035.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ringOut.036": {
+   "file": "vo/markov.ringOut.036.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.037": {
+   "file": "vo/markov.taunt.037.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.038": {
+   "file": "vo/markov.taunt.038.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.039": {
+   "file": "vo/markov.taunt.039.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.040": {
+   "file": "vo/markov.taunt.040.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.041": {
+   "file": "vo/markov.taunt.041.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.042": {
+   "file": "vo/markov.taunt.042.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.043": {
+   "file": "vo/markov.taunt.043.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.044": {
+   "file": "vo/markov.taunt.044.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.045": {
+   "file": "vo/markov.taunt.045.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.046": {
+   "file": "vo/markov.taunt.046.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.047": {
+   "file": "vo/markov.taunt.047.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.taunt.048": {
+   "file": "vo/markov.taunt.048.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.embarrassed.049": {
+   "file": "vo/markov.embarrassed.049.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.embarrassed.050": {
+   "file": "vo/markov.embarrassed.050.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.embarrassed.051": {
+   "file": "vo/markov.embarrassed.051.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hit.052": {
+   "file": "vo/markov.hit.052.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hit.053": {
+   "file": "vo/markov.hit.053.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hit.054": {
+   "file": "vo/markov.hit.054.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.shatter.055": {
+   "file": "vo/markov.shatter.055.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.shatter.056": {
+   "file": "vo/markov.shatter.056.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.lowSeals.057": {
+   "file": "vo/markov.lowSeals.057.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.insight.058": {
+   "file": "vo/markov.insight.058.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.insight.059": {
+   "file": "vo/markov.insight.059.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.insight.060": {
+   "file": "vo/markov.insight.060.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.fizzle.061": {
+   "file": "vo/markov.fizzle.061.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.fizzle.062": {
+   "file": "vo/markov.fizzle.062.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.lawStart.063": {
+   "file": "vo/markov.lawStart.063.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.lawStart.064": {
+   "file": "vo/markov.lawStart.064.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.lawStart.065": {
+   "file": "vo/markov.lawStart.065.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossFlame.066": {
+   "file": "vo/markov.bossFlame.066.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossFlame.067": {
+   "file": "vo/markov.bossFlame.067.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossGiant.068": {
+   "file": "vo/markov.bossGiant.068.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossGiant.069": {
+   "file": "vo/markov.bossGiant.069.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossMirror.070": {
+   "file": "vo/markov.bossMirror.070.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossMirror.071": {
+   "file": "vo/markov.bossMirror.071.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossKing.072": {
+   "file": "vo/markov.bossKing.072.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossKing.073": {
+   "file": "vo/markov.bossKing.073.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossJudge.074": {
+   "file": "vo/markov.bossJudge.074.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossJudge.075": {
+   "file": "vo/markov.bossJudge.075.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossProphet.076": {
+   "file": "vo/markov.bossProphet.076.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossProphet.077": {
+   "file": "vo/markov.bossProphet.077.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.bossProphet.078": {
+   "file": "vo/markov.bossProphet.078.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.child.079": {
+   "file": "vo/markov.child.079.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.child.080": {
+   "file": "vo/markov.child.080.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.child.081": {
+   "file": "vo/markov.child.081.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.child.082": {
+   "file": "vo/markov.child.082.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.child.083": {
+   "file": "vo/markov.child.083.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.childHand.084": {
+   "file": "vo/markov.childHand.084.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate1.085": {
+   "file": "vo/markov.gate1.085.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate2.086": {
+   "file": "vo/markov.gate2.086.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate3.087": {
+   "file": "vo/markov.gate3.087.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate4.088": {
+   "file": "vo/markov.gate4.088.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate5.089": {
+   "file": "vo/markov.gate5.089.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate6.090": {
+   "file": "vo/markov.gate6.090.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gate7.091": {
+   "file": "vo/markov.gate7.091.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.gateClick.092": {
+   "file": "vo/markov.gateClick.092.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.ishtarIntro.093": {
+   "file": "vo/ishtar.ishtarIntro.093.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.ishtarIntro.094": {
+   "file": "vo/ishtar.ishtarIntro.094.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.ishtarSiege.095": {
+   "file": "vo/ishtar.ishtarSiege.095.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.ishtarSiege.096": {
+   "file": "vo/ishtar.ishtarSiege.096.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.temptation.097": {
+   "file": "vo/ishtar.temptation.097.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.temptation.098": {
+   "file": "vo/ishtar.temptation.098.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.temptation.099": {
+   "file": "vo/ishtar.temptation.099.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.temptationTaken.100": {
+   "file": "vo/ishtar.temptationTaken.100.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.temptationRefuse.101": {
+   "file": "vo/markov.temptationRefuse.101.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.stillness.102": {
+   "file": "vo/markov.stillness.102.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.stillness.103": {
+   "file": "vo/ishtar.stillness.103.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.dissolve.104": {
+   "file": "vo/markov.dissolve.104.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.ishtar.dawnBreaks.105": {
+   "file": "vo/ishtar.dawnBreaks.105.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.voice.nameVoice.106": {
+   "file": "vo/voice.nameVoice.106.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.nameReply.107": {
+   "file": "vo/markov.nameReply.107.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ascent.108": {
+   "file": "vo/markov.ascent.108.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ascent.109": {
+   "file": "vo/markov.ascent.109.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ascent.110": {
+   "file": "vo/markov.ascent.110.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.ascent.111": {
+   "file": "vo/markov.ascent.111.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.flame.bossFlame.112": {
+   "file": "vo/flame.bossFlame.112.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.giant.bossGiant.113": {
+   "file": "vo/giant.bossGiant.113.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.mirror.bossMirror.114": {
+   "file": "vo/mirror.bossMirror.114.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.king.bossKing.115": {
+   "file": "vo/king.bossKing.115.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.judge.bossJudge.116": {
+   "file": "vo/judge.bossJudge.116.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.prophet.bossProphet.117": {
+   "file": "vo/prophet.bossProphet.117.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.child.child.118": {
+   "file": "vo/child.child.118.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hub.119": {
+   "file": "vo/markov.hub.119.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hub.120": {
+   "file": "vo/markov.hub.120.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  },
+  "vo.markov.hubSoft.121": {
+   "file": "vo/markov.hubSoft.121.ogg",
+   "kind": "audio",
+   "standIn": "subtitle + voice blip"
+  }
+ }
+}

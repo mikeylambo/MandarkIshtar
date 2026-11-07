@@ -290,6 +290,16 @@ export class MarkovController {
 
   private doStrikeOrQed(): void {
     const w = this.w;
+    // Observatory: Strike is "use" at a station or Trial door.
+    if (w.def.kind === "hub") {
+      let best = null as null | { tag: string; d: number };
+      for (const p of w.props) {
+        if (!p.alive || (p.type !== "station" && p.type !== "trialDoor")) continue;
+        const d = dist(p.pos, this.pos);
+        if (d < 2.6 && (!best || d < best.d)) best = { tag: p.tag, d };
+      }
+      if (best) { w.emit("Interact", { text: best.tag, x: this.pos.x, z: this.pos.z }); return; }
+    }
     // Q.E.D.: Strike within 120f of a break, ≤ 3 u.
     let best: Actor | null = null, bd = FRAMES.qed.range + 1e-6;
     for (const a of w.actors) {
