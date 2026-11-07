@@ -5,7 +5,7 @@
   "model.markov": {
    "file": "models/markov.glb",
    "kind": "model",
-   "standIn": "procedural figure (render/figures.ts markovFigure)"
+   "standIn": "procedural figure built to the redesign brief (render/figures.ts markovFigure)"
   },
   "model.markov.anims": {
    "file": "models/markov_anims.glb",
@@ -55,177 +55,177 @@
   "lawcard.reflection": {
    "file": "cards/law_reflection.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.shadow": {
    "file": "cards/law_shadow.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.recurrence": {
    "file": "cards/law_recurrence.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.dominion": {
    "file": "cards/law_dominion.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.judgment": {
    "file": "cards/law_judgment.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.prophecy": {
    "file": "cards/law_prophecy.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.innocence": {
    "file": "cards/law_innocence.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "lawcard.ishtar": {
    "file": "cards/law_ishtar.webp",
    "kind": "image",
-   "standIn": "SVG sigil card"
+   "standIn": "procedural SVG illustration (ui/cardArt.ts)"
   },
   "codex.law:reflection": {
    "file": "codex/law_reflection.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:shadow": {
    "file": "codex/law_shadow.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:recurrence": {
    "file": "codex/law_recurrence.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:dominion": {
    "file": "codex/law_dominion.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:judgment": {
    "file": "codex/law_judgment.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:prophecy": {
    "file": "codex/law_prophecy.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.law:innocence": {
    "file": "codex/law_innocence.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:flame": {
    "file": "codex/boss_flame.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:giant": {
    "file": "codex/boss_giant.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:mirror": {
    "file": "codex/boss_mirror.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:king": {
    "file": "codex/boss_king.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:judge": {
    "file": "codex/boss_judge.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:prophet": {
    "file": "codex/boss_prophet.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.boss:child": {
    "file": "codex/boss_child.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:axiom": {
    "file": "codex/theorem_axiom.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:corollary": {
    "file": "codex/theorem_corollary.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:variable": {
    "file": "codex/theorem_variable.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:constant": {
    "file": "codex/theorem_constant.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:iterator": {
    "file": "codex/theorem_iterator.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:paradox": {
    "file": "codex/theorem_paradox.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:oracle": {
    "file": "codex/theorem_oracle.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.theorem:herald": {
    "file": "codex/theorem_herald.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.story:ishtar": {
    "file": "codex/story_ishtar.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.story:engine": {
    "file": "codex/story_engine.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.story:name": {
    "file": "codex/story_name.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.story:babel": {
    "file": "codex/story_babel.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "codex.story:descent": {
    "file": "codex/story_descent.webp",
    "kind": "image",
-   "standIn": "text-only entry"
+   "standIn": "procedural SVG plate (ui/cardArt.ts)"
   },
   "ui.glyphs": {
    "file": "ui/glyphs.svg",

@@ -16,7 +16,7 @@
     "bots": "vitest run tests/bots",
     "captures": "node tools/capture.mjs",
     "perf": "node tools/perf.mjs",
-    "deploy:preview": "vercel deploy",
+    "deploy:preview": "npm run build && npx --yes vercel deploy",
     "certify:web": "npm run verify && slu-certify web",
     "certify:controller": "npm run verify && slu-certify controller",
     "certify:release": "npm run verify && slu-certify release"

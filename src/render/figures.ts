@@ -3,6 +3,11 @@ import { blob, mesh, toon, toonUnique } from "../look/LookKit";
 import { PALETTE } from "../look/palette";
 import type { ActorType } from "../sim/types";
 
+/**
+ * Procedural figures (final procedural pass; delivered .glb files override them through assets/manifest.json).
+ * Silhouettes are lathe-turned profiles and extruded planes so they read under the shell toon ramp + outline.
+ */
+
 /** Engine 7-point sigil as a flat shape (original glyph; no ring motifs). */
 export function sigilShape(r = 1): THREE.Shape {
   const s = new THREE.Shape();
@@ -15,41 +20,81 @@ export function sigilShape(r = 1): THREE.Shape {
   return s;
 }
 
+/** Lathe from (radius, height) pairs, bottom → top. */
+function lathe(profile: [number, number][], segments = 18): THREE.LatheGeometry {
+  return new THREE.LatheGeometry(profile.map(([r, y]) => new THREE.Vector2(r, y)), segments);
+}
+/** Extruded flat blade from 2D points (x, y), thickness d. */
+function blade(points: [number, number][], d = 0.03): THREE.ExtrudeGeometry {
+  const s = new THREE.Shape(); points.forEach(([x, y], i) => (i ? s.lineTo(x, y) : s.moveTo(x, y))); s.closePath();
+  const g = new THREE.ExtrudeGeometry(s, { depth: d, bevelEnabled: false }); g.translate(0, 0, -d / 2); return g;
+}
+/** Hexagonal half-rim (lower three edges of a hexagon) as a thin tube. */
+function hexHalfRim(r: number): THREE.TubeGeometry {
+  const pts: THREE.Vector3[] = [];
+  for (let i = 0; i <= 3; i++) { const a = Math.PI + (i / 3) * Math.PI; pts.push(new THREE.Vector3(Math.cos(a) * r, Math.sin(a) * r * 0.82, 0)); }
+  return new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts, false, "catmullrom", 0), 12, 0.008, 4, false);
+}
+const SKIN = 0xf1d8c4;
+
 /**
- * Markov stand-in (procedural, behind the manifest key `model.markov`): lean figure, long black coat with white
- * lapels and gold trim, swept geometric crest, visible eyes behind hexagonal half-rims, gold drop earrings,
- * 7-point forehead sigil. Matches the redesign notes, so the build already reads as him.
+ * Markov (stand-in for `model.markov`), built to the redesign brief: lean, long black coat with crisp white lapels and
+ * thin gold trim, high collar, split coat tails, gloved hands, swept-back geometric crest of planar blades, visible eyes
+ * behind hexagonal half-rims, gold octahedral drop earrings, the Engine's 7-point sigil on the forehead. No rings.
  */
 export function markovFigure(lazar = false): THREE.Group {
   const g = new THREE.Group();
   g.name = "markov";
   g.add(blob(0.55));
   const coatC = lazar ? 0xf4f1ea : PALETTE.markovCoat;
-  const trimC = lazar ? PALETTE.gold : PALETTE.markovTrim;
+  const lapelC = lazar ? 0xfff6e0 : PALETTE.markovTrim;
   const body = new THREE.Group(); body.name = "body"; g.add(body);
-  const coat = mesh(new THREE.ConeGeometry(0.52, 1.35, 8, 1, true), toonUnique(coatC)); coat.position.y = 0.72; body.add(coat);
-  const torso = mesh(new THREE.CylinderGeometry(0.24, 0.32, 0.62, 8), toonUnique(coatC)); torso.position.y = 1.25; body.add(torso);
-  const lapel = mesh(new THREE.ConeGeometry(0.2, 0.5, 3), toon(trimC), false); lapel.position.set(0, 1.28, 0.2); lapel.rotation.x = Math.PI; body.add(lapel);
-  const hem = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.025, 4, 16), toon(PALETTE.gold)); hem.rotation.x = Math.PI / 2; hem.position.y = 0.08; body.add(hem);
+  // trousers / boots under the coat
+  for (const s of [-1, 1]) { const leg = mesh(lathe([[0.075, 0], [0.09, 0.05], [0.085, 0.45], [0.1, 0.62]], 8), toonUnique(lazar ? 0xe8e4da : 0x16181f)); leg.position.set(s * 0.11, 0, 0); body.add(leg); }
+  // long coat: flared lathe, open at the front-bottom implied by the split tails
+  const coat = mesh(lathe([[0.5, 0.12], [0.44, 0.35], [0.33, 0.8], [0.27, 1.12], [0.3, 1.38], [0.27, 1.5], [0.12, 1.56]], 20), toonUnique(coatC));
+  body.add(coat);
+  for (const s of [-1, 1]) { // split coat tails
+    const tail = mesh(blade([[0, 0], [0.16 * s, 0], [0.22 * s, -0.42], [0.04 * s, -0.36]], 0.04), toonUnique(coatC));
+    tail.position.set(s * 0.06, 0.55, -0.36); tail.rotation.x = 0.28; body.add(tail);
+  }
+  // gold trim: hem + front placket lines
+  const hem = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.018, 4, 28), toon(PALETTE.gold, PALETTE.gold, 0.25)); hem.rotation.x = Math.PI / 2; hem.position.y = 0.13; body.add(hem);
+  const placket = new THREE.Mesh(new THREE.BoxGeometry(0.018, 1.2, 0.018), toon(PALETTE.gold, PALETTE.gold, 0.25)); placket.position.set(0, 0.74, 0.43); placket.rotation.x = -0.18; body.add(placket);
+  // white lapels (two folded planes) + high collar
+  for (const s of [-1, 1]) { const lp = mesh(blade([[0, 0], [0.14 * s, 0.08], [0.1 * s, 0.34], [0.01 * s, 0.4]], 0.02), toon(lapelC)); lp.position.set(0, 1.12, 0.27); lp.rotation.x = -0.25; body.add(lp); }
+  const collar = mesh(lathe([[0.15, 0], [0.19, 0.08], [0.2, 0.2]], 14), toonUnique(coatC)); collar.position.y = 1.5; body.add(collar);
+  // shoulders + arms (sleeve + glove)
   for (const s of [-1, 1]) {
-    const arm = mesh(new THREE.CapsuleGeometry(0.07, 0.55, 3, 6), toonUnique(coatC)); arm.position.set(s * 0.33, 1.15, 0.02); arm.rotation.z = s * 0.15; arm.name = s < 0 ? "armL" : "armR"; body.add(arm);
-    const hand = mesh(new THREE.SphereGeometry(0.075, 8, 6), toon(0xf1d8c4)); hand.position.set(0, -0.36, 0); arm.add(hand);
+    const pad = mesh(new THREE.SphereGeometry(0.13, 10, 8), toonUnique(coatC)); pad.position.set(s * 0.3, 1.43, 0); pad.scale.set(1.15, 0.8, 1); body.add(pad);
+    const arm = new THREE.Group(); arm.position.set(s * 0.33, 1.42, 0.02); arm.rotation.z = s * 0.12; arm.name = s < 0 ? "armL" : "armR"; body.add(arm);
+    const sleeve = mesh(lathe([[0.075, -0.62], [0.085, -0.5], [0.08, -0.15], [0.09, 0]], 8), toonUnique(coatC)); arm.add(sleeve);
+    const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.087, 0.087, 0.05, 8), toon(lapelC)); cuff.position.y = -0.58; arm.add(cuff);
+    const glove = mesh(new THREE.SphereGeometry(0.07, 8, 6), toon(lazar ? 0xffffff : 0x0c0d12)); glove.position.y = -0.68; glove.scale.set(0.9, 1.25, 0.8); arm.add(glove);
   }
-  const head = new THREE.Group(); head.position.y = 1.72; head.name = "head"; body.add(head);
-  const skull = mesh(new THREE.SphereGeometry(0.2, 14, 10), toon(0xf1d8c4)); head.add(skull);
-  // swept-back geometric crest (white, planes, not spikes)
-  for (let i = 0; i < 4; i++) {
-    const crest = mesh(new THREE.ConeGeometry(0.11, 0.5 - i * 0.06, 4), toon(lazar ? 0xffffff : 0xf4f4f4));
-    crest.position.set((i - 1.5) * 0.06, 0.16, -0.08 - i * 0.03); crest.rotation.x = -1.15 - i * 0.08; head.add(crest);
+  // head
+  const head = new THREE.Group(); head.position.y = 1.8; head.name = "head"; body.add(head);
+  const neck = mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.14, 8), toon(SKIN), false); neck.position.y = -0.14; head.add(neck);
+  const skull = mesh(lathe([[0, -0.2], [0.11, -0.17], [0.15, -0.06], [0.17, 0.05], [0.15, 0.15], [0.08, 0.21], [0, 0.22]], 14), toon(SKIN)); head.add(skull);
+  // swept-back geometric crest: layered planar blades, white
+  const crestC = lazar ? 0xffffff : 0xf2f2f4;
+  for (let i = 0; i < 6; i++) {
+    const side = i % 2 ? 1 : -1, k = Math.floor(i / 2);
+    const b = mesh(blade([[0, 0], [0.09, 0.02], [0.05, 0.36 - k * 0.05], [-0.01, 0.3 - k * 0.05]], 0.025), toon(crestC));
+    b.position.set(side * (0.03 + k * 0.045), 0.13 - k * 0.02, 0.08 - k * 0.02);
+    b.rotation.set(-1.95 + k * 0.1, side * (0.25 + k * 0.12), side * 0.12);
+    head.add(b);
   }
-  // eyes + hex half-rims with a lens glint
+  const fringe = mesh(blade([[-0.13, 0], [0.13, 0], [0.06, 0.1], [-0.08, 0.09]], 0.05), toon(crestC)); fringe.position.set(0, 0.13, 0.1); fringe.rotation.x = -0.6; head.add(fringe);
+  // eyes behind hexagonal half-rims, lens glint
   for (const s of [-1, 1]) {
-    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.028, 6, 4), new THREE.MeshBasicMaterial({ color: 0x1a2a58 })); eye.position.set(s * 0.075, 0.02, 0.18); head.add(eye);
-    const rim = new THREE.Mesh(new THREE.TorusGeometry(0.062, 0.008, 3, 6, Math.PI), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); rim.position.set(s * 0.075, 0.0, 0.195); rim.rotation.z = Math.PI; head.add(rim);
-    const glint = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 0.012), new THREE.MeshBasicMaterial({ color: 0xffffff })); glint.position.set(s * 0.075 + 0.02, 0.035, 0.2); glint.name = "glint"; head.add(glint);
-    const ear = new THREE.Mesh(new THREE.OctahedronGeometry(0.035), toon(PALETTE.gold, PALETTE.gold, 0.6)); ear.position.set(s * 0.2, -0.1, 0); ear.scale.y = 1.8; head.add(ear);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 6, 4), new THREE.MeshBasicMaterial({ color: 0x1a2a58 })); eye.position.set(s * 0.062, 0.02, 0.145); head.add(eye);
+    const rim = new THREE.Mesh(hexHalfRim(0.05), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); rim.position.set(s * 0.062, 0.02, 0.165); head.add(rim);
+    const glint = new THREE.Mesh(new THREE.PlaneGeometry(0.03, 0.01), new THREE.MeshBasicMaterial({ color: 0xffffff })); glint.position.set(s * 0.062 + 0.018, 0.04, 0.168); glint.name = "glint"; head.add(glint);
+    const ear = new THREE.Mesh(new THREE.OctahedronGeometry(0.03), toon(PALETTE.gold, PALETTE.gold, 0.6)); ear.position.set(s * 0.16, -0.1, 0); ear.scale.y = 1.9; head.add(ear);
   }
-  const sig = new THREE.Mesh(new THREE.ShapeGeometry(sigilShape(0.045)), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); sig.position.set(0, 0.11, 0.185); head.add(sig);
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.006, 0.006), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); bridge.position.set(0, 0.035, 0.168); head.add(bridge);
+  const sig = new THREE.Mesh(new THREE.ShapeGeometry(sigilShape(0.035)), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); sig.position.set(0, 0.11, 0.157); sig.rotation.x = -0.25; head.add(sig);
   return g;
 }
 
@@ -68,26 +113,9 @@ export function theoremGeometry(type: ActorType): THREE.BufferGeometry {
   }
 }
 
-export function theoremFigure(type: ActorType): THREE.Group {
-  const g = new THREE.Group();
-  // No per-Theorem contact shadow: the Certainty ring grounds them and keeps peak density inside the draw-call budget.
-  const mat = toonUnique(0xfbfaf6, PALETTE.blue, 0.12);
-  const body = mesh(theoremGeometry(type), mat);
-  body.name = "body";
-  body.position.y = type === "herald" ? 1.0 : 0.85;
-  if (type === "oracle") {
-    (body.material as THREE.MeshToonMaterial).transparent = true; (body.material as THREE.MeshToonMaterial).opacity = 0.55;
-    const iris = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.05, 6, 24), new THREE.MeshBasicMaterial({ color: PALETTE.blue })); body.add(iris);
-  }
-  if (type === "herald") {
-    const flag = new THREE.Mesh(new THREE.PlaneGeometry(0.9, 0.55), new THREE.MeshBasicMaterial({ color: PALETTE.blueDeep, side: THREE.DoubleSide })); flag.position.set(0.45, 0.45, 0); flag.name = "flag"; body.add(flag);
-  }
-  if (type === "iterator") body.rotation.x = Math.PI / 2;
-  g.add(body);
-  return g;
+function robe(color: number, h: number, r: number, flare = 1.15): THREE.Mesh {
+  return mesh(lathe([[r * flare, 0], [r, h * 0.12], [r * 0.72, h * 0.55], [r * 0.5, h * 0.88], [r * 0.32, h]], 18), toonUnique(color));
 }
-
-function robe(color: number, h: number, r: number): THREE.Mesh { const m = mesh(new THREE.ConeGeometry(r, h, 10, 1, true), toonUnique(color)); m.position.y = h / 2; return m; }
 
 /** Boss stand-ins (procedural, behind manifest keys `model.boss.*`). */
 export function bossFigure(type: ActorType): THREE.Group {
@@ -97,64 +125,104 @@ export function bossFigure(type: ActorType): THREE.Group {
   const body = new THREE.Group(); body.name = "body"; g.add(body);
   switch (type) {
     case "flame": {
-      for (let i = 0; i < 4; i++) {
-        const f = mesh(new THREE.ConeGeometry(1.1 - i * 0.22, 1.6, 7), toonUnique(i % 2 ? 0xffb347 : 0xff8a2a, 0xff8a2a, 0.9 - i * 0.1), i === 0);
-        f.position.y = 0.8 + i * 0.75; f.name = `flame${i}`; body.add(f);
+      // twisting tongues of flame around a white-gold core; pride swells it (WorldView scales it with growth)
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2, r = i === 0 ? 0 : 0.55;
+        const h = i === 0 ? 3.2 : 1.6 + (i % 3) * 0.45;
+        const tongue = mesh(lathe([[0.42, 0], [0.5, h * 0.18], [0.36, h * 0.5], [0.14, h * 0.82], [0, h]], 10), toonUnique(i === 0 ? 0xff9a3a : i % 2 ? 0xffb347 : 0xff7a2f, 0xff7a2f, i === 0 ? 0.9 : 0.65), i === 0);
+        tongue.position.set(Math.cos(a) * r, 0.1, Math.sin(a) * r); tongue.rotation.set(Math.sin(a) * 0.25, a, Math.cos(a) * 0.25);
+        tongue.name = `flame${i}`; body.add(tongue);
       }
-      const core = mesh(new THREE.IcosahedronGeometry(0.5, 0), toon(0xfff1c0, 0xffd77a, 1.0), false); core.position.y = 1.6; body.add(core);
+      const core = mesh(new THREE.IcosahedronGeometry(0.42, 0), toon(0xfff3cf, 0xffd77a, 1.1), false); core.position.y = 1.5; core.name = "core"; body.add(core);
+      for (let i = 0; i < 5; i++) { const e = new THREE.Mesh(new THREE.TetrahedronGeometry(0.12), toon(0xffd08a, 0xff9a3a, 0.9)); const a = (i / 5) * Math.PI * 2; e.position.set(Math.cos(a) * 1.4, 2.4 + (i % 2) * 0.5, Math.sin(a) * 1.4); body.add(e); }
       break;
     }
     case "giant": {
-      const legs = mesh(new THREE.BoxGeometry(2.6, 3.4, 1.6), toonUnique(PALETTE.stoneShade)); legs.position.y = 1.7; body.add(legs);
-      const chest = mesh(new THREE.BoxGeometry(3.6, 2.8, 2.2), toonUnique(PALETTE.stone)); chest.position.y = 4.8; body.add(chest);
-      const head = mesh(new THREE.DodecahedronGeometry(0.9), toonUnique(PALETTE.stone)); head.position.y = 6.9; body.add(head);
-      for (const s of [-1, 1]) { const arm = mesh(new THREE.BoxGeometry(0.9, 3.6, 0.9), toonUnique(PALETTE.stoneShade)); arm.position.set(s * 2.3, 4.2, 0); body.add(arm); }
+      const stone = toonUnique(PALETTE.stone), shade = toonUnique(PALETTE.stoneShade);
+      for (const s of [-1, 1]) {
+        const leg = mesh(new THREE.BoxGeometry(1.0, 2.6, 1.2), shade); leg.position.set(s * 0.75, 1.3, 0); body.add(leg);
+        const foot = mesh(new THREE.BoxGeometry(1.2, 0.5, 1.7), stone); foot.position.set(s * 0.75, 0.25, 0.2); body.add(foot);
+      }
+      const hips = mesh(new THREE.BoxGeometry(2.4, 0.8, 1.5), stone); hips.position.y = 2.9; body.add(hips);
+      const chest = mesh(lathe([[1.0, 0], [1.55, 0.9], [1.7, 1.8], [1.2, 2.6]], 6), stone); chest.position.y = 3.2; chest.rotation.y = Math.PI / 6; body.add(chest);
+      for (const s of [-1, 1]) {
+        const pauldron = mesh(new THREE.DodecahedronGeometry(0.75), stone); pauldron.position.set(s * 2.0, 5.5, 0); body.add(pauldron);
+        const arm = mesh(new THREE.BoxGeometry(0.85, 2.8, 0.85), shade); arm.position.set(s * 2.25, 3.9, 0.1); arm.rotation.z = s * 0.12; body.add(arm);
+        const fist = mesh(new THREE.BoxGeometry(1.0, 0.9, 1.0), stone); fist.position.set(s * 2.45, 2.3, 0.15); body.add(fist);
+      }
+      const head = mesh(new THREE.DodecahedronGeometry(0.75), stone); head.position.y = 6.4; body.add(head);
+      const eye = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.05), new THREE.MeshBasicMaterial({ color: PALETTE.blue })); eye.position.set(0, 6.45, 0.68); body.add(eye);
       break;
     }
     case "mirror": {
       const m = markovFigure(); m.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) { const src = o.material; o.material = toonUnique(0xffffff - src.color.getHex(), src.emissive.getHex(), src.emissiveIntensity); } });
       body.add(m);
-      const pane = new THREE.Mesh(new THREE.PlaneGeometry(1.4, 2.4), new THREE.MeshBasicMaterial({ color: 0xbfd0ff, transparent: true, opacity: 0.12, side: THREE.DoubleSide })); pane.position.y = 1.1; body.add(pane);
+      // a hexagonal pane frame behind him
+      const frame = new THREE.Mesh(new THREE.TorusGeometry(1.3, 0.035, 4, 6), new THREE.MeshBasicMaterial({ color: 0xbfd0ff })); frame.position.set(0, 1.1, -0.4); frame.rotation.z = Math.PI / 6; body.add(frame);
+      const pane = new THREE.Mesh(new THREE.CircleGeometry(1.28, 6), new THREE.MeshBasicMaterial({ color: 0xbfd0ff, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false })); pane.position.set(0, 1.1, -0.41); pane.rotation.z = Math.PI / 6; body.add(pane);
       break;
     }
     case "king": {
-      body.add(robe(0x2a3a7a, 2.3, 0.9));
-      const head = mesh(new THREE.SphereGeometry(0.32, 12, 8), toon(PALETTE.stone)); head.position.y = 2.55; body.add(head);
+      body.add(robe(0x26357a, 2.4, 0.95));
+      const mantle = mesh(lathe([[0.85, 0], [0.75, 0.25], [0.4, 0.45]], 16), toonUnique(0xe9e6dc)); mantle.position.y = 1.85; body.add(mantle);
+      const head = mesh(new THREE.SphereGeometry(0.3, 12, 8), toon(PALETTE.stone)); head.position.y = 2.65; body.add(head);
+      const beard = mesh(new THREE.ConeGeometry(0.2, 0.45, 6), toon(PALETTE.stone)); beard.position.set(0, 2.35, 0.15); beard.rotation.x = Math.PI; body.add(beard);
+      const scepter = mesh(new THREE.CylinderGeometry(0.04, 0.04, 2.1, 6), toon(PALETTE.stoneShade)); scepter.position.set(0.75, 1.6, 0.3); scepter.rotation.z = -0.15; body.add(scepter);
+      const orb = mesh(new THREE.OctahedronGeometry(0.16), toon(PALETTE.stone, PALETTE.blue, 0.4)); orb.position.set(0.9, 2.65, 0.3); body.add(orb);
       const crown = new THREE.Group(); crown.name = "crown";
-      for (let i = 0; i < 5; i++) { const p = mesh(new THREE.ConeGeometry(0.08, 0.35, 4), toon(PALETTE.stone, PALETTE.blue, 0.3)); const a = (i / 5) * Math.PI * 2; p.position.set(Math.sin(a) * 0.26, 0, Math.cos(a) * 0.26); crown.add(p); }
+      const band = mesh(lathe([[0.27, 0], [0.29, 0.12]], 10), toon(PALETTE.stone, PALETTE.blue, 0.25)); crown.add(band);
+      for (let i = 0; i < 7; i++) { const p = mesh(new THREE.ConeGeometry(0.07, 0.34, 4), toon(PALETTE.stone, PALETTE.blue, 0.35)); const a = (i / 7) * Math.PI * 2; p.position.set(Math.sin(a) * 0.27, 0.27, Math.cos(a) * 0.27); crown.add(p); }
       crown.position.y = 2.95; body.add(crown);
       break;
     }
     case "judge": {
-      body.add(robe(0x1b1e2c, 2.6, 1.05));
-      const head = mesh(new THREE.BoxGeometry(0.5, 0.6, 0.5), toon(PALETTE.stone)); head.position.y = 2.9; body.add(head);
-      const beam = mesh(new THREE.BoxGeometry(2.4, 0.08, 0.08), toon(PALETTE.stone)); beam.position.y = 2.2; beam.name = "scales"; body.add(beam);
-      for (const s of [-1, 1]) { const pan = mesh(new THREE.CylinderGeometry(0.3, 0.22, 0.06, 12), toon(PALETTE.stone)); pan.position.set(s * 1.15, -0.45, 0); beam.add(pan); }
+      body.add(robe(0x1b1e2c, 2.8, 1.1, 1.05));
+      const stole = mesh(blade([[-0.18, 0], [0.18, 0], [0.12, 1.6], [-0.12, 1.6]], 0.03), toon(PALETTE.stone)); stole.position.set(0, 0.9, 0.52); stole.rotation.x = -0.18; body.add(stole);
+      const head = mesh(new THREE.BoxGeometry(0.55, 0.7, 0.55), toon(PALETTE.stone)); head.position.y = 3.15; body.add(head);
+      const visor = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.05, 0.02), new THREE.MeshBasicMaterial({ color: PALETTE.blue })); visor.position.set(0, 3.2, 0.29); body.add(visor);
+      const beam = mesh(new THREE.BoxGeometry(2.6, 0.08, 0.08), toon(PALETTE.stone)); beam.position.y = 2.35; beam.name = "scales"; body.add(beam);
+      for (const s of [-1, 1]) {
+        const chain = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.5, 4), new THREE.MeshBasicMaterial({ color: 0x8c8a84 })); chain.position.set(s * 1.25, -0.25, 0); beam.add(chain);
+        const pan = mesh(lathe([[0.02, -0.05], [0.32, -0.02], [0.34, 0.03]], 14), toon(PALETTE.stone)); pan.position.set(s * 1.25, -0.52, 0); beam.add(pan);
+      }
       break;
     }
     case "prophet": {
-      body.add(robe(0x22285a, 2.4, 0.8));
-      const hood = mesh(new THREE.ConeGeometry(0.4, 0.8, 8), toon(0x22285a)); hood.position.y = 2.7; body.add(hood);
-      const halo = new THREE.Mesh(new THREE.TorusGeometry(0.7, 0.05, 6, 32), new THREE.MeshBasicMaterial({ color: PALETTE.blue })); halo.position.y = 3.0; halo.name = "halo"; body.add(halo);
-      const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.28), new THREE.MeshBasicMaterial({ color: 0x9fb8ff })); core.position.y = 1.6; core.name = "core"; body.add(core);
+      body.add(robe(0x20275a, 2.5, 0.85));
+      const hood = mesh(lathe([[0.42, 0], [0.4, 0.3], [0.28, 0.6], [0.05, 0.85]], 12), toonUnique(0x20275a)); hood.position.y = 2.35; body.add(hood);
+      const face = new THREE.Mesh(new THREE.CircleGeometry(0.2, 12), new THREE.MeshBasicMaterial({ color: 0x05060b })); face.position.set(0, 2.62, 0.3); body.add(face);
+      const halo = new THREE.Group(); halo.name = "halo";
+      const ring = new THREE.Mesh(new THREE.TorusGeometry(0.75, 0.035, 6, 48), new THREE.MeshBasicMaterial({ color: PALETTE.blue })); halo.add(ring);
+      for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; const tick = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.16, 0.03), new THREE.MeshBasicMaterial({ color: 0x9fb8ff })); tick.position.set(Math.cos(a) * 0.75, Math.sin(a) * 0.75, 0); tick.rotation.z = a - Math.PI / 2; halo.add(tick); }
+      halo.position.set(0, 2.75, -0.25); body.add(halo);
+      const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.26), new THREE.MeshBasicMaterial({ color: 0xbfd0ff })); core.position.set(0, 1.6, 0.55); core.name = "core"; body.add(core);
+      for (let i = 0; i < 7; i++) { const a = (i / 7) * Math.PI * 2; const star = new THREE.Mesh(new THREE.OctahedronGeometry(0.06), new THREE.MeshBasicMaterial({ color: 0xdfe8ff })); star.position.set(Math.cos(a) * 1.25, 2.0 + Math.sin(a * 2) * 0.35, Math.sin(a) * 1.25); body.add(star); }
       break;
     }
     case "child": {
-      const r = robe(0xffffff, 0.75, 0.22); body.add(r);
-      const head = mesh(new THREE.SphereGeometry(0.14, 12, 8), toon(0xf6e2d2)); head.position.y = 0.88; body.add(head);
+      body.add(robe(0xffffff, 0.62, 0.22, 1.3));
+      const head = mesh(new THREE.SphereGeometry(0.13, 12, 8), toon(0xf6e2d2)); head.position.y = 0.78; body.add(head);
+      const hair = mesh(lathe([[0.135, 0], [0.14, 0.06], [0.1, 0.12], [0, 0.15]], 12), toon(0x9b7b5a)); hair.position.y = 0.79; body.add(hair);
+      for (const s of [-1, 1]) { const arm = mesh(new THREE.CapsuleGeometry(0.035, 0.22, 2, 6), toon(0xf6e2d2)); arm.position.set(s * 0.15, 0.48, 0.02); arm.rotation.z = s * 0.5; body.add(arm); }
+      for (const s of [-1, 1]) { const foot = mesh(new THREE.CapsuleGeometry(0.035, 0.08, 2, 6), toon(0xf6e2d2)); foot.position.set(s * 0.06, 0.03, 0.02); foot.rotation.x = Math.PI / 2; body.add(foot); }
       break;
     }
     case "ishtar": {
-      const core = mesh(new THREE.OctahedronGeometry(1.2), toonUnique(0xfff0c8, 0xffd77a, 0.8), false); core.position.y = 4; core.name = "core"; body.add(core);
+      const core = mesh(new THREE.OctahedronGeometry(1.1), toonUnique(0xfff0c8, 0xffd77a, 0.85), false); core.position.y = 4; core.name = "core"; body.add(core);
+      // the counterfeit star: eight long points
+      for (let i = 0; i < 8; i++) { const a = (i / 8) * Math.PI * 2; const spike = mesh(new THREE.ConeGeometry(0.22, i % 2 ? 1.6 : 2.6, 4), toonUnique(0xfff6dc, 0xffd77a, 0.6), false); spike.position.set(Math.cos(a) * (i % 2 ? 1.6 : 2.1), 4 + Math.sin(a) * (i % 2 ? 1.6 : 2.1), 0); spike.rotation.z = a - Math.PI / 2; body.add(spike); }
       for (let i = 0; i < 5; i++) {
-        const ring = new THREE.Mesh(new THREE.TorusGeometry(2 + i * 0.9, 0.06, 6, 64), new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffd77a : 0xbfd0ff, transparent: true, opacity: 0.8 }));
+        const ring = new THREE.Mesh(new THREE.TorusGeometry(2.4 + i * 0.9, 0.05, 6, 72), new THREE.MeshBasicMaterial({ color: i % 2 ? 0xffd77a : 0xbfd0ff, transparent: true, opacity: 0.8 }));
         ring.position.y = 4; ring.rotation.x = Math.PI / 2 + i * 0.4; ring.name = `ring${i}`; body.add(ring);
       }
       break;
     }
     case "door": {
       const slab = mesh(new THREE.BoxGeometry(3.2, 6, 0.6), toonUnique(0xf7f5ef)); slab.position.y = 3; body.add(slab);
+      const arch = mesh(lathe([[1.9, 0], [1.9, 0.4]], 32), toon(PALETTE.stone)); arch.scale.set(1, 1, 0.25); arch.position.y = 6; body.add(arch);
+      for (const s of [-1, 1]) { const col = mesh(new THREE.CylinderGeometry(0.3, 0.34, 6.4, 10), toon(PALETTE.stone)); col.position.set(s * 2.0, 3.2, 0); body.add(col); }
       const sig = new THREE.Mesh(new THREE.ShapeGeometry(sigilShape(0.8)), new THREE.MeshBasicMaterial({ color: PALETTE.gold })); sig.position.set(0, 3.4, -0.32); sig.rotation.y = Math.PI; sig.name = "sigil"; body.add(sig);
+      const sig2 = sig.clone(); sig2.position.z = 0.32; sig2.rotation.y = 0; body.add(sig2);
       break;
     }
     case "shadow": {

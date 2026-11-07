@@ -41,7 +41,8 @@ await scene("05-coldopen-sconce-teach", "cold-open", { freeze: "EnemyAttack:scon
 await scene("06-coldopen-redirect", "cold-open", { freeze: "Redirect", speed: 1 });
 await scene("07-coldopen-contradiction", "cold-open", { freeze: "Contradiction", speed: 1 });
 await scene("08-coldopen-qed-inversion", "cold-open", { freeze: "QED", speed: 1 });
-await scene("09-law-card-slam", "1-1", { frames: 40, bot: "none", speed: 1 });
+await scene("09-law-card-slam", "1-1", { frames: 130, bot: "none", speed: 1, setup: null });
+if (!only || only.includes("09-law-card-slam")) { await dev(() => window.__dev.app["peekLaw"]()); await shot("09-law-card-slam"); await dev(() => window.__dev.app.resume()); }
 await scene("10-arena-1-1", "1-1", { frames: 500 });
 await scene("11-enemy-on-enemy", "1-1", { freeze: "Contradiction:axiom", timeout: 200000 });
 await scene("12-room-clear-rotation", "1-1", { freeze: "Flourish", timeout: 300000 });

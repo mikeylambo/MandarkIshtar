@@ -13,12 +13,12 @@ type Entry = { file: string | null; kind: string; standIn: string };
 const assets: Record<string, Entry> = {};
 const add = (key: string, file: string, kind: string, standIn: string) => { assets[key] = { file, kind, standIn }; };
 
-add("model.markov", "models/markov.glb", "model", "procedural figure (render/figures.ts markovFigure)");
+add("model.markov", "models/markov.glb", "model", "procedural figure built to the redesign brief (render/figures.ts markovFigure)");
 add("model.markov.anims", "models/markov_anims.glb", "model", "procedural pose offsets");
 const BOSSES = ["flame", "giant", "mirror", "king", "judge", "prophet", "child", "ishtar"];
 for (const b of BOSSES) add(`model.boss.${b}`, `models/boss_${b}.glb`, "model", `procedural bossFigure("${b}")`);
-for (const l of [...LAW_ORDER, "ishtar"]) add(`lawcard.${l}`, `cards/law_${l}.webp`, "image", "SVG sigil card");
-for (const c of CODEX) add(`codex.${c.id}`, `codex/${c.id.replace(":", "_")}.webp`, "image", "text-only entry");
+for (const l of [...LAW_ORDER, "ishtar"]) add(`lawcard.${l}`, `cards/law_${l}.webp`, "image", "procedural SVG illustration (ui/cardArt.ts)");
+for (const c of CODEX) add(`codex.${c.id}`, `codex/${c.id.replace(":", "_")}.webp`, "image", "procedural SVG plate (ui/cardArt.ts)");
 add("ui.glyphs", "ui/glyphs.svg", "image", "inline CSS/SVG glyphs");
 for (const s of SFX_BANK) add(`sfx.${s.key}`, `sfx/${s.key}.ogg`, "audio", "WebAudio synth recipe (data/audio.ts)");
 for (const m of MUSIC_CUES) for (const layer of m.layers) add(`music.${m.id}.${layer}`, `music/${m.id}_${layer}.ogg`, "audio", "ResolutionMusic synth layer");
@@ -49,7 +49,7 @@ Change (to ship clear of the codename references):
 
 const rows: string[] = [];
 rows.push("| Key | Asset | Source | Prompt / reference | Export spec | Status |", "|---|---|---|---|---|---|");
-rows.push(`| model.markov | Markov | GPT concept → Meshy image-to-3D → Meshy auto-rig (humanoid) | See Markov redesign brief | glb, 1 u = 1 m, Y-up, −Z fwd, ≤ 25k tris, 2048² albedo, humanoid rig, clips per GDD §11 list | Stand-in: procedural figure in build |`);
+rows.push(`| model.markov | Markov | GPT concept → Meshy image-to-3D → Meshy auto-rig (humanoid) | See Markov redesign brief | glb, 1 u = 1 m, Y-up, −Z fwd, ≤ 25k tris, 2048² albedo, humanoid rig, clips per GDD §11 list | Stand-in: procedural figure (crest blades, hex half-rims, 7-point sigil, split tails, gold trim) |`);
 rows.push(`| model.markov.anims | Markov animations (22 clips) | Meshy animation library + Mixamo retarget for gaps | idle ×3, walk/run blend, step, strike ×3, op-cast, hold-cast, null, taunt ×2, glasses-adjust, indignant, Q.E.D. snap, hit, stagger, defeat, stillness, Lazar dawn pose | Same glb or markov_anims.glb, root motion stripped | Stand-in: procedural pose offsets |`);
 for (const b of BOSSES) {
   const rig = ["flame", "giant", "prophet"].includes(b) ? "**non-humanoid → Blender rigging**" : b === "child" ? "humanoid small (Meshy auto-rig)" : b === "ishtar" ? "abstract: procedural rings + Meshy core" : b === "mirror" ? "reuses Markov model, inverted shader" : b === "judge" ? "Meshy, custom rig" : "Meshy humanoid";
@@ -57,9 +57,9 @@ for (const b of BOSSES) {
 }
 for (const l of [...LAW_ORDER, "ishtar" as const]) {
   const L = LAWS[l];
-  rows.push(`| lawcard.${l} | Law card: ${L.name} | GPT illustration (legend-card framing) | "Tarot-like vertical card illustration for '${L.name}' — '${L.rule}' — cathedral of perfect white solids, gold and blue glyph ornaments, black void, deep blue cosmic depth; no text; ornamental border." | 1024×1536 WebP, palette-clamped to gold/blue/black | Stand-in: SVG sigil card |`);
+  rows.push(`| lawcard.${l} | Law card: ${L.name} | GPT illustration (legend-card framing) | "Tarot-like vertical card illustration for '${L.name}' — '${L.rule}' — cathedral of perfect white solids, gold and blue glyph ornaments, black void, deep blue cosmic depth; no text; ornamental border." | 1024×1536 WebP, palette-clamped to gold/blue/black | Stand-in: per-Law procedural SVG illustration |`);
 }
-for (const c of CODEX) rows.push(`| codex.${c.id} | Codex: ${c.title} | GPT illustration | "Engraved-style illustration for the codex entry '${c.title}', white geometry on black, gold/blue accents, quiet and precise." | 1024² WebP, palette clamp | Stand-in: text entry |`);
+for (const c of CODEX) rows.push(`| codex.${c.id} | Codex: ${c.title} | GPT illustration | "Engraved-style illustration for the codex entry '${c.title}', white geometry on black, gold/blue accents, quiet and precise." | 1024² WebP, palette clamp | Stand-in: procedural SVG plate |`);
 rows.push(`| ui.glyphs | UI glyph sheet | AI 2D concept → hand-vectorized SVG | cuneiform-meets-math glyphs for ops (Vector arrow, Phase ghost, Order clock, Null slash), seals, ranks | SVG sprite sheet | Stand-in: inline glyphs |`);
 rows.push(`| (procedural) | Arenas, Observatory, Theorems, VFX, Ishtar's rings | Procedural, final quality | world/ArenaKit.ts, render/figures.ts, vfx/Vfx.ts | runtime | **Final** |`);
 
@@ -67,7 +67,7 @@ writeFileSync("ASSET_DELIVERY.md", `# ASSET_DELIVERY — Mandark Ishtar
 
 Michael's production checklist. Every asset resolves through \`assets/manifest.json\` (key → file). Drop a delivered file at \`assets/<file>\` and it overrides the stand-in with **no code change**; missing files fall back silently and are listed by \`__dev.assetsMissing()\`.
 
-Meshy/Blender MCP tools were **not** connected in the build session, so nothing below was generated; every row is a stand-in.
+Meshy/Blender MCP tools were **not** connected in either build session, so no models or illustrations were generated; every non-procedural row is a stand-in. The procedural stand-ins were upgraded in build 0.9.1 (lathe-turned figures, per-Law card art, Codex plates).
 Cleanup: \`tools/blender/cleanup.py\` (apply transforms, decimate to budget, merge materials, toon-ready vertex colours, export glb Y-up −Z forward).
 Non-humanoid rigs flagged for Blender rigging: **Flame, Giant, Prophet**.
 

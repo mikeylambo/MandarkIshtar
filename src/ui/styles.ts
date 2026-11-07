@@ -50,7 +50,7 @@ svg.sigil path{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:900;
 .lawcard{position:absolute;left:50%;top:44%;transform:translate(-50%,-50%) scale(1.6) rotate(-4deg);opacity:0;width:340px;height:500px;border:2px solid var(--blue);background:linear-gradient(160deg,#0b1530,#05060b);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:26px;text-align:center;box-shadow:0 0 80px rgba(79,141,255,.35)}
 .lawcard.slam{animation:slam 2s forwards}
 @keyframes slam{0%{opacity:0;transform:translate(-50%,-50%) scale(1.8) rotate(-6deg)}12%{opacity:1;transform:translate(-50%,-50%) scale(1) rotate(0)}85%{opacity:1;transform:translate(-50%,-50%) scale(1)}100%{opacity:0;transform:translate(-50%,-120%) scale(.4)}}
-.lawcard .art{width:220px;height:220px;margin-bottom:22px;border:1px solid rgba(79,141,255,.5);background-size:cover;background-position:center}
+.lawcard .art{width:220px;height:220px;margin-bottom:22px;border:1px solid rgba(79,141,255,.5);background-size:cover;background-position:center;overflow:hidden}
 .lawcard h2{font-size:calc(28px*var(--ts));margin:0 0 14px;color:#fff;font-weight:400}
 .lawcard p{margin:0;color:#c9d6ff;font-style:italic}
 /* subtitles */
@@ -65,6 +65,7 @@ svg.sigil path{fill:none;stroke:var(--gold);stroke-width:2;stroke-dasharray:900;
 .codex{display:flex;gap:24px;max-height:70vh}
 .codex .list{overflow:auto;min-width:240px}
 .codex .entry{max-width:420px;overflow:auto}
+.codex .plate{width:220px;height:220px;border:1px solid rgba(242,185,74,.5);margin-bottom:14px;background-size:cover;background-position:center}
 .codex .entry h3{margin:0 0 10px;font-weight:400;font-size:26px}
 .marg{margin-top:18px;font-family:"Snell Roundhand","Segoe Script","Brush Script MT",cursive;color:#d8c7a0;font-size:18px}
 .marg small{display:block;font-family:inherit;opacity:.7;font-size:13px}

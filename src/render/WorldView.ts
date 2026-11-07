@@ -5,7 +5,7 @@ import type { ProjectileShape } from "../sim/types";
 import { mesh, toon, toonUnique, Afterimages } from "../look/LookKit";
 import { PALETTE } from "../look/palette";
 import { buildArena, type ArenaView } from "../world/ArenaKit";
-import { bossFigure, markovFigure, sigilShape, theoremFigure } from "./figures";
+import { bossFigure, markovFigure, sigilShape } from "./figures";
 import { FOCUS } from "../data/resources";
 import { INPUT } from "../data/input";
 import { holdRadius } from "../actors/child/child";
@@ -87,7 +87,7 @@ export class WorldView {
     });
     this.stepPips = [0, 1].map(() => { const p = new THREE.Mesh(new THREE.CircleGeometry(0.07, 12), new THREE.MeshBasicMaterial({ color: PALETTE.gold, transparent: true })); p.rotation.x = -Math.PI / 2; p.position.y = 0.05; this.root.add(p); return p; });
     if (w.def.boss === "child") {
-      this.childHold = new THREE.Mesh(new THREE.RingGeometry(0.98, 1, 96), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6, side: THREE.DoubleSide }));
+      this.childHold = new THREE.Mesh(new THREE.RingGeometry(0.985, 1, 96), new THREE.MeshBasicMaterial({ color: 0xcfd9ff, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false }));
       this.childHold.rotation.x = -Math.PI / 2; this.childHold.position.y = 0.06; this.root.add(this.childHold);
     }
     this.snap(w);
@@ -184,7 +184,7 @@ export class WorldView {
 
   private makeActorView(a: Actor): ActorView {
     const isTheorem = ["axiom", "corollary", "variable", "constant", "iterator", "paradox", "oracle", "herald"].includes(a.type);
-    const g = isTheorem ? theoremFigure(a.type) : bossFigure(a.type);
+    const g = bossFigure(a.type); void isTheorem;
     const ringMat = new THREE.MeshBasicMaterial({ color: PALETTE.blue, transparent: true, opacity: 0.9, side: THREE.DoubleSide, depthWrite: false });
     const ring = new THREE.Mesh(new THREE.RingGeometry(a.radius + 0.12, a.radius + 0.22, 48), ringMat);
     ring.rotation.x = -Math.PI / 2; ring.position.y = 0.04;

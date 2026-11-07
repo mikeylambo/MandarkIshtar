@@ -5,6 +5,7 @@ import { LAWS } from "../data/laws";
 import { RANK_BANDS, RANK_GLYPH, type RankId } from "../data/ranks";
 import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
+import { lawArt } from "./cardArt";
 
 export interface MenuItem { label: string; value?: () => string; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
 
@@ -157,7 +158,7 @@ export class Ui {
   lawCard(law: LawId, art: string | null): void {
     const L = LAWS[law];
     const c = el("div", "lawcard");
-    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : SIGIL_SVG.replace('width="180" height="180"', 'width="200" height="200"')}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
+    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : lawArt(law)}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
     this.overlay.appendChild(c);
     requestAnimationFrame(() => c.classList.add("slam"));
     setTimeout(() => c.remove(), 2100);
@@ -168,7 +169,7 @@ export class Ui {
     const L = LAWS[law];
     const c = el("div", "lawcard");
     c.style.animation = "none"; c.style.opacity = "1"; c.style.transform = "translate(-50%,-50%)";
-    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : SIGIL_SVG}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
+    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : lawArt(law)}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
     return c;
   }
 

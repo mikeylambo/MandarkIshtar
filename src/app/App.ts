@@ -35,6 +35,7 @@ import { SolverBot } from "../dev/bots/SolverBot";
 import { PassiveBot } from "../dev/bots/PassiveBot";
 import type { Bot } from "../dev/bots/BotKit";
 import { AssetLoader } from "./AssetLoader";
+import { codexArt } from "../ui/cardArt";
 import { installDevHooks } from "../dev/devHooks";
 import type { Bark } from "../data/barks";
 import { PERF } from "../data/perf";
@@ -634,7 +635,8 @@ export class App {
     const show = (i: number) => {
       const c = unlocked[i]; if (!c) { entry.innerHTML = ""; return; }
       const marg = this.progress.data.marginalia.includes(c.id) ? c.marginalia.map((m) => `<div class="marg">${m.text}<small>${m.ref}</small></div>`).join("") : "";
-      entry.innerHTML = `<h3 class="serif">${c.title}</h3><div>${c.note}</div>${marg}`;
+      const plate = this.assets.url(`codex.${c.id}`);
+      entry.innerHTML = `<div class="plate" style="${plate ? `background-image:url(${plate})` : ""}">${plate ? "" : codexArt(c.id)}</div><h3 class="serif">${c.title}</h3><div>${c.note}</div>${marg}`;
     };
     const items: MenuItem[] = unlocked.map((c, i) => ({ label: c.title, onSelect: () => show(i) }));
     const m = new Menu(items.length ? items : [{ label: "—", disabled: true }], (k) => this.audio.sfx(k), back);
