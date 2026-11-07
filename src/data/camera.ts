@@ -1,0 +1,20 @@
+/** Camera module. */
+export const CAMERA = {
+  pitchDeg: 55,
+  distance: 18,
+  fovDeg: 40,
+  markovWeight: 0.7,
+  threatWeight: 0.3,
+  threatRange: 14,
+  safeFraction: 0.6,
+  dampingFrames: 8,
+  lawCardZoom: 0.05,
+  bossIntroFrames: 180,
+  roomClearYawDeg: 90,
+  roomClearFrames: 45,
+  qedPunch: 0.3,
+  qedPunchFrames: 10,
+  giant: { pitchDeg: 65, distance: 24 },
+  child: { distance: 16 },
+  ishtarP3: { pitchDeg: 20, distance: 14 },
+} as const;

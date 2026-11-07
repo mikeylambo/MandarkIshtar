@@ -1,0 +1,38 @@
+{
+  "name": "mandark-ishtar",
+  "private": true,
+  "version": "0.9.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173 --strictPort",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src tests tools --max-warnings 0",
+    "test": "vitest run",
+    "test:boot": "node tools/boot-check.mjs",
+    "check": "npm run typecheck && npm run lint && npm run test && npm run build && npm run test:boot",
+    "verify": "npm run check",
+    "bots": "vitest run tests/bots",
+    "captures": "node tools/capture.mjs",
+    "perf": "node tools/perf.mjs",
+    "deploy:preview": "vercel deploy",
+    "certify:web": "npm run verify && slu-certify web",
+    "certify:controller": "npm run verify && slu-certify controller",
+    "certify:release": "npm run verify && slu-certify release"
+  },
+  "dependencies": {
+    "@slu/web-shell": "git+https://github.com/mikeylambo/web-game-shell-v1.02.git#6f08d17c2f1012b19e6e26c87c640762354eb0ec",
+    "three": "0.180.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.0",
+    "@types/node": "^22.15.0",
+    "@types/three": "0.180.0",
+    "eslint": "^9.30.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.35.0",
+    "vite": "^7.0.0",
+    "vitest": "^3.2.4"
+  }
+}

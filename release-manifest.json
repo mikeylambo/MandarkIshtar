@@ -1,0 +1,19 @@
+{
+  "gameId": "mandark-ishtar",
+  "version": "0.1.0",
+  "channel": "development",
+  "demo": false,
+  "renderer": "three",
+  "frames": [
+    "character-action",
+    "arcade"
+  ],
+  "supportedInputs": [
+    "keyboard-mouse",
+    "gamepad"
+  ],
+  "supportedLocales": [
+    "en"
+  ],
+  "requiredFeatures": []
+}
