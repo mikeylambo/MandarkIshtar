@@ -19,6 +19,7 @@ export class SolverBot implements Bot {
   private stuckKey = "";
   private fallbackUntil = 0;
   private spot: Vec | null = null;
+  private lastGiantDelay = -9999;
   private spotFrame = -999;
   stats = { dodges: 0, steps: 0, qedAttempts: 0 };
 
@@ -29,6 +30,15 @@ export class SolverBot implements Bot {
     if (w.def.boss === "ishtar" && (w.flags.ishtarPhase ?? 0) >= 4) return NO_INPUT;
     if (m.state === "frozen" || m.state === "locked") return NO_INPUT;
 
+    // The Giant's principle beats dodging: Delay a stomp whose shadow lies on a glyph (it also buys 40f to step out).
+    const boss = w.director.boss;
+    if (boss?.type === "giant" && boss.state === "telegraph" && w.frame - this.lastGiantDelay > 90 && !this.kit.label.startsWith("tap") && this.can(w, "order") && dist(boss.pos, m.pos) < 13) {
+      const sh = w.actor(boss.d.shadow);
+      if (sh && w.props.some((q) => q.alive && q.type === "hazardGlyph" && dist(q.pos, sh.pos) < q.radius + sh.radius * 0.6)) {
+        this.kit.clear(); this.kit.tap("order", aimTo(w, boss.pos), null, w); this.lastGiantDelay = w.frame;
+        return this.kit.pop()!;
+      }
+    }
     const dangerNow = currentDanger(w);
     const holding = this.kit.label.startsWith("hold");
     // Short committed inputs (taps, strikes, steps) always finish so a tap is never turned into a hold.
@@ -416,9 +426,51 @@ export class SolverBot implements Bot {
       const onGlyph = w.props.some((q) => q.alive && q.type === "hazardGlyph" && dist(q.pos, s.pos) < q.radius + s.radius * 0.6);
       if (onGlyph) { this.kit.tap("order", aimTo(w, giant.pos), null, w); return true; }
     }
+    // Set up the principle: Giant 3.2 u from a glyph, a light between it and us, so its shadow lies on the glyph.
+    if (!w.def.echo && !(lantern && !lantern.d.dropped) && m.regalia.has("vector") && m.regalia.has("order") && this.planGiantGlyph(w, giant, s)) return true;
     // stand in the shadow and strike it (Phase if a stomp is coming)
     if (dist(s.pos, m.pos) > 1.6) { this.moveFrames(w, s.pos, 3, 1.0); return true; }
     if (m.regalia.has("strike") && !m.spectral) { this.kit.strike(aimTo(w, s.pos)); return true; }
+    this.kit.wait(2);
+    return true;
+  }
+
+  /**
+   * Choreograph the Giant's glyph exploit. The shadow always lies 3.2 u from the Giant, away from the nearest light,
+   * so: find a glyph 1.4–5 u from the Giant, put a light on the Giant's far side from it, wait for the stomp, Delay it.
+   */
+  private planGiantGlyph(w: World, giant: Actor, shadow: Actor): boolean {
+    const m = w.markov;
+    if (m.focus < 45 || giant.state === "telegraph") return false;
+    const glyphs = w.props.filter((q) => q.alive && q.type === "hazardGlyph");
+    const G = nearest(glyphs, giant.pos);
+    if (!G) return false;
+    const away = norm(sub(giant.pos, G.pos), { x: 0, z: 1 });
+    const keepOff = add(giant.pos, scale(away, 5.2));
+    if (dist(shadow.pos, G.pos) < G.radius + shadow.radius * 0.6) {
+      // armed: hold position on the light side, out of stomp reach, until the telegraph
+      if (dist(keepOff, m.pos) > 1.0) { this.moveFrames(w, keepOff, 2, 0.6); return true; }
+      this.kit.wait(2); return true;
+    }
+    const dG = dist(giant.pos, G.pos);
+    if (dG < 1.4 || dG > 5.0) {
+      // lure the Giant toward the glyph: stand beyond it
+      const lure = add(G.pos, scale(norm(sub(G.pos, giant.pos), { x: 0, z: 1 }), dG < 1.4 ? -4 : 3.2));
+      if (len(lure) > w.def.arena.radius - 1.5) return false;
+      this.moveFrames(w, lure, 3, 0.6);
+      return true;
+    }
+    const lightDest = add(giant.pos, scale(away, 2.2));
+    const lights = w.props.filter((q) => q.alive && q.type === "light" && !q.d.dropped && q.tag !== "lantern");
+    const L = nearest(lights, lightDest);
+    if (!L || (L.d.slideT ?? 0) > 0) { this.kit.wait(2); return true; }
+    if (dist(L.pos, lightDest) > 1.0) {
+      const dir = dirTo(L.pos, lightDest);
+      const behind = sub(L.pos, scale(dir, 1.8));
+      if (dist(behind, m.pos) < 0.7 && angleBetween(sub(L.pos, m.pos), dir) < 0.35 && this.can(w, "vector")) { this.kit.tap("vector", dir, null, w); return true; }
+      this.moveFrames(w, behind, 3, 0.4);
+      return true;
+    }
     this.kit.wait(2);
     return true;
   }
