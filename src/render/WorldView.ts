@@ -2,7 +2,7 @@ import * as THREE from "three";
 import type { World } from "../sim/World";
 import type { Actor, Hazard, Prop } from "../sim/entities";
 import type { ProjectileShape } from "../sim/types";
-import { mesh, toon, toonUnique, Afterimages } from "../look/LookKit";
+import { mesh, toon, toonUnique, uniqueCopy, Afterimages } from "../look/LookKit";
 import { PALETTE } from "../look/palette";
 import { buildArena, type ArenaView } from "../world/ArenaKit";
 import { bossFigure, markovFigure, sigilShape } from "./figures";
@@ -74,6 +74,7 @@ export class WorldView {
     this.arena = buildArena(w.def);
     this.root.add(this.arena.group);
     this.markov = markovFigure(lazar);
+    this.markov.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) o.material = uniqueCopy(o.material); });
     this.root.add(this.markov);
     this.focusMat = new THREE.MeshBasicMaterial({ color: PALETTE.gold, transparent: true, opacity: 0.85, side: THREE.DoubleSide, depthWrite: false });
     this.focusRing = new THREE.Mesh(new THREE.RingGeometry(0.78, 0.86, 64, 1, 0, Math.PI * 2), this.focusMat);
@@ -191,7 +192,8 @@ export class WorldView {
     if (a.type !== "child" && a.type !== "ishtar" && a.type !== "door" && a.type !== "shadow" && a.type !== "giant") g.add(ring);
     if (a.elite) { const halo = new THREE.Mesh(new THREE.TorusGeometry(a.radius + 0.25, 0.05, 6, 32), new THREE.MeshBasicMaterial({ color: 0xc7b46a })); halo.rotation.x = Math.PI / 2; halo.position.y = 1.9; g.add(halo); }
     const tint: THREE.MeshToonMaterial[] = [];
-    g.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) tint.push(o.material); });
+    // Per-actor materials: tinting (broken/telegraph/commanded) must never write into the shared slu.lit cache.
+    g.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) { o.material = uniqueCopy(o.material); tint.push(o.material); } });
     this.root.add(g);
     return { g, ring, ringMat, body: g.getObjectByName("body"), type: a.type, flash: 0, tint };
   }

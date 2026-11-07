@@ -34,6 +34,11 @@ export function toonUnique(color: number, emissive = 0, emissiveIntensity = 0, e
   return m;
 }
 
+/** A per-instance copy of a (possibly shared) slu.lit material, so per-actor tints never leak into the cache. */
+export function uniqueCopy(m: THREE.MeshToonMaterial): THREE.MeshToonMaterial {
+  return toonUnique(m.color.getHex(), m.emissive.getHex(), m.emissiveIntensity, { transparent: m.transparent, opacity: m.opacity });
+}
+
 /** UPSTREAM (v1.4): faceted solids need welded, smoothed normals for a gap-free inverted hull. */
 const hullCache = new WeakMap<THREE.BufferGeometry, THREE.BufferGeometry>();
 export function hullGeometry(g: THREE.BufferGeometry): THREE.BufferGeometry {
