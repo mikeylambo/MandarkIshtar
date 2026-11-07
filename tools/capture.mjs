@@ -26,6 +26,8 @@ async function scene(name, id, { freeze = null, frames = 300, bot = "solver", sp
     else await page.waitForFunction((f) => window.__dev.app.world && window.__dev.app.world.frame >= f, frames, { timeout });
   } catch { console.log("timeout", name); }
   await dev(() => window.__dev.timeScale(0));
+  // Ordinary scene shots must not land on an 8-frame Q.E.D./room-clear inversion (set pieces freeze on purpose).
+  if (!freeze) await page.waitForFunction(() => window.__dev.app.feel.inversion === 0, null, { timeout: 20000 }).catch(() => {});
   await shot(name);
   await dev(() => { window.__dev.unfreeze(); window.__dev.runBot("none"); });
 }

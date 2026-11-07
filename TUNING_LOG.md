@@ -43,3 +43,5 @@ Input-to-motion latency: **1 frame** in sim (move applied on the input's own ste
 | Value | Old → New | Why | Evidence |
 |---|---|---|---|
 | Theorem contact-shadow mesh | on → off (Markov/bosses keep it) | Peak density measured 281 draw calls vs ≤ 250 | captures/perf.json: 281 → 250 |
+| Theorem rendering | per-actor Group (body + outline + ring ≈ 3 draws each) → per-type InstancedMesh (solid/ghost/outline) + one instanced Certainty-ring draw | Draw-call headroom for new art | captures/perf.json: 188 → 103 at 40 enemies + 400 projectiles + 60 afterimages |
+| Shell 1.3 VFX + instanced afterimages | own spark/ring pools + 60 afterimage meshes → shell pooled VFX + one InstancedMesh | Same | 250 → 188 |

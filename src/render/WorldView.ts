@@ -9,6 +9,7 @@ import { bossFigure, markovFigure, sigilShape, theoremFigure } from "./figures";
 import { FOCUS } from "../data/resources";
 import { INPUT } from "../data/input";
 import { holdRadius } from "../actors/child/child";
+import { TheoremInstancer } from "./TheoremInstancer";
 
 interface ActorView { g: THREE.Group; ring: THREE.Mesh; ringMat: THREE.MeshBasicMaterial; body: THREE.Object3D | undefined; type: string; flash: number; tint: THREE.MeshToonMaterial[] }
 interface Interp { px: number; pz: number; x: number; z: number }
@@ -44,6 +45,7 @@ export class WorldView {
   private links = new THREE.Group();
   private childHold: THREE.Mesh | null = null;
   readonly afterimages: Afterimages;
+  private theorems!: TheoremInstancer;
   private m4 = new THREE.Matrix4();
   private q = new THREE.Quaternion();
   private lazar = false;
@@ -63,6 +65,7 @@ export class WorldView {
       scene.add(im);
     }
     this.root.add(this.links);
+    this.theorems = new TheoremInstancer(scene);
   }
 
   load(w: World, lazar = false): void {
@@ -194,9 +197,11 @@ export class WorldView {
   }
 
   private updateActors(w: World, alpha: number, t: number): void {
+    this.theorems.highContrast = this.highContrast;
+    this.theorems.update(w, (a) => this.at(a.id, alpha, a.pos.x, a.pos.z), t);
     const seen = new Set<number>();
     for (const a of w.actors) {
-      if (!a.alive) continue;
+      if (!a.alive || TheoremInstancer.isTheorem(a)) continue;
       seen.add(a.id);
       let v = this.actors.get(a.id);
       if (!v) { v = this.makeActorView(a); this.actors.set(a.id, v); }
@@ -256,7 +261,7 @@ export class WorldView {
       im.setMatrixAt(n, this.m4);
       counts.set(key, n + 1);
     }
-    for (const [key, im] of this.projInst) { im.count = counts.get(key) ?? 0; im.instanceMatrix.needsUpdate = true; }
+    for (const [key, im] of this.projInst) { im.count = counts.get(key) ?? 0; im.visible = im.count > 0; im.instanceMatrix.needsUpdate = true; }
   }
 
   private makeProp(p: Prop): THREE.Object3D {
