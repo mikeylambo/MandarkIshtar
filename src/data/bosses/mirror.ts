@@ -1,6 +1,6 @@
 /** The Mirror — Law of Recurrence. Performs your previous action 45f later, mirrored. */
 export const MIRROR = {
-  certainty: 300, echoCertainty: 100, radius: 0.55,
+  certainty: 300, echoCertainty: 60, radius: 0.55,
   phases: [0.6, 0.25],
   delay: 45,
   copySpeed: 11,

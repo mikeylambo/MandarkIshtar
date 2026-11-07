@@ -142,8 +142,7 @@ export const prophet: Behavior = {
 
 function hitWith(w: World, a: Actor, s: ActionState): void {
   const blocked = a.d.blocked >= 0 ? ACTION_STATES[a.d.blocked] : null;
-  if (a.d.stalled && w.markov.insightT > 0) { w.ledger.exploit(w, a, P.exploit.stillness, { kind: "exploit", label: "stillness" }); return; }
-  if (a.d.stalled && w.def.echo && s === "strike") { w.ledger.exploit(w, a, P.exploit.stillness, { kind: "exploit", label: "stillness" }); return; }
+  if (a.d.stalled && (w.markov.insightT > 0 || (w.def.echo && s === "strike"))) { a.d.stalled = 0; a.d.idleRun = 0; w.emit("ProphetStall", { id: a.id, value: 0 }); w.ledger.exploit(w, a, P.exploit.stillness, { kind: "exploit", label: "stillness" }); return; }
   if (blocked === s) { w.emit("OpFizzle", { kind: "prophesied", x: a.pos.x, z: a.pos.z, op: s }); return; }
   if ((a.d.surpriseUntil ?? 0) > w.frame && s !== "strike") { a.d.surpriseUntil = 0; w.ledger.exploit(w, a, P.exploit.surprise, { kind: "exploit", label: "surprise" }); return; }
   w.ledger.damage(w, a, s === "strike" ? 2 : 6, { kind: s === "strike" ? "strike" : "op" });

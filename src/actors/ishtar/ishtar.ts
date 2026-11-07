@@ -84,7 +84,7 @@ function siege(w: World, a: Actor): void {
     } else if (pattern === 1) {
       const d = dirTo(a.pos, m.pos);
       for (const k of [-1, 0, 1]) {
-        const side = { x: -d.z * k * 3, z: d.x * k * 3 };
+        const side = { x: -d.z * k * 4.5, z: d.x * k * 4.5 };
         w.spawnHazard({ kind: "radiantLine", shape: "line", pos: { x: a.pos.x + side.x, z: a.pos.z + side.z }, end: { x: a.pos.x + side.x + d.x * 18, z: a.pos.z + side.z + d.z * 18 }, width: I.barrage.lineWidth, telegraph: I.barrage.lineTelegraph, active: 12, ownerId: a.id });
       }
     } else {

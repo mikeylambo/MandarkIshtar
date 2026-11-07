@@ -1,0 +1,414 @@
+{
+  "completed": true,
+  "stages": [
+    {
+      "id": "cold-open",
+      "tries": 1,
+      "frames": 184,
+      "status": "clear",
+      "rank": "proof",
+      "score": 3002
+    },
+    {
+      "id": "1-1",
+      "tries": 1,
+      "frames": 1587,
+      "status": "clear",
+      "rank": "proof",
+      "score": 9931
+    },
+    {
+      "id": "1-2",
+      "tries": 1,
+      "frames": 1592,
+      "status": "clear",
+      "rank": "proof",
+      "score": 13701
+    },
+    {
+      "id": "1-3",
+      "tries": 1,
+      "frames": 1649,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 8674
+    },
+    {
+      "id": "1-4",
+      "tries": 1,
+      "frames": 3072,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 17119
+    },
+    {
+      "id": "1-B",
+      "tries": 1,
+      "frames": 2699,
+      "status": "clear",
+      "rank": "proof",
+      "score": 11650
+    },
+    {
+      "id": "2-1",
+      "tries": 1,
+      "frames": 1676,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 9079
+    },
+    {
+      "id": "2-2",
+      "tries": 1,
+      "frames": 2062,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 8749
+    },
+    {
+      "id": "2-3",
+      "tries": 1,
+      "frames": 2411,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 11427
+    },
+    {
+      "id": "2-4",
+      "tries": 1,
+      "frames": 3581,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 12248
+    },
+    {
+      "id": "2-B",
+      "tries": 1,
+      "frames": 4780,
+      "status": "clear",
+      "rank": "conjecture",
+      "score": 1664
+    },
+    {
+      "id": "3-1",
+      "tries": 1,
+      "frames": 2161,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 8139
+    },
+    {
+      "id": "3-2",
+      "tries": 1,
+      "frames": 2147,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 8455
+    },
+    {
+      "id": "3-3",
+      "tries": 1,
+      "frames": 1892,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 8774
+    },
+    {
+      "id": "3-4",
+      "tries": 2,
+      "frames": 6744,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 12201
+    },
+    {
+      "id": "3-B",
+      "tries": 1,
+      "frames": 21954,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 9900
+    },
+    {
+      "id": "4-1",
+      "tries": 1,
+      "frames": 1885,
+      "status": "clear",
+      "rank": "proof",
+      "score": 10369
+    },
+    {
+      "id": "4-2",
+      "tries": 1,
+      "frames": 1202,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 8043
+    },
+    {
+      "id": "4-3",
+      "tries": 1,
+      "frames": 834,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 8872
+    },
+    {
+      "id": "4-4",
+      "tries": 1,
+      "frames": 2537,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 12550
+    },
+    {
+      "id": "4-B",
+      "tries": 1,
+      "frames": 2775,
+      "status": "clear",
+      "rank": "conjecture",
+      "score": 3325
+    },
+    {
+      "id": "5-1",
+      "tries": 1,
+      "frames": 2173,
+      "status": "clear",
+      "rank": "proof",
+      "score": 9854
+    },
+    {
+      "id": "5-2",
+      "tries": 1,
+      "frames": 2700,
+      "status": "clear",
+      "rank": "proof",
+      "score": 12472
+    },
+    {
+      "id": "5-3",
+      "tries": 1,
+      "frames": 2393,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 10544
+    },
+    {
+      "id": "5-4",
+      "tries": 1,
+      "frames": 4150,
+      "status": "clear",
+      "rank": "proof",
+      "score": 17266
+    },
+    {
+      "id": "5-B",
+      "tries": 1,
+      "frames": 1783,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 7425
+    },
+    {
+      "id": "6-1",
+      "tries": 1,
+      "frames": 1487,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 5521
+    },
+    {
+      "id": "6-2",
+      "tries": 1,
+      "frames": 1592,
+      "status": "clear",
+      "rank": "proof",
+      "score": 12059
+    },
+    {
+      "id": "6-3",
+      "tries": 1,
+      "frames": 1090,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 9609
+    },
+    {
+      "id": "6-4",
+      "tries": 1,
+      "frames": 1996,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 11477
+    },
+    {
+      "id": "6-B",
+      "tries": 1,
+      "frames": 884,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 6650
+    },
+    {
+      "id": "7-1",
+      "tries": 1,
+      "frames": 1510,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 8555
+    },
+    {
+      "id": "7-2",
+      "tries": 1,
+      "frames": 1396,
+      "status": "clear",
+      "rank": "proof",
+      "score": 11439
+    },
+    {
+      "id": "7-3",
+      "tries": 1,
+      "frames": 1457,
+      "status": "clear",
+      "rank": "proof",
+      "score": 8905
+    },
+    {
+      "id": "7-4",
+      "tries": 1,
+      "frames": 1674,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 13542
+    },
+    {
+      "id": "7-B",
+      "tries": 1,
+      "frames": 7366,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 3500
+    },
+    {
+      "id": "gate-1",
+      "tries": 1,
+      "frames": 2333,
+      "status": "clear",
+      "rank": "proof",
+      "score": 9550
+    },
+    {
+      "id": "gate-2",
+      "tries": 1,
+      "frames": 1000,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 3030
+    },
+    {
+      "id": "gate-3",
+      "tries": 1,
+      "frames": 17354,
+      "status": "clear",
+      "rank": "proof",
+      "score": 6300
+    },
+    {
+      "id": "gate-4",
+      "tries": 1,
+      "frames": 1085,
+      "status": "clear",
+      "rank": "theorem",
+      "score": 4500
+    },
+    {
+      "id": "gate-5",
+      "tries": 1,
+      "frames": 589,
+      "status": "clear",
+      "rank": "qed",
+      "score": 18516
+    },
+    {
+      "id": "gate-6",
+      "tries": 1,
+      "frames": 726,
+      "status": "clear",
+      "rank": "qed",
+      "score": 9508
+    },
+    {
+      "id": "gate-7",
+      "tries": 1,
+      "frames": 2866,
+      "status": "clear",
+      "rank": "hypothesis",
+      "score": 3500
+    },
+    {
+      "id": "ishtar",
+      "tries": 1,
+      "frames": 10065,
+      "status": "clear",
+      "rank": "qed",
+      "score": 3500
+    },
+    {
+      "id": "ascent-1",
+      "tries": 1,
+      "frames": 1961,
+      "status": "clear",
+      "rank": "qed",
+      "score": 5550
+    },
+    {
+      "id": "ascent-2",
+      "tries": 1,
+      "frames": 566,
+      "status": "clear",
+      "rank": "qed",
+      "score": 6516
+    },
+    {
+      "id": "ascent-3",
+      "tries": 1,
+      "frames": 3290,
+      "status": "clear",
+      "rank": "qed",
+      "score": 8604
+    },
+    {
+      "id": "ascent-4",
+      "tries": 1,
+      "frames": 2679,
+      "status": "clear",
+      "rank": "qed",
+      "score": 9628
+    },
+    {
+      "id": "ascent-5",
+      "tries": 1,
+      "frames": 3882,
+      "status": "clear",
+      "rank": "proof",
+      "score": 9630
+    },
+    {
+      "id": "ascent-6",
+      "tries": 1,
+      "frames": 1260,
+      "status": "clear",
+      "rank": "proof",
+      "score": 14754
+    },
+    {
+      "id": "ascent-7",
+      "tries": 1,
+      "frames": 1351,
+      "status": "clear",
+      "rank": "proof",
+      "score": 13545
+    }
+  ],
+  "totalFrames": 154082
+}

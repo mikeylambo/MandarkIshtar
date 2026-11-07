@@ -3,6 +3,8 @@ export const CERTAINTY = {
   strike: 2,
   nonExploitOp: 6,
   redirected: 25,
+  /** Redirected shot into the Giant's shadow (bosses otherwise take the non-exploit 6). */
+  bossShadowRedirect: 12,
   compoundBonus: 1.5,
   brokenFrames: 120,
   recoverFraction: 0.4,

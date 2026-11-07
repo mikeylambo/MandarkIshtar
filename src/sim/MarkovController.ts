@@ -68,7 +68,7 @@ export class MarkovController {
   get stepping(): boolean { return this.state === "step"; }
   get iframes(): boolean {
     if (this.state === "step" && !this.stepStutter) { const f = STEP.frames - this.stepT + 1; return f >= STEP.iframeStart && f <= STEP.iframeEnd + 1; }
-    return this.mercyT > 0 || this.state === "qed";
+    return this.mercyT > 0 || this.state === "qed" || this.state === "hitstun";
   }
   get canAct(): boolean { return this.state === "idle" || this.state === "opRecovery"; }
 

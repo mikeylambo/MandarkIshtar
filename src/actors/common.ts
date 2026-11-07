@@ -101,6 +101,8 @@ export function freedUpdate(w: World, a: Actor, dt: number): void {
     a.d.freedCd = 45;
     w.emit("OrbitContact", { id: target.id, x: hp.x, z: hp.z, kind: "freed" });
     w.ledger.damage(w, target, CERTAINTY.redirected, { kind: "freed", byEnemy: true });
+    // The freed serve willingly: one blow, then they are filed.
+    if (a.alive) w.ledger.remove(w, a, "filed");
   }
 }
 

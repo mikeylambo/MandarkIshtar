@@ -50,7 +50,8 @@ export const king: Behavior = {
     }
   },
   onStrip(w, a) {
-    if (w.director.bossPhase >= 3 || (w.def.echo && subjects(w, a).length === 0)) {
+    if ((w.director.bossPhase >= 3 || (w.def.echo && subjects(w, a).length === 0)) && w.frame >= (a.d.crownBack ?? 0)) {
+      a.d.crownBack = w.frame + 240;
       w.emit("PropertyPeel", { id: a.id, kind: "crown", x: a.pos.x, z: a.pos.z });
       w.ledger.exploit(w, a, K.exploit.crownStrip, { kind: "exploit", label: "crown" });
       return "handled";

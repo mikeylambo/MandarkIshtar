@@ -184,7 +184,7 @@ export class CertaintyLedger {
     const compound = !!thrown.d.compound;
     if (!(bb.onHitByBody && bb.onHitByBody(w, b, thrown) === "handled")) {
       if (b.type === "paradox" && compound) this.exploit(w, b, 1, { kind: "exploit", compound: false, byEnemy: true, label: "paradox" });
-      else this.damage(w, b, CERTAINTY.redirected, { kind: "redirect", byEnemy: true, compound, pierce: !!thrown.d.ghost });
+      else this.damage(w, b, redirectDamage(b), { kind: "redirect", byEnemy: true, compound, pierce: !!thrown.d.ghost });
     }
     if (tb.onThrownImpact && tb.onThrownImpact(w, thrown, b) === "handled") return;
     this.damage(w, thrown, CERTAINTY.nonExploitOp, { kind: "contact", byEnemy: true });
@@ -201,7 +201,7 @@ export class CertaintyLedger {
     const compound = p.compound !== "";
     const byEnemy = p.shooterId !== 0 && p.shooterId !== a.id;
     if (a.type === "paradox" && compound) this.exploit(w, a, 1, { kind: "exploit", byEnemy, label: "paradox" });
-    else this.damage(w, a, CERTAINTY.redirected * p.damageScale, { kind: "redirect", byEnemy: byEnemy || p.shooterId === a.id, pierce: p.ghost });
+    else this.damage(w, a, redirectDamage(a) * p.damageScale, { kind: "redirect", byEnemy: byEnemy || p.shooterId === a.id, pierce: p.ghost });
     return true;
   }
 
@@ -300,6 +300,12 @@ export class CertaintyLedger {
     // Hostile body contact damage for neutral freed subjects is handled in their behavior.
     void w;
   }
+}
+
+/** Bosses are only truly hurt through their principle; raw redirects count as a non-exploit op (Giant's shadow: 12). */
+function redirectDamage(a: Actor): number {
+  if (!a.boss) return CERTAINTY.redirected;
+  return a.type === "shadow" ? CERTAINTY.bossShadowRedirect : CERTAINTY.nonExploitOp;
 }
 
 function endThrow(a: Actor): void { a.thrownT = 0; a.thrownBy = null; a.d.ghost = 0; a.d.cleanLine = 0; a.d.compound = 0; a.vel = scale(norm(a.vel), 0); }
