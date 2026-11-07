@@ -1,27 +1,22 @@
 
-> mandark-ishtar@0.9.0 check
+> mandark-ishtar@0.9.1 check
 > npm run typecheck && npm run lint && npm run test && npm run build && npm run test:boot
 
 
-> mandark-ishtar@0.9.0 typecheck
+> mandark-ishtar@0.9.1 typecheck
 > tsc --noEmit
 
 
-> mandark-ishtar@0.9.0 lint
+> mandark-ishtar@0.9.1 lint
 > eslint src tests tools --max-warnings 0
 
 
-> mandark-ishtar@0.9.0 test
+> mandark-ishtar@0.9.1 test
 > vitest run
 
 
  RUN  v3.2.7 /home/user/MandarkIshtar
 
-stdout | tests/perf.test.ts > perf: sim at peak density (40 enemies + 400 projectiles) > p95 sim step ≤ 3 ms
-sim step p50 0.250 ms, p95 1.132 ms with 38 actors / 400 projectiles
-
- ✓ tests/perf.test.ts (1 test) 2210ms
-   ✓ perf: sim at peak density (40 enemies + 400 projectiles) > p95 sim step ≤ 3 ms  2208ms
 stdout | tests/bots/modes.test.ts > mode bots: one run of each mode > Time Attack (each Trial)
 timeAttack T1: completed=true time=164.2s
 timeAttack T2: completed=true time=210.7s
@@ -34,28 +29,33 @@ timeAttack T7: completed=true time=210.9s
 stdout | tests/bots/modes.test.ts > mode bots: one run of each mode > Score Attack (seeded + daily seed is deterministic)
 scoreAttack: completed=false score=27493 stages=3
 
+stdout | tests/bots/campaign.test.ts > campaign bots > solver bot completes the entire campaign on Savant (cold open → credits)
+campaign: completed=true stages=51 sim-time=42.8 min retries=[3-4×2] failedAt=-
+
+ ✓ tests/bots/campaign.test.ts (2 tests) 6535ms
+   ✓ campaign bots > solver bot completes the entire campaign on Savant (cold open → credits)  6501ms
 stdout | tests/bots/modes.test.ts > mode bots: one run of each mode > Boss Rush
 bossRush: completed=true time=668.2s 1-B:clear 2-B:clear 3-B:clear 4-B:clear 5-B:clear 6-B:clear 7-B:clear
 
 stdout | tests/bots/modes.test.ts > mode bots: one run of each mode > Theorems ×21 (each runs; constraints are evaluated)
 theorems: solver passes 3/21 constraints (it is not constraint-aware)
 
- ✓ tests/bots/modes.test.ts (5 tests) 8608ms
-   ✓ mode bots: one run of each mode > Time Attack (each Trial)  4902ms
-   ✓ mode bots: one run of each mode > Score Attack (seeded + daily seed is deterministic)  428ms
-   ✓ mode bots: one run of each mode > Boss Rush  2264ms
-   ✓ mode bots: one run of each mode > Theorems ×21 (each runs; constraints are evaluated)  905ms
- ✓ tests/smoke.test.ts (1 test) 494ms
-   ✓ smoke > every encounter boots and steps 900 frames with no input  493ms
-stdout | tests/bots/campaign.test.ts > campaign bots > solver bot completes the entire campaign on Savant (cold open → credits)
-campaign: completed=true stages=51 sim-time=42.8 min retries=[3-4×2] failedAt=-
-
+ ✓ tests/bots/modes.test.ts (5 tests) 7619ms
+   ✓ mode bots: one run of each mode > Time Attack (each Trial)  4088ms
+   ✓ mode bots: one run of each mode > Score Attack (seeded + daily seed is deterministic)  468ms
+   ✓ mode bots: one run of each mode > Boss Rush  2204ms
+   ✓ mode bots: one run of each mode > Theorems ×21 (each runs; constraints are evaluated)  732ms
+ ✓ tests/smoke.test.ts (1 test) 488ms
+   ✓ smoke > every encounter boots and steps 900 frames with no input  486ms
 stdout | tests/bosses.test.ts > The Prophet is a literal Markov chain > a bot repeating a fixed loop is predicted > 80% of the time
 prophet accuracy on fixed loop: 86.8% over 106 predictions
 
- ✓ tests/bots/campaign.test.ts (2 tests) 7372ms
-   ✓ campaign bots > solver bot completes the entire campaign on Savant (cold open → credits)  7323ms
  ✓ tests/bosses.test.ts (7 tests) 249ms
+stdout | tests/perf.test.ts > perf: sim at peak density (40 enemies + 400 projectiles) > p95 sim step ≤ 3 ms
+sim step p50 0.270 ms, p95 0.804 ms with 38 actors / 400 projectiles
+
+ ✓ tests/perf.test.ts (1 test) 2423ms
+   ✓ perf: sim at peak density (40 enemies + 400 projectiles) > p95 sim step ≤ 3 ms  2421ms
 stdout | tests/first60.test.ts > First 60 seconds (GDD §9) > a bot reaches Arena 1-1 clear in ≤ 60 s (cold open → door → Law card → 1-1)
 first 60s: cold open 3.1s + Arena 1-1 26.4s = 29.6s
   0.7s DoorHum
@@ -69,31 +69,31 @@ first 60s: cold open 3.1s + Arena 1-1 26.4s = 29.6s
   23.3s Contradiction
   28.8s Flourish
 
- ✓ tests/first60.test.ts (2 tests) 240ms
+ ✓ tests/first60.test.ts (2 tests) 223ms
 stdout | tests/bots/giant-bot.test.ts > solver bot uses the Giant's glyph exploit when it has Order > Boss Rush loadout (all regalia): ≥ 1 'giant-delay' Contradiction and a clear
 giant glyph exploit uses: 3, status clear, 26s
 
- ✓ tests/bots/giant-bot.test.ts (1 test) 220ms
- ✓ tests/compounds.test.ts (21 tests) 47ms
- ✓ tests/exploits.test.ts (9 tests) 38ms
- ✓ tests/save.test.ts (4 tests) 6ms
- ✓ tests/feel.test.ts (3 tests) 14ms
- ✓ tests/giant.test.ts (2 tests) 15ms
- ✓ tests/audio.test.ts (3 tests) 8ms
+ ✓ tests/bots/giant-bot.test.ts (1 test) 144ms
+ ✓ tests/compounds.test.ts (21 tests) 29ms
+ ✓ tests/exploits.test.ts (9 tests) 30ms
+ ✓ tests/feel.test.ts (3 tests) 13ms
+ ✓ tests/giant.test.ts (2 tests) 14ms
+ ✓ tests/save.test.ts (4 tests) 8ms
+ ✓ tests/audio.test.ts (3 tests) 7ms
  ↓ tests/diag.test.ts (1 test | 1 skipped)
  ↓ tests/trace.test.ts (1 test | 1 skipped)
- ✓ tests/invariants.test.ts (6 tests) 20452ms
-   ✓ invariants (seeded, property-style) > no entity outside arena bounds except during ring-out; Certainty always within [0, max]; score reconciles  12496ms
-   ✓ invariants (seeded, property-style) > every encounter terminates (clear or loss) within 10 minutes of bot time — solver and passive  5192ms
-   ✓ invariants (seeded, property-style) > same seed + same input stream → identical state hash after 10 minutes of simulation  2746ms
+ ✓ tests/invariants.test.ts (6 tests) 18339ms
+   ✓ invariants (seeded, property-style) > no entity outside arena bounds except during ring-out; Certainty always within [0, max]; score reconciles  11093ms
+   ✓ invariants (seeded, property-style) > every encounter terminates (clear or loss) within 10 minutes of bot time — solver and passive  4200ms
+   ✓ invariants (seeded, property-style) > same seed + same input stream → identical state hash after 10 minutes of simulation  3015ms
 
  Test Files  14 passed | 2 skipped (16)
       Tests  67 passed | 2 skipped (69)
-   Start at  17:54:46
-   Duration  21.41s (transform 921ms, setup 0ms, collect 4.28s, tests 39.97s, environment 5ms, prepare 1.18s)
+   Start at  18:25:05
+   Duration  19.21s (transform 724ms, setup 0ms, collect 3.79s, tests 36.12s, environment 5ms, prepare 1.18s)
 
 
-> mandark-ishtar@0.9.0 build
+> mandark-ishtar@0.9.1 build
 > vite build
 
 vite v7.3.7 building client environment for production...
@@ -102,10 +102,10 @@ transforming...
 rendering chunks...
 computing gzip size...
 dist/index.html                    0.71 kB │ gzip:   0.42 kB
-dist/assets/index-ScGZ-xhS.js  1,043.19 kB │ gzip: 314.38 kB
-✓ built in 2.71s
+dist/assets/index-wKZWMjHj.js  1,043.19 kB │ gzip: 314.38 kB
+✓ built in 2.87s
 
-> mandark-ishtar@0.9.0 test:boot
+> mandark-ishtar@0.9.1 test:boot
 > node tools/boot-check.mjs
 
 boot OK: title reached, 0 console errors, 0 warnings → captures/00-title.png

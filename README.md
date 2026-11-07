@@ -1,7 +1,7 @@
 # Mandark Ishtar (codename)
 
 A 3D arena action-puzzle game for the web: a theatrical genius **solves** enemies instead of fighting them — then gives every power away.
-Built on **@slu/web-shell** (pinned to `main@6f08d17`) + Three.js r180. Design: `GDD.md` (source of truth, not in repo) · decisions: [DECISIONS.md](DECISIONS.md) · tuning: [TUNING_LOG.md](TUNING_LOG.md) · production checklists: [ASSET_DELIVERY.md](ASSET_DELIVERY.md), [AUDIO_DELIVERY.md](AUDIO_DELIVERY.md).
+Built on **@slu/web-shell 1.3.0** (pinned to `main@7003ec7`; Look Kit + Game-Feel Kit, see [UPSTREAM.md](UPSTREAM.md)) + Three.js r180. Design: `GDD.md` (source of truth, not in repo) · decisions: [DECISIONS.md](DECISIONS.md) · tuning: [TUNING_LOG.md](TUNING_LOG.md) · production checklists: [ASSET_DELIVERY.md](ASSET_DELIVERY.md), [AUDIO_DELIVERY.md](AUDIO_DELIVERY.md).
 
 ## Run
 ```bash

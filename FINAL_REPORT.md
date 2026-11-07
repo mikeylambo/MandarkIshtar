@@ -1,59 +1,50 @@
-# Final Report — Mandark Ishtar (build 0.9.0)
+# Final Report — Mandark Ishtar (build 0.9.1)
 
-**Branch:** `claude/nifty-volta-56xcau` · **Commit:** see `git log` (report written at 12327ef) · **Shell:** @slu/web-shell `main@6f08d17` (v1.1.0), pinned git dependency · **v1.3 Look Kit / game-feel kit:** **not present** → game-local with `// UPSTREAM:` markers.
-**Deployed URL:** **none — not deployed.** The Vercel token was declined in-session; `vercel.json` and `npm run deploy:preview` are ready.
+**Branch:** `claude/nifty-volta-56xcau` (see `git log` for the commit). **Shell:** @slu/web-shell **1.3.0**, pinned to `main@7003ec7a46f0de4c86b8dbb28fea81c10d4f21fa` ("Release v1.3.0"). The remote has no `v1.3.0` tag, so the pin is by commit.
+**Deployed URL:** **none — not deployed.** No Vercel token or Vercel CLI login exists in the build session (the token was declined in-session). A production build is produced by `npm run build` (part of `npm run check`) into `dist/`.
+**To deploy:** a Vercel token for Michael's account, then `npx vercel login` (or `VERCEL_TOKEN=… npx vercel deploy --token $VERCEL_TOKEN`) and `npm run deploy:preview` (= build + `npx --yes vercel deploy`). `vercel.json` is ready (static, output `dist/`).
 
-## Evidence
-- `npm run check` (typecheck + lint + 64 tests + build + headless boot): **exit 0** → captures/check-output.txt. Boot: 0 console errors, 0 warnings.
-- `slu-certify web` / `slu-certify controller`: **CERTIFIED** → captures/certify-web.txt, certify-controller.txt.
-- Captures: 46 scenes/set pieces in `captures/` (index.json: 0 page errors).
-- Campaign bot: **all 51 stages, cold open → Ascent, on Savant**, 1 retry (3-4), 42.8 sim-minutes → captures/campaign-report.json.
+## What changed in 0.9.1 (all verified)
+| Item | Result | Evidence |
+|---|---|---|
+| Shell 1.1.0 → 1.3.0 | ✅ Toon (`slu.lit`), outline material, PostStack (bloom/grade/vignette/FXAA/flash/pulses), palette tokens, pooled VFX and FeelDirector (trauma shake + impact bundles) now come from the shell; game-local versions deleted | UPSTREAM.md; `tuning/*.json` canon |
+| Kept game-side (v1.4 candidates) | Welded-hull outline, inversion pass, stepped afterimages | UPSTREAM.md |
+| Shell RecoveryUI bug | Still present in 1.3.0; CSS workaround kept | UPSTREAM.md; boot check shows no overlay |
+| Draw calls at peak density (40 enemies + 400 projectiles + 60 afterimages) | **250 → 129** (target ≤ 200) | captures/perf.json |
+| Giant glyph exploit | Dedicated test (20% on-glyph, 6 off-glyph control); solver bot lands it 3× when it has Order | tests/giant.test.ts, tests/bots/giant-bot.test.ts |
+| Art | Procedural pass: Markov to the redesign brief, all bosses + Child + Ishtar rebuilt, per-Law card art, Codex plates | captures/09, 20–27, 40–44, 51 |
+| Bug found + fixed | Per-actor tints leaked into the shared material cache (walls turned pink) | commit "Fix shared-material tint leak" |
+| Boss TTK | Unchanged, as asked | no tuning values changed |
+
+## Evidence (current build)
+- `npm run check` (typecheck + lint + 67 tests + build + headless boot): **exit 0** → captures/check-output.txt. Boot: 0 console errors, 0 warnings.
+- Campaign bot: all **51 stages** on Savant (cold open → Ascent), 1 retry (3-4).
+- Captures: **47** scenes/set pieces, 0 page errors → `captures/` (index.json).
+- `slu-certify web` and `slu-certify controller`: **CERTIFIED** on 0.9.1 → captures/certify-web.txt, certify-controller.txt.
 
 ## Perf vs targets
 | Metric | Target | Measured | Note |
 |---|---|---|---|
-| Sim step p95 at 40 enemies + 400 projectiles | ≤ 3 ms | **0.76 ms** (p50 0.20) | Node, tests/perf.test.ts |
-| Draw calls at peak density | ≤ 250 | **250** | met, zero headroom |
-| Frame p95 | ≤ 16.6 ms | 51 ms | **SwiftShader CPU rasterizer**; not the 2019 MBP GPU — unmeasured on target hardware |
-| JS heap | ≤ 600 MB | ~10 MB | |
+| Sim step p95, 40 enemies + 400 projectiles | ≤ 3 ms | **1.13 ms** (p50 0.25) | Node, tests/perf.test.ts |
+| Draw calls at peak density | ≤ 250 (new goal ≤ 200) | **129** | captures/perf.json |
+| Frame p95 | ≤ 16.6 ms | 41 ms | SwiftShader CPU rasterizer in a headless container; **not measured on the 2019 MBP target** |
+| JS heap | ≤ 600 MB | ~14 MB | |
 
-## Definition of Done
-| Item | | Evidence |
-|---|---|---|
-| Every op and compound per spec | ✅ | tests/compounds.test.ts (12 compounds, 17/18/19f window, 30f assist) |
-| Every enemy has a working exploit | ✅ | tests/exploits.test.ts (8 Theorems at 100%) |
-| 7 bosses, Descent, Ishtar completable | ✅ | campaign bot; tests/bosses.test.ts |
-| All modes functional | ✅ | tests/bots/modes.test.ts (Time Attack all 7 complete; Score Attack/Boss Rush runs end on a loss mid-run — valid arcade outcome) |
-| No soft-locks | ✅ (bot-level) | invariants: every encounter terminates for solver and passive bots |
-| 28 arenas + 7 boss arenas + 7 gates + Ishtar + hub + Ascent + Laboratory | ✅ exist · ⚠️ "tuned" only by bot | data/trials.ts, data/descent.ts |
-| 21 Theorems / Codex / 8 Law cards | ✅ / ✅ 27 (GDD lists 27; states 26) / ✅ SVG stand-in art | |
-| Toon/outline/inversion/afterimages, 15 VFX families | ✅ | captures, tests/audio.test.ts |
-| Adaptive music resolver (placeholder stems) | ✅ code · ❌ never heard | headless; no audio verification |
-| All barks subtitled; stand-ins behind manifest | ✅ | 122 lines; assets/manifest.json (290 keys) |
-| KBM + pad full flow, remapping, settings persist | ✅ code · ❌ no physical gamepad tested | |
-| Zero console errors in a full playthrough | ✅ sim bots · ⚠️ browser: boot + capture runs clean, not a full browser campaign | |
-| 60 fps on target hardware | ❌ unmeasured | no target device |
-| Saves round-trip and migrate | ✅ | tests/save.test.ts (v0 fixture, corrupt-primary → backup) |
-| Deployed to Vercel, PWA installable | ❌ not deployed · ⚠️ PWA files present, install untested | |
-| Crash/diagnostic bundle | ✅ | Settings → Export diagnostics; `__dev.bundle()` |
+## Needs Michael
+1. **Spec contradiction — the Giant's exploit vs the unlock order.** The exploit is "Order-Delay its stomp", but Order unlocks in Trial 3 and the Giant is Trial 2's boss, so the exploit can't be used in its own campaign fight. It works in Boss Rush, revisits and the Laboratory. Options:
+   - (a) grant Order for the Giant fight
+   - (b) move the exploit onto Phase
+   - (c) keep it as a revisit-only mastery route
 
-## Definition of Great — approximations
-1. **Solve-first:** bots win only via principle exploits (Strike share small); needs human playtest.
-2. **Elegance pull:** ranks + par ops shipped; replay intent needs playtest.
-3. **Prophet moment:** fixed loop predicted 86.8%; Stillness opens the core (30%); the laugh needs humans.
-4. **Child lands:** attacking bot never progresses, following bot completes; the 70%-in-30s metric needs telemetry from people.
-5. **Descent hits:** regalia removal + music instrument loss + bark arc implemented; emotional response needs humans.
-
-## UPSTREAM candidates for @slu/web-shell
-`src/look/LookKit.ts` (toon ramp, smoothed-hull outline, inversion pass, stepped afterimages) · `src/feel/FeelKit.ts` + `data/feel.ts` recipe table · bug: `mountRecoveryUI` is visible at mount (inline `display:grid` beats `hidden`).
+   Logged in DECISIONS.md and not changed.
+2. **Vercel token** to deploy.
 
 ## Honest shortfalls
-- **Not deployed** (no Vercel credentials).
-- **Frame-time target unverified** on real hardware; headless numbers are software-rendered.
-- **Audio never listened to**; synthesized placeholders only. No VO recorded (Michael is the intended voice).
-- **No Meshy/Blender assets** (tools not connected): Markov, bosses, Law cards and Codex art are procedural/SVG stand-ins.
-- **Boss TTKs are short** for the expert bot (15–80 s; Mirror ~4 min) vs GDD's 3–5 min for first-timers; not inflated without human data.
-- **Bot-verified ≠ fun-verified**: balance was tuned against bots; human playtest is the next gate.
-- Mobile/touch controls not implemented (GDD scope is KBM + pad).
-- First-compound "auto-trigger" is approximated by a hint (see DECISIONS.md).
-- The Giant's glyph exploit (Delay the stomp while the shadow lies on a glyph, 20%) never fired in bot runs and has no dedicated test; bots win through shadow hits.
+- **Not deployed.**
+- **No Meshy/Blender assets:** those tools are not connected. Markov, the bosses, the Law cards and the Codex art are procedural or SVG stand-ins, now more detailed, behind the manifest. ASSET_DELIVERY.md has the prompts.
+- **Frame-time target unverified** on real hardware.
+- **Audio never listened to; no VO recorded.**
+- **Boss TTKs are short** for the expert bot (left as-is pending human playtest).
+- **Balance is bot-tuned;** human playtest is the next gate.
+- No mobile/touch.
+- The first-compound "auto-trigger" is approximated by a hint.

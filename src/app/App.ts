@@ -96,7 +96,7 @@ export class App {
     await this.settings.load();
     this.rig = new SceneRig(canvas);
     this.shell = new SLUWebShell<GameSettings>({
-      build: { gameId: "mandark-ishtar", gameName: "Mandark Ishtar", version: "0.9.0" },
+      build: { gameId: "mandark-ishtar", gameName: "Mandark Ishtar", version: "0.9.1" },
       renderer: new ThreeAdapter({ onResize: () => this.rig.resize(), onSuspend: () => this.pause(), onScreenshot: async () => this.rig.renderer.domElement.toDataURL("image/png") }),
       settings: this.settings,
     });
