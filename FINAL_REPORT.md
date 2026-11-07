@@ -56,4 +56,4 @@
 - **Bot-verified ≠ fun-verified**: balance was tuned against bots; human playtest is the next gate.
 - Mobile/touch controls not implemented (GDD scope is KBM + pad).
 - First-compound "auto-trigger" is approximated by a hint (see DECISIONS.md).
-- Giant's glyph exploit never fired in bot runs (bots win via shadow hits); it is unit-reachable but not bot-proven.
+- The Giant's glyph exploit (Delay the stomp while the shadow lies on a glyph, 20%) never fired in bot runs and has no dedicated test; bots win through shadow hits.
