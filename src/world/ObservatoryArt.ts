@@ -151,7 +151,7 @@ export function buildObservatoryArt(radius: number): ObservatoryArt {
   group.add(stem, cap, goldBar);
 
   // Layered skyline, not a photoreal skybox.
-  group.add(skyline(1, radius + 29, -4, 0x46337e));
+  group.add(skyline(1, radius + 29, -4, VIOLET));
   group.add(skyline(4, radius + 25, -6, 0x322b6c));
   group.add(skyline(2, radius + 21, -8, 0x191b45));
 
