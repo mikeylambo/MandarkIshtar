@@ -96,7 +96,7 @@ export function buildArena(def: EncounterDef): ArenaView {
   // Gameplay and collision remain exactly the same in either view.
   const cartoonObservatory = theme === "observatory"
     && typeof window !== "undefined"
-    && new URLSearchParams(window.location.search).get("art") !== "classic";
+    && new URL(window.location.href).searchParams.get("art") !== "classic";
   // The concept's graphic floor is unlit so its ink lines retain contrast.
   const floorMat = cartoonObservatory
     ? new THREE.MeshBasicMaterial({ map: observatoryFloorTexture() })
