@@ -3,6 +3,7 @@ import type { EncounterDef } from "../sim/encounter";
 import { mesh, toon, toonUnique } from "../look/LookKit";
 import { PALETTE, THEME_ACCENT } from "../look/palette";
 import { DeterministicRng } from "@slu/web-shell";
+import { buildObservatoryArt, observatoryFloorTexture } from "./ObservatoryArt";
 
 /**
  * Procedural arena kit (final art): glyph floors, ring-walls / void edges, colonnades, floating platonic
@@ -91,8 +92,15 @@ export function buildArena(def: EncounterDef): ArenaView {
   const rng = new DeterministicRng(def.id.split("").reduce((s, c) => s * 31 + c.charCodeAt(0), 7) >>> 0);
   const anims: ((t: number) => void)[] = [];
 
-  // floor slab with glyph inlay + bevel ring
-  const floorMat = toonUnique(0xffffff, 0, 0, { map: glyphFloorTexture(theme, accent) });
+  // Opt-in A/B comparison: ?art=classic restores the original hub visuals.
+  // Gameplay and collision remain exactly the same in either view.
+  const cartoonObservatory = theme === "observatory"
+    && typeof window !== "undefined"
+    && new URLSearchParams(window.location.search).get("art") !== "classic";
+  // The concept's graphic floor is unlit so its ink lines retain contrast.
+  const floorMat = cartoonObservatory
+    ? new THREE.MeshBasicMaterial({ map: observatoryFloorTexture() })
+    : toonUnique(0xffffff, 0, 0, { map: glyphFloorTexture(theme, accent) });
   const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 96), floorMat);
   floor.rotation.x = -Math.PI / 2; floor.name = "floor";
   group.add(floor);
@@ -148,6 +156,11 @@ export function buildArena(def: EncounterDef): ArenaView {
   anims.push((t) => { floaters.children.forEach((s, i) => { s.rotation.y = t * (s.userData.spin as number); s.rotation.x = t * 0.1 + i; s.position.y += Math.sin(t * 0.5 + i) * 0.002; }); });
 
   landmark(def, group, R, accent, rng, anims);
+  if (cartoonObservatory) {
+    const art = buildObservatoryArt(R);
+    group.add(art.group);
+    anims.push(art.animate);
+  }
 
   const sk = starfield();
   (sk.material as THREE.ShaderMaterial).uniforms.warm!.value = theme === "dawn" || theme === "ascent" ? 0.15 : 0;
