@@ -6,6 +6,9 @@ import { RANK_BANDS, RANK_GLYPH, type RankId } from "../data/ranks";
 import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
 import { lawArt } from "./cardArt";
+import { opIcon, type OpIcon } from "./icons";
+import { FOCUS } from "../data/resources";
+import { STEP } from "../data/movement";
 
 export interface MenuItem { label: string; value?: () => string; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
 
@@ -95,7 +98,7 @@ export class Ui {
 
   panel(title: string, menu: Menu | null, body?: HTMLElement): HTMLElement {
     const p = el("div", "panel");
-    if (title) p.appendChild(el("div", "serif", `<div style="font-size:26px;letter-spacing:.2em;margin-bottom:8px">${title}</div>`));
+    if (title) p.appendChild(el("div", "ptitle", title));
     if (body) p.appendChild(body);
     if (menu) p.appendChild(menu.root);
     return p;
@@ -105,12 +108,15 @@ export class Ui {
   buildHud(): void {
     this.hudLayer.innerHTML = "";
     const h = el("div", "hud");
-    h.innerHTML = `<div class="hubris"><i></i></div><div class="seals"><div class="portrait">${SIGIL_SVG.replace('width="180" height="180"', 'width="44" height="44"').replace('class="sigil"', 'class="sigil done"')}</div><div class="sealrow" style="display:flex;gap:9px"></div></div>
+    const sig = SIGIL_SVG.replace('width="180" height="180"', 'width="46" height="46"');
+    h.innerHTML = `<div class="hubris"><i></i></div>
+      <div class="dock"><div class="portrait">${sig}</div><div class="dockcol"><div class="sealrow"></div><div class="focusbar"><i></i></div>
+        <div class="ops">${OPS.map((o) => `<div class="op" data-op="${o}">${opIcon(o, 26)}</div>`).join("")}<div class="steps"></div></div></div></div>
       <div class="score"><span class="rank"></span><b>0</b></div><div class="lawmini" style="display:none"></div>
       <div class="bossbar" style="display:none"><i></i></div><div class="meter" style="display:none"><i></i></div>`;
     h.appendChild(this.feedEl);
     this.hudLayer.appendChild(h);
-    for (const k of ["hubris", "sealrow", "score", "rank", "lawmini", "bossbar", "meter"]) this.hudEls[k] = h.querySelector(`.${k}`) as HTMLElement;
+    for (const k of ["hubris", "sealrow", "score", "rank", "lawmini", "bossbar", "meter", "dock", "focusbar", "ops", "steps"]) this.hudEls[k] = h.querySelector(`.${k}`) as HTMLElement;
     this.hudEls.scoreNum = h.querySelector(".score b") as HTMLElement;
     h.querySelectorAll("svg.sigil path").forEach((p) => ((p as SVGPathElement).style.animation = "none", (p as SVGPathElement).style.strokeDashoffset = "0"));
   }
@@ -122,7 +128,19 @@ export class Ui {
     const m = w.markov;
     if (e.sealrow.childElementCount !== m.maxSeals) { e.sealrow.innerHTML = ""; for (let i = 0; i < m.maxSeals; i++) e.sealrow.appendChild(el("div", "seal")); }
     [...e.sealrow.children].forEach((s, i) => s.classList.toggle("lost", i >= m.seals));
-    e.sealrow.parentElement!.style.display = w.def.noSealLoss || w.def.kind === "hub" ? "none" : "flex";
+    e.sealrow.style.display = w.def.noSealLoss ? "none" : "flex";
+    e.dock!.style.display = w.def.kind === "hub" ? "none" : "flex";
+    (e.focusbar!.firstElementChild as HTMLElement).style.width = `${(m.focus / FOCUS.max) * 100}%`;
+    for (const o of e.ops!.querySelectorAll<HTMLElement>(".op")) {
+      const op = o.dataset.op as OpIcon;
+      const lost = !m.regalia.has(op);
+      o.classList.toggle("lost", lost);
+      o.classList.toggle("low", !lost && m.focus < FOCUS.cost[op] && !w.opts.infiniteFocus);
+    }
+    const steps = e.steps!;
+    steps.style.display = m.regalia.has("step") ? "flex" : "none";
+    if (steps.childElementCount !== STEP.charges) { steps.innerHTML = ""; for (let i = 0; i < STEP.charges; i++) steps.appendChild(el("i")); }
+    [...steps.children].forEach((s, i) => s.classList.toggle("off", i >= m.stepCharges));
     const hub = e.hubris!;
     hub.style.display = m.regalia.has("hubris") ? "block" : "none";
     (hub.firstElementChild as HTMLElement).style.width = `${m.hubris}%`;
@@ -196,11 +214,13 @@ export class Ui {
     const p = el("div", "panel results");
     const band = RANK_BANDS.find((b) => b.id === r.rank)!;
     const rows = Object.entries(r.breakdown).filter(([, v]) => v > 0).map(([k, v]) => `<tr><td>${LABELS[k] ?? k}</td><td>${Math.round(v).toLocaleString("en-US")}</td></tr>`).join("");
-    p.innerHTML = `<div class="serif" style="text-align:center;letter-spacing:.3em;margin-bottom:10px">${title}</div><div class="rankbig">${RANK_GLYPH[r.rank]}</div><div class="rankname">${band.label}</div>
-      <table>${rows}<tr><td>Operations</td><td>${r.ops} / ${r.parOps}</td></tr><tr><td>Time</td><td>${(r.frames / 60).toFixed(1)}s</td></tr><tr><td><b>Score</b></td><td><b>${r.score.toLocaleString("en-US")}</b></td></tr></table>`;
+    p.innerHTML = `<div class="stage">${title}</div><div class="rankbig">${RANK_GLYPH[r.rank]}</div><div class="rankname">${band.label}</div>
+      <table>${rows}<tr><td>Operations</td><td>${r.ops} / ${r.parOps}</td></tr><tr><td>Time</td><td>${(r.frames / 60).toFixed(1)}s</td></tr><tr class="total"><td>Score</td><td>${r.score.toLocaleString("en-US")}</td></tr></table>`;
     p.appendChild(menu.root);
     this.show(p, menu);
   }
 }
+
+const OPS: OpIcon[] = ["vector", "phase", "order", "null"];
 
 const LABELS: Record<string, string> = { contradiction: "Contradictions", qed: "Q.E.D.", bounce: "Redirect chain", enemyByEnemy: "By their own law", compound: "Compounds", parOps: "Par operations", noDamage: "Untouched", strike: "Strikes", clash: "Clashes", ringout: "Ring-outs" };

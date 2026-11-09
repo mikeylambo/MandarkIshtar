@@ -1,3 +1,11 @@
+import "@fontsource/barlow-condensed/latin-600.css";
+import "@fontsource/barlow-condensed/latin-700-italic.css";
+import "@fontsource/barlow-condensed/latin-800-italic.css";
+import "@fontsource/barlow-condensed/latin-900-italic.css";
+import "@fontsource/barlow-condensed/latin-600-italic.css";
+import "@fontsource/barlow-semi-condensed/latin-500.css";
+import "@fontsource/barlow-semi-condensed/latin-500-italic.css";
+import "@fontsource/barlow-semi-condensed/latin-600.css";
 import { mountBrowserDevConsole } from "@slu/web-shell";
 import { App } from "./app/App";
 

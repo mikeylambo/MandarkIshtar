@@ -334,7 +334,7 @@ export class App {
     this.ui.hideHud();
     const c = el("div", "");
     c.style.cssText = "display:flex;flex-direction:column;align-items:center";
-    c.innerHTML = `${SIGIL_SVG}<div class="title serif" style="margin-top:22px">MANDARK&nbsp;ISHTAR</div><div class="glyph-prompt"><i></i></div>`;
+    c.innerHTML = `${SIGIL_SVG.replace('width="180" height="180"', 'width="120" height="120"')}<div class="wordmark"><b>MANDARK</b><span>ISHTAR</span><i></i></div><div class="glyph-prompt"><i></i></div>`;
     this.ui.show(c);
     this.loadBackdrop(OBSERVATORY);
   }
