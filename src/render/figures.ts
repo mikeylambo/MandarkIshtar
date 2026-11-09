@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import { blob, mesh, toon, toonUnique } from "../look/LookKit";
 import { PALETTE } from "../look/palette";
 import type { ActorType } from "../sim/types";
@@ -46,7 +47,7 @@ export function markovFigure(lazar = false): THREE.Group {
   const g = new THREE.Group();
   g.name = "markov";
   g.add(blob(0.55));
-  const coatC = lazar ? 0xf4f1ea : PALETTE.markovCoat;
+  const coatC = lazar ? 0xfffdf6 : PALETTE.markovCoat;
   const lapelC = lazar ? 0xfff6e0 : PALETTE.markovTrim;
   const body = new THREE.Group(); body.name = "body"; g.add(body);
   // trousers / boots under the coat
@@ -60,7 +61,13 @@ export function markovFigure(lazar = false): THREE.Group {
   }
   // gold trim: hem + front placket lines
   const hem = new THREE.Mesh(new THREE.TorusGeometry(0.5, 0.018, 4, 28), toon(PALETTE.gold, PALETTE.gold, 0.25)); hem.rotation.x = Math.PI / 2; hem.position.y = 0.13; body.add(hem);
-  const placket = new THREE.Mesh(new THREE.BoxGeometry(0.018, 1.2, 0.018), toon(PALETTE.gold, PALETTE.gold, 0.25)); placket.position.set(0, 0.74, 0.43); placket.rotation.x = -0.18; body.add(placket);
+  for (const s of [-1, 1]) { // gold front edges of the open coat
+    const placket = new THREE.Mesh(new THREE.BoxGeometry(0.022, 1.2, 0.022), toon(PALETTE.gold, PALETTE.gold, 0.25)); placket.position.set(s * 0.09, 0.74, 0.42); placket.rotation.set(-0.18, 0, -s * 0.12); body.add(placket);
+  }
+  // black inner suit showing down the open front
+  const inner = mesh(blade([[-0.08, 0], [0.08, 0], [0.11, 1.0], [-0.11, 1.0]], 0.02), toonUnique(lazar ? 0xf4f1ea : PALETTE.markovTrim), false); inner.position.set(0, 0.42, 0.405); inner.rotation.x = -0.16; body.add(inner);
+  // the Engine sigil in gold on the coat back
+  const backSig = new THREE.Mesh(new THREE.ShapeGeometry(sigilShape(0.16)), toon(PALETTE.gold, PALETTE.gold, 0.3)); backSig.position.set(0, 1.05, -0.33); backSig.rotation.set(0.1, Math.PI, 0); body.add(backSig);
   // white lapels (two folded planes) + high collar
   for (const s of [-1, 1]) { const lp = mesh(blade([[0, 0], [0.14 * s, 0.08], [0.1 * s, 0.34], [0.01 * s, 0.4]], 0.02), toon(lapelC)); lp.position.set(0, 1.12, 0.27); lp.rotation.x = -0.25; body.add(lp); }
   const collar = mesh(lathe([[0.15, 0], [0.19, 0.08], [0.2, 0.2]], 14), toonUnique(coatC)); collar.position.y = 1.5; body.add(collar);
@@ -73,19 +80,26 @@ export function markovFigure(lazar = false): THREE.Group {
     const glove = mesh(new THREE.SphereGeometry(0.07, 8, 6), toon(lazar ? 0xffffff : 0x0c0d12)); glove.position.y = -0.68; glove.scale.set(0.9, 1.25, 0.8); arm.add(glove);
   }
   // head
-  const head = new THREE.Group(); head.position.y = 1.8; head.name = "head"; body.add(head);
+  const head = new THREE.Group(); head.position.y = 1.82; head.scale.setScalar(1.18); head.name = "head"; body.add(head);
   const neck = mesh(new THREE.CylinderGeometry(0.07, 0.08, 0.14, 8), toon(SKIN), false); neck.position.y = -0.14; head.add(neck);
   const skull = mesh(lathe([[0, -0.2], [0.11, -0.17], [0.15, -0.06], [0.17, 0.05], [0.15, 0.15], [0.08, 0.21], [0, 0.22]], 14), toon(SKIN)); head.add(skull);
-  // swept-back geometric crest: layered planar blades, white
-  const crestC = lazar ? 0xffffff : 0xf2f2f4;
-  for (let i = 0; i < 6; i++) {
-    const side = i % 2 ? 1 : -1, k = Math.floor(i / 2);
-    const b = mesh(blade([[0, 0], [0.09, 0.02], [0.05, 0.36 - k * 0.05], [-0.01, 0.3 - k * 0.05]], 0.025), toon(crestC));
-    b.position.set(side * (0.03 + k * 0.045), 0.13 - k * 0.02, 0.08 - k * 0.02);
-    b.rotation.set(-1.95 + k * 0.1, side * (0.25 + k * 0.12), side * 0.12);
-    head.add(b);
+  // spiky crest: black planar blades fanning up and back, each tipped with a violet blade (reads as a silhouette from above)
+  const hairC = lazar ? 0xffffff : PALETTE.markovHair, tipC = lazar ? 0xfff6e0 : PALETTE.markovHairTip;
+  const hairM = toon(hairC), tipM = toon(tipC, tipC, lazar ? 0.2 : 0.35);
+  const spikes: [number, number, number, number][] = [ // yaw, pitch(back), length, roll
+    [0, -0.35, 0.42, 0], [-0.5, -0.5, 0.38, -0.5], [0.5, -0.5, 0.38, 0.5], [-0.95, -0.85, 0.34, -0.9], [0.95, -0.85, 0.34, 0.9],
+    [-0.3, -1.1, 0.4, -0.2], [0.3, -1.1, 0.4, 0.2], [0, -1.45, 0.36, 0], [-1.3, -1.25, 0.26, -1.2], [1.3, -1.25, 0.26, 1.2],
+  ];
+  // merged into two meshes (blades + tips) to keep Markov's draw calls flat
+  const bladeGeos: THREE.BufferGeometry[] = [], tipGeos: THREE.BufferGeometry[] = [];
+  const m4 = new THREE.Matrix4(), e = new THREE.Euler();
+  for (const [yaw, pitch, len, roll] of spikes) {
+    m4.makeRotationFromEuler(e.set(pitch, yaw, roll, "YXZ")).setPosition(0, 0.1, -0.01);
+    bladeGeos.push(blade([[-0.07, 0], [0.07, 0], [0.012, len * 0.72], [-0.02, len * 0.7]], 0.03).applyMatrix4(m4));
+    tipGeos.push(blade([[-0.03, len * 0.66], [0.022, len * 0.68], [0.004, len]], 0.032).applyMatrix4(m4));
   }
-  const fringe = mesh(blade([[-0.13, 0], [0.13, 0], [0.06, 0.1], [-0.08, 0.09]], 0.05), toon(crestC)); fringe.position.set(0, 0.13, 0.1); fringe.rotation.x = -0.6; head.add(fringe);
+  head.add(mesh(mergeGeometries(bladeGeos), hairM), mesh(mergeGeometries(tipGeos), tipM, false));
+  const fringe = mesh(blade([[-0.15, 0], [0.15, 0], [0.09, 0.1], [0.02, 0.03], [-0.04, 0.11], [-0.1, 0.06]], 0.05), hairM); fringe.position.set(0, 0.12, 0.11); fringe.rotation.x = -0.75; head.add(fringe);
   // eyes behind hexagonal half-rims, lens glint
   for (const s of [-1, 1]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 6, 4), new THREE.MeshBasicMaterial({ color: 0x1a2a58 })); eye.position.set(s * 0.062, 0.02, 0.145); head.add(eye);
@@ -228,6 +242,9 @@ export function bossFigure(type: ActorType): THREE.Group {
     case "shadow": {
       const disc = new THREE.Mesh(new THREE.CircleGeometry(1.7, 32), new THREE.MeshBasicMaterial({ color: 0x05060b, transparent: true, opacity: 0.75, depthWrite: false }));
       disc.rotation.x = -Math.PI / 2; disc.position.y = 0.03; disc.scale.set(1.2, 2.2, 1); body.add(disc);
+      // pale rim: on the dark Observatory floor the shadow must read by its edge, not by darkness alone
+      const rim = new THREE.Mesh(new THREE.RingGeometry(1.62, 1.78, 48), new THREE.MeshBasicMaterial({ color: 0xb8a6ff, transparent: true, opacity: 0.7, depthWrite: false }));
+      rim.rotation.x = -Math.PI / 2; rim.position.y = 0.035; rim.scale.set(1.2, 2.2, 1); body.add(rim);
       break;
     }
     default: body.add(mesh(new THREE.IcosahedronGeometry(1), toonUnique(PALETTE.stone)));

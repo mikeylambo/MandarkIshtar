@@ -70,7 +70,7 @@ export function withOutline(mesh: THREE.Mesh): THREE.Mesh {
 }
 
 /** Soft contact shadow for grounding (presentation only). */
-const blobMat = new THREE.MeshBasicMaterial({ color: 0x0a0e1e, transparent: true, opacity: 0.28, depthWrite: false });
+const blobMat = new THREE.MeshBasicMaterial({ color: 0x03040a, transparent: true, opacity: 0.45, depthWrite: false });
 const blobGeo = new THREE.CircleGeometry(1, 24);
 export function blob(r: number): THREE.Mesh { const b = new THREE.Mesh(blobGeo, blobMat); b.rotation.x = -Math.PI / 2; b.position.y = 0.02; b.scale.setScalar(r); return b; }
 

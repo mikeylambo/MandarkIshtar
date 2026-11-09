@@ -1,3 +1,3 @@
 { "schema": 1, "group": "look.post", "values": {
-  "bloomThreshold": 0.86, "bloomStrength": 0.7, "bloomRadius": 0.42, "lift": 0, "gain": 1.0, "liftColor": "void.deep", "gainColor": "#ffffff", "saturation": 1.0,
-  "vignette": true, "vignetteAmount": 0.32, "vignetteColor": "void.deep", "grain": false, "chromatic": false, "distortion": true, "aa": "fxaa" } }
+  "bloomThreshold": 0.9, "bloomStrength": 0.85, "bloomRadius": 0.5, "lift": 0, "gain": 1.0, "liftColor": "void.deep", "gainColor": "#ffffff", "saturation": 1.08,
+  "vignette": true, "vignetteAmount": 0.4, "vignetteColor": "void.deep", "grain": false, "chromatic": false, "distortion": true, "aa": "fxaa" } }

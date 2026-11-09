@@ -1,1 +1,1 @@
-{ "schema": 1, "group": "look.mat.lit", "values": { "base": "#e9e6dc", "steps": 3, "soft": 0.05, "wrap": 0.22, "shadowTint": "shadow", "shadowLift": 0.62, "specSize": 0.035, "specIntensity": 0.3 } }
+{ "schema": 1, "group": "look.mat.lit", "values": { "base": "#eee6d6", "steps": 2, "soft": 0.02, "wrap": 0.18, "shadowTint": "shadow", "shadowLift": 0.66, "specSize": 0.05, "specIntensity": 0.45 } }

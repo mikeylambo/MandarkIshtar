@@ -29,8 +29,8 @@ export class SceneRig {
     this.renderer.info.autoReset = false;
     this.camera = new THREE.PerspectiveCamera(40, 16 / 9, 0.1, 400);
     this.scene.fog = new THREE.Fog(PALETTE.void, 40, 140);
-    this.hemi = new THREE.HemisphereLight(0xdfe6ff, 0x1a2140, 1.25);
-    this.key = new THREE.DirectionalLight(0xffffff, 1.6);
+    this.hemi = new THREE.HemisphereLight(0xeef0ff, 0x2a2350, 1.4);
+    this.key = new THREE.DirectionalLight(0xfff8ee, 1.75);
     this.key.position.set(-8, 20, 6);
     this.scene.add(this.hemi, this.key);
     this.look = createLook({ renderer: this.renderer, scene: this.scene, camera: this.camera, registry: tunables, particles: 3000 });

@@ -1,37 +1,52 @@
 import * as THREE from "three";
 import type { EncounterDef } from "../sim/encounter";
 import { mesh, toon, toonUnique } from "../look/LookKit";
-import { PALETTE, THEME_ACCENT } from "../look/palette";
+import { LIGHT_THEMES, PALETTE, THEME_ACCENT } from "../look/palette";
 import { DeterministicRng } from "@slu/web-shell";
 
 /**
  * Procedural arena kit (final art): glyph floors, ring-walls / void edges, colonnades, floating platonic
  * solids and a per-Trial landmark. Everything is generated from the encounter data.
  */
-const texCache = new Map<string, THREE.CanvasTexture>();
+const texCache = new Map<string, { map: THREE.CanvasTexture; glow: THREE.CanvasTexture }>();
 
-function glyphFloorTexture(theme: string, accent: number): THREE.CanvasTexture {
-  const key = `${theme}`;
-  const cached = texCache.get(key);
+/**
+ * Glyph floor as two layers: `map` (stone + inlay) and `glow` (the inlay alone on black, used as the emissive map so the
+ * gold rules and blue glyphs bloom). Trials floors are dark navy observatory tile; grace themes keep light stone.
+ */
+function glyphFloorTexture(theme: string, accent: number): { map: THREE.CanvasTexture; glow: THREE.CanvasTexture } {
+  const cached = texCache.get(theme);
   if (cached) return cached;
-  const size = 1024;
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const g = c.getContext("2d")!;
-  const stone = theme === "descent" ? "#8d8b84" : theme === "innocence" || theme === "ascent" || theme === "dawn" ? "#efece4" : theme === "shadow" ? "#bdbab2" : "#d9d5ca";
-  g.fillStyle = stone; g.fillRect(0, 0, size, size);
-  const col = `#${accent.toString(16).padStart(6, "0")}`;
-  const cx = size / 2;
+  const size = 1024, cx = size / 2;
+  const light = LIGHT_THEMES.has(theme);
+  const mk = () => { const c = document.createElement("canvas"); c.width = c.height = size; return [c, c.getContext("2d")!] as const; };
+  const [baseC, base] = mk();
+  const [lineC, line] = mk();
+  // base: radial navy gradient + panel seams (or light stone for grace themes)
+  if (light) { base.fillStyle = "#efece4"; base.fillRect(0, 0, size, size); }
+  else {
+    const centre = theme === "descent" ? "#1b1d33" : "#262d63", rim = theme === "descent" ? "#0b0c18" : "#10142f";
+    const gr = base.createRadialGradient(cx, cx, 0, cx, cx, cx); gr.addColorStop(0, centre); gr.addColorStop(1, rim);
+    base.fillStyle = gr; base.fillRect(0, 0, size, size);
+    base.strokeStyle = "rgba(120,130,220,0.16)"; base.lineWidth = 2;
+    for (let i = 0; i < 28; i++) { const a = (i / 28) * Math.PI * 2; base.beginPath(); base.moveTo(cx + Math.cos(a) * 0.34 * cx, cx + Math.sin(a) * 0.34 * cx); base.lineTo(cx + Math.cos(a) * cx, cx + Math.sin(a) * cx); base.stroke(); }
+    for (const r of [0.48, 0.76]) { base.beginPath(); base.arc(cx, cx, r * cx, 0, Math.PI * 2); base.stroke(); }
+  }
+  const blue = `#${accent.toString(16).padStart(6, "0")}`;
+  const gold = light ? "#c9a24a" : "#f2b94a";
   const rng = new DeterministicRng(theme.length * 977 + theme.charCodeAt(0));
-  g.strokeStyle = col; g.globalAlpha = 0.55;
-  // concentric rules
-  for (const r of [0.97, 0.9, 0.62, 0.6, 0.34, 0.12]) { g.lineWidth = r > 0.8 ? 6 : 3; g.beginPath(); g.arc(cx, cx, r * cx, 0, Math.PI * 2); g.stroke(); }
+  const g = line;
+  // concentric rules: the outer and middle bands are gold inlay, the rest blue light
+  for (const [r, w, c] of [[0.97, 7, gold], [0.9, 3, blue], [0.62, 4, gold], [0.34, 3, blue], [0.12, 3, gold]] as [number, number, string][]) {
+    g.strokeStyle = c; g.globalAlpha = light ? 0.55 : 0.9; g.lineWidth = w; g.beginPath(); g.arc(cx, cx, r * cx, 0, Math.PI * 2); g.stroke();
+  }
   // radial ticks (cuneiform-meets-math)
+  g.strokeStyle = blue;
   for (let i = 0; i < 120; i++) {
     const a = (i / 120) * Math.PI * 2;
     const long = i % 10 === 0;
     const r0 = 0.9 * cx, r1 = (long ? 0.8 : 0.86) * cx;
-    g.lineWidth = long ? 5 : 2;
+    g.globalAlpha = long ? 0.75 : 0.35; g.lineWidth = long ? 5 : 2;
     g.beginPath(); g.moveTo(cx + Math.cos(a) * r0, cx + Math.sin(a) * r0); g.lineTo(cx + Math.cos(a) * r1, cx + Math.sin(a) * r1); g.stroke();
     if (long) { // wedge glyph
       const r2 = 0.72 * cx;
@@ -41,41 +56,70 @@ function glyphFloorTexture(theme: string, accent: number): THREE.CanvasTexture {
     }
   }
   // inscribed polygon (7-gon: the Engine) and a theme figure
-  g.lineWidth = 3;
+  g.globalAlpha = light ? 0.55 : 0.7; g.lineWidth = 3;
   const sides = theme === "observatory" ? 7 : 3 + (theme.length % 5);
   g.beginPath();
   for (let i = 0; i <= sides; i++) { const a = (i / sides) * Math.PI * 2 - Math.PI / 2; const x = cx + Math.cos(a) * 0.6 * cx, y = cx + Math.sin(a) * 0.6 * cx; if (i) g.lineTo(x, y); else g.moveTo(x, y); }
   g.stroke();
   // scattered proof marks
-  g.globalAlpha = 0.25; g.font = "28px serif"; g.fillStyle = col;
+  g.globalAlpha = 0.3; g.font = "28px serif"; g.fillStyle = blue;
   const marks = ["∴", "∵", "≡", "∀", "∃", "⊢", "∎", "λ", "Σ", "∂"];
   for (let i = 0; i < 40; i++) { const a = rng.range(0, Math.PI * 2), r = rng.range(0.38, 0.56) * cx; g.fillText(rng.pick(marks), cx + Math.cos(a) * r, cx + Math.sin(a) * r); }
   g.globalAlpha = 1;
-  const t = new THREE.CanvasTexture(c);
-  t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
-  texCache.set(key, t);
-  return t;
+  base.drawImage(lineC, 0, 0);
+  const [glowC, glowG] = mk();
+  glowG.fillStyle = "#000"; glowG.fillRect(0, 0, size, size);
+  if (!light) glowG.drawImage(lineC, 0, 0);
+  const tex = (c: HTMLCanvasElement) => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
+  const out = { map: tex(baseC), glow: tex(glowC) };
+  texCache.set(theme, out);
+  return out;
 }
 
 let sky: THREE.Mesh | null = null;
+/** Night sky: indigo → violet horizon, stars and a large pale moon (fixed in the sky, like the Observatory window). */
 export function starfield(): THREE.Mesh {
   if (sky) return sky;
   const geo = new THREE.SphereGeometry(180, 32, 16);
   const mat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false, fog: false,
-    uniforms: { warm: { value: 0 } },
+    uniforms: { warm: { value: 0 }, moonDir: { value: new THREE.Vector3(-0.35, 0.22, -0.91).normalize() } },
     vertexShader: `varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
-    fragmentShader: `uniform float warm; varying vec3 vP;
+    fragmentShader: `uniform float warm; uniform vec3 moonDir; varying vec3 vP;
       float h(vec3 p){ return fract(sin(dot(p, vec3(12.9898,78.233,37.719))) * 43758.5453); }
-      void main(){ float y = vP.y; vec3 deep = mix(vec3(0.043,0.08,0.19), vec3(0.01,0.012,0.03), smoothstep(-0.6,0.5,y));
-        vec3 g = floor(vP * 260.0); float s = step(0.9965, h(g)) * (0.6 + 0.4 * h(g + 1.0));
-        vec3 col = deep + vec3(s) * vec3(0.8,0.85,1.0);
+      void main(){ float y = vP.y;
+        vec3 zen = vec3(0.035,0.05,0.14), hor = vec3(0.26,0.16,0.48), low = vec3(0.02,0.025,0.07);
+        vec3 col = y > 0.0 ? mix(hor, zen, smoothstep(0.0, 0.55, y)) : mix(hor, low, smoothstep(0.0, -0.35, y));
+        vec3 g = floor(vP * 260.0); float s = step(0.9965, h(g)) * (0.6 + 0.4 * h(g + 1.0)) * smoothstep(-0.1, 0.2, y);
+        col += vec3(s) * vec3(0.8,0.85,1.0);
+        float md = dot(vP, moonDir);
+        col = mix(col, vec3(1.0,0.95,0.78), smoothstep(0.9935, 0.9945, md));
+        col += vec3(0.35,0.3,0.55) * pow(max(md, 0.0), 180.0) * 0.6;
         vec3 dawn = mix(vec3(1.0,0.86,0.62), vec3(1.0,0.97,0.9), smoothstep(-0.2,0.6,y));
         gl_FragColor = vec4(mix(col, dawn, warm), 1.0); }`,
   });
   sky = new THREE.Mesh(geo, mat);
   sky.frustumCulled = false;
   return sky;
+}
+
+/** Flat violet skyline of spires ringing the void below the Observatory (two instanced draws). */
+function skyline(R: number, rng: DeterministicRng, dark: boolean): THREE.Group {
+  const g = new THREE.Group(); g.name = "skyline";
+  const n = 64;
+  const mk = (color: number) => new THREE.MeshBasicMaterial({ color, fog: false });
+  const shaft = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), mk(dark ? 0x120e26 : 0x241a4a), n);
+  const spire = new THREE.InstancedMesh(new THREE.ConeGeometry(0.62, 1, 4), mk(dark ? 0x120e26 : 0x241a4a), n);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), v = new THREE.Vector3(), sc = new THREE.Vector3();
+  for (let i = 0; i < n; i++) {
+    const a = rng.range(0, Math.PI * 2), r = rng.range(R + 42, R + 90);
+    const w = rng.range(2, 6), h = rng.range(18, i % 9 === 0 ? 70 : 42), top = -38 + h;
+    q.setFromAxisAngle(v.set(0, 1, 0), rng.range(0, Math.PI));
+    m4.compose(v.set(Math.sin(a) * r, -38 + h / 2, Math.cos(a) * r), q, sc.set(w, h, w)); shaft.setMatrixAt(i, m4);
+    m4.compose(v.set(Math.sin(a) * r, top + w * 1.6, Math.cos(a) * r), q, sc.set(w, w * 3.2, w)); spire.setMatrixAt(i, m4);
+  }
+  g.add(shaft, spire);
+  return g;
 }
 
 export interface ArenaView { group: THREE.Group; floor: THREE.Mesh; animate(t: number): void; dispose(): void }
@@ -92,7 +136,9 @@ export function buildArena(def: EncounterDef): ArenaView {
   const anims: ((t: number) => void)[] = [];
 
   // floor slab with glyph inlay + bevel ring
-  const floorMat = toonUnique(0xffffff, 0, 0, { map: glyphFloorTexture(theme, accent) });
+  const ft = glyphFloorTexture(theme, accent);
+  const floorMat = toonUnique(0xffffff, 0xffffff, LIGHT_THEMES.has(theme) ? 0 : 1.0, { map: ft.map });
+  floorMat.emissiveMap = ft.glow;
   const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 96), floorMat);
   floor.rotation.x = -Math.PI / 2; floor.name = "floor";
   group.add(floor);
@@ -105,8 +151,8 @@ export function buildArena(def: EncounterDef): ArenaView {
     // colonnade (instanced to stay inside the draw-call budget)
     const n = Math.round(R * 2.2);
     const colGeo = new THREE.CylinderGeometry(0.32, 0.38, 3, 10);
-    const col = new THREE.InstancedMesh(colGeo, toon(PALETTE.stone), n);
-    const cap = new THREE.InstancedMesh(new THREE.BoxGeometry(0.95, 0.25, 0.95), toon(PALETTE.stone), n);
+    const col = new THREE.InstancedMesh(colGeo, toon(PALETTE.navy), n);
+    const cap = new THREE.InstancedMesh(new THREE.BoxGeometry(0.95, 0.25, 0.95), toon(PALETTE.gold, PALETTE.gold, 0.15), n);
     const m4 = new THREE.Matrix4();
     for (let i = 0; i < n; i++) {
       const a = (i / n) * Math.PI * 2;
@@ -115,7 +161,7 @@ export function buildArena(def: EncounterDef): ArenaView {
       m4.makeTranslation(x, 3.1, z); cap.setMatrixAt(i, m4);
     }
     group.add(col, cap);
-    const lintel = mesh(new THREE.TorusGeometry(R + 0.9, 0.18, 6, 96), toon(PALETTE.stone));
+    const lintel = mesh(new THREE.TorusGeometry(R + 0.9, 0.18, 6, 96), toon(PALETTE.gold, PALETTE.gold, 0.15));
     lintel.rotation.x = Math.PI / 2; lintel.position.y = 3.3; group.add(lintel);
   } else {
     // void edge: luminous rule and a falling-away underside
@@ -129,7 +175,9 @@ export function buildArena(def: EncounterDef): ArenaView {
   for (const o of def.arena.obstacles) {
     const p = mesh(new THREE.CylinderGeometry(o.r, o.r * 1.08, 3, 14), toon(PALETTE.stone));
     p.position.set(o.x, 1.5, o.z); group.add(p);
-    const c = mesh(new THREE.BoxGeometry(o.r * 2.4, 0.3, o.r * 2.4), toon(PALETTE.stone));
+    const band = mesh(new THREE.CylinderGeometry(o.r * 1.1, o.r * 1.1, 0.16, 14), toon(PALETTE.gold, PALETTE.gold, 0.15), false);
+    band.position.set(o.x, 2.75, o.z); group.add(band);
+    const c = mesh(new THREE.BoxGeometry(o.r * 2.4, 0.3, o.r * 2.4), toon(PALETTE.navy));
     c.position.set(o.x, 3.1, o.z); group.add(c);
   }
 
@@ -137,7 +185,7 @@ export function buildArena(def: EncounterDef): ArenaView {
   const solids = PLATONIC();
   const floaters = new THREE.Group();
   for (let i = 0; i < 16; i++) {
-    const s = mesh(solids[i % solids.length]!, toon(theme === "descent" ? 0x6e6c66 : PALETTE.stone), true);
+    const s = mesh(solids[i % solids.length]!, toon(theme === "descent" ? 0x3a3c52 : LIGHT_THEMES.has(theme) ? PALETTE.stone : i % 4 === 0 ? PALETTE.stone : PALETTE.navy), true);
     const a = rng.range(0, Math.PI * 2), r = rng.range(R + 8, R + 30);
     s.position.set(Math.sin(a) * r, rng.range(-14, 10), Math.cos(a) * r);
     s.scale.setScalar(rng.range(0.6, 2.6));
@@ -149,6 +197,7 @@ export function buildArena(def: EncounterDef): ArenaView {
 
   landmark(def, group, R, accent, rng, anims);
 
+  if (!LIGHT_THEMES.has(theme)) group.add(skyline(R, rng, theme === "descent"));
   const sk = starfield();
   (sk.material as THREE.ShaderMaterial).uniforms.warm!.value = theme === "dawn" || theme === "ascent" ? 0.15 : 0;
   group.add(sk);

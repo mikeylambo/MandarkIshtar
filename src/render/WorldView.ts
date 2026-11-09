@@ -158,7 +158,7 @@ export class WorldView {
     // Phase: colour-inverted silhouette + stepped afterimages
     const spectral = m.spectral;
     g.traverse((o) => { if (o instanceof THREE.Mesh && o.material instanceof THREE.MeshToonMaterial) { o.material.transparent = spectral; o.material.opacity = spectral ? 0.45 : 1; } });
-    if ((spectral || m.state === "step") && frame % 3 === 0) this.afterimages.spawn(new THREE.Vector3(x, 0.9, z), yaw, spectral ? (0xffffff - PALETTE.markovCoat) as number : (PALETTE.gold as number), PALETTE.blue, 15);
+    if ((spectral || m.state === "step") && frame % 3 === 0) this.afterimages.spawn(new THREE.Vector3(x, 0.9, z), yaw, spectral ? 0x9fc0ff : (PALETTE.gold as number), PALETTE.blue, 15);
     g.visible = !(m.mercyT > 0 && frame % 6 < 2);
     // focus ring (draining arcs), op glyphs (dim when unaffordable), step pips
     const f = m.focus / FOCUS.max;

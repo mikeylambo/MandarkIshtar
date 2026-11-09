@@ -1,4 +1,4 @@
 { "schema": 1, "group": "look.palette", "values": {
   "void": "#0b1530", "void.deep": "#05060b", "soul": "#4f8dff", "ember": "#f2b94a", "ember.hot": "#ffd77a",
-  "edge": "#4f8dff", "shadow": "#3a4670", "highlight": "#fff6e0", "energy": "#9fc0ff", "danger": "#ff3a3a",
+  "edge": "#4f8dff", "shadow": "#5a4c9e", "highlight": "#fff6e0", "energy": "#9fc0ff", "danger": "#ff3a3a",
   "ui.accent": "#f2b94a", "ui.text": "#ece8dc" } }
