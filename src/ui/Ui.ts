@@ -7,13 +7,14 @@ import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
 import { lawArt } from "./cardArt";
 import { opIcon, strikeIcon, type OpIcon } from "./icons";
+import { BB_CSS, TIER, tierFrame, type Tier } from "./bbStyles";
 import { GLYPH_CSS, actionGlyph, isPad, uiGlyph, type PadFamily, type UiAct } from "./glyphs";
 import type { InputDeviceFamily } from "@slu/web-shell";
 import type { Binding } from "../data/input";
 import { FOCUS } from "../data/resources";
 import { STEP } from "../data/movement";
 
-export interface MenuItem { label: string; value?: () => string; valueHtml?: boolean; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
+export interface MenuItem { label: string; desc?: string | (() => string); value?: () => string; valueHtml?: boolean; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
 
 export function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", html = ""): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e;
@@ -25,6 +26,8 @@ export class Menu {
   readonly root = el("div", "menu");
   /** Bumper/Q-E tab switching (settings). */
   onTab?: (d: -1 | 1) => void;
+  /** Called whenever focus or values repaint (hint line / description panel). */
+  onFocus?: (it: MenuItem | undefined) => void;
   private rows: HTMLDivElement[] = [];
   constructor(private items: MenuItem[], private readonly sfx: (k: string) => void, readonly onBack?: () => void) {
     this.render();
@@ -36,6 +39,7 @@ export class Menu {
     this.root.innerHTML = "";
     this.rows = this.items.map((it, i) => {
       const r = el("div", "item" + (it.disabled ? " disabled" : ""));
+      r.style.setProperty("--i", String(i));
       const val = it.value ? `<span class="val">${it.value()}</span>` : "";
       r.innerHTML = `<span>${it.label}</span>${it.value && (it.onLeft || it.onRight) ? `<span class="adj"><i>‹</i>${val}<i>›</i></span>` : val}`;
       r.addEventListener("mouseenter", () => { this.index = i; this.paint(); });
@@ -44,9 +48,11 @@ export class Menu {
       return r;
     });
   }
+  get hasDesc(): boolean { return this.items.some((i) => i.desc); }
   /** Re-read item values (e.g. after an input-family change). */
   refresh(): void { this.paint(); }
   private paint(): void {
+    this.onFocus?.(this.items[this.index]);
     this.rows.forEach((r, i) => {
       r.classList.toggle("focus", i === this.index);
       const it = this.items[i]!;
@@ -95,7 +101,7 @@ export class Ui {
 
   constructor(root: HTMLElement, readonly sfx: (k: string) => void) {
     this.root = root;
-    const style = document.createElement("style"); style.textContent = CSS + GLYPH_CSS; document.head.appendChild(style);
+    const style = document.createElement("style"); style.textContent = CSS + GLYPH_CSS + BB_CSS; document.head.appendChild(style);
     root.append(this.hudLayer, this.screen, this.overlay, this.subs, this.flash);
   }
 
@@ -137,6 +143,40 @@ export class Ui {
   }
   hideScreen(): void { this.screen.innerHTML = ""; this.menu = null; }
   get screenOpen(): boolean { return this.screen.childElementCount > 0; }
+
+  /** BB-style slanted choice bars (right side), with the top hint line showing the focused item's description. */
+  bars(menu: Menu): HTMLElement {
+    menu.root.classList.add("bars");
+    const wrap = el("div", "barwrap");
+    if (menu.hasDesc) {
+      const hint = this.topHint("");
+      menu.onFocus = (it) => { const d = descOf(it); hint.querySelector("span")!.textContent = d; hint.classList.toggle("empty", !d); };
+      wrap.appendChild(hint);
+    }
+    wrap.appendChild(menu.root);
+    menu.refresh();
+    return wrap;
+  }
+  showBars(menu: Menu): void { this.show(this.bars(menu), menu); this.screen.firstElementChild?.classList.add("bars-screen"); }
+
+  /** One-line instruction at the top centre, flanked by a waveform. */
+  topHint(text: string): HTMLElement { return el("div", "tophint" + (text ? "" : " empty"), `<i></i><span>${text}</span><i class="r"></i>`); }
+
+  /** Menu + description panel for the focused item (settings). */
+  withDesc(menu: Menu): HTMLElement {
+    const grid = el("div", "withdesc");
+    const d = el("div", "desc empty", "<h4></h4><p></p>");
+    menu.onFocus = (it) => { const t = descOf(it); d.classList.toggle("empty", !t); if (t) { d.querySelector("h4")!.textContent = it!.label; d.querySelector("p")!.textContent = t; } };
+    grid.append(menu.root, d);
+    menu.refresh();
+    return grid;
+  }
+
+  /** Hexagonal emblem (art inside a tier-coloured hex). */
+  static hex(inner: string, tier: Tier, bg = ""): string { return `<div class="hex" style="--c:${TIER[tier]}"><div style="${bg ? `background-image:url(${bg})` : ""}">${inner}</div></div>`; }
+  static tierFrame = tierFrame;
+
+  setReducedMotion(on: boolean): void { this.root.classList.toggle("rm", on); }
 
   panel(title: string, menu: Menu | null, body?: HTMLElement): HTMLElement {
     const p = el("div", "panel");
@@ -223,7 +263,7 @@ export class Ui {
   lawCard(law: LawId, art: string | null): void {
     const L = LAWS[law];
     const c = el("div", "lawcard");
-    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : lawArt(law)}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
+    c.innerHTML = `${Ui.hex(art ? "" : lawArt(law), "law", art ?? "")}<h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
     this.overlay.appendChild(c);
     requestAnimationFrame(() => c.classList.add("slam"));
     setTimeout(() => c.remove(), 2100);
@@ -234,7 +274,7 @@ export class Ui {
     const L = LAWS[law];
     const c = el("div", "lawcard");
     c.style.animation = "none"; c.style.opacity = "1"; c.style.transform = "translate(-50%,-50%)";
-    c.innerHTML = `<div class="art" style="${art ? `background-image:url(${art})` : ""}">${art ? "" : lawArt(law)}</div><h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
+    c.innerHTML = `${Ui.hex(art ? "" : lawArt(law), "law", art ?? "")}<h2 class="serif">${L.name}</h2><p>${L.rule}</p>`;
     return c;
   }
 
@@ -267,6 +307,8 @@ export class Ui {
     this.show(p, menu);
   }
 }
+
+const descOf = (it: MenuItem | undefined): string => (!it?.desc ? "" : typeof it.desc === "string" ? it.desc : it.desc());
 
 const OPS: OpIcon[] = ["vector", "phase", "order", "null"];
 

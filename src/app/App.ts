@@ -18,6 +18,9 @@ import { AudioEngine } from "../audio/AudioEngine";
 import { ResolutionMusic } from "../audio/ResolutionMusic";
 import { BarkSystem } from "../audio/Barks";
 import { Ui, Menu, el, SIGIL_SVG, type MenuItem } from "../ui/Ui";
+import { TIER } from "../ui/bbStyles";
+
+const CATEGORY_NAME = { law: "Law", boss: "Boss", theorem: "Theorem", story: "Story" } as const;
 import { kbmBindingGlyphs, padBindingGlyph } from "../ui/glyphs";
 import { opIcon, strikeIcon, type OpIcon } from "../ui/icons";
 import { InputDevice } from "../ui/InputDevice";
@@ -154,6 +157,7 @@ export class App {
     if (this.input) { this.input.deadzoneL = a.deadzoneLeft; this.input.deadzoneR = a.deadzoneRight; this.input.holdToggle = a.holdToToggle; }
     if (this.camera) this.camera.reducedMotion = a.reducedMotion || this.settings.get("reducedMotion");
     if (this.view) this.view.highContrast = a.highContrastTelegraphs;
+    this.ui?.setReducedMotion(a.reducedMotion);
     this.haptics.setEnabled(this.settings.get("vibration"));
   }
 
@@ -365,7 +369,7 @@ export class App {
       { label: "Quit", onSelect: () => this.toTitle() },
     ];
     const m = new Menu(items, (k) => this.audio.sfx(k), () => this.toTitle());
-    this.ui.show(this.ui.panel("", m), m);
+    this.ui.showBars(m);
   }
 
   private arcadeUnlocked(): boolean { return this.progress.data.trialsCleared.length > 0 || this.progress.data.campaignComplete; }
@@ -472,7 +476,7 @@ export class App {
       run.seals = undefined;
       const m = new Menu([{ label: "Retry", onSelect: () => this.playStage() }, { label: run.kind === "campaign" ? "Observatory" : "Quit", onSelect: () => this.toHub() }], (k) => this.audio.sfx(k), () => this.playStage());
       this.mode = "results";
-      this.ui.show(this.ui.panel("", m), m);
+      this.ui.showBars(m);
       return;
     }
     const r = w.scorer.finalized!;
@@ -550,7 +554,7 @@ export class App {
       { label: "Observatory", disabled: run?.segment === "descent" && false, onSelect: () => { this.audio.resumeAll(); this.toHub(); } },
     ];
     const m = new Menu(items, (k) => this.audio.sfx(k), () => this.resume());
-    this.ui.show(this.ui.panel("", m), m);
+    this.ui.showBars(m);
   }
   private pauseMenuAgain(): void { this.mode = "play"; this.pause(); }
   resume(): void { this.ui.hideScreen(); this.audio.resumeAll(); this.shell.resume?.(); this.mode = "play"; this.acc = 0; this.last = 0; }
@@ -607,21 +611,21 @@ export class App {
     this.mode = "menu";
     const p = this.progress;
     const items: MenuItem[] = [
-      { label: "Time Attack", disabled: !p.data.trialsCleared.length, onSelect: () => this.trialPicker((n) => this.startPlan(timeAttack(n)), () => this.arcadeMenu(back)) },
-      { label: "Score Attack", disabled: !p.has("scoreAttack"), onSelect: () => this.startPlan(scoreAttack(Math.floor(this.t * 1000) % 100000)) },
-      { label: "Daily", disabled: !p.has("scoreAttack"), onSelect: () => this.startPlan(dailyScoreAttack()) },
-      { label: "Boss Rush", disabled: !p.has("bossRush"), onSelect: () => this.startPlan(bossRush()) },
-      { label: "Theorems", disabled: !THEOREM_CHALLENGES.some((c) => p.has(`theorem:${c.id}`)), onSelect: () => this.theoremMenu(() => this.arcadeMenu(back)) },
-      { label: "Laboratory", disabled: !p.has("laboratory"), onSelect: () => this.startPlan(laboratory()) },
+      { label: "Time Attack", desc: "Replay a cleared Trial against the clock.", disabled: !p.data.trialsCleared.length, onSelect: () => this.trialPicker((n) => this.startPlan(timeAttack(n)), () => this.arcadeMenu(back)) },
+      { label: "Score Attack", desc: "Ten seeded arenas with random Laws. Seals carry over.", disabled: !p.has("scoreAttack"), onSelect: () => this.startPlan(scoreAttack(Math.floor(this.t * 1000) % 100000)) },
+      { label: "Daily", desc: "Today's Score Attack. Same seed for every player.", disabled: !p.has("scoreAttack"), onSelect: () => this.startPlan(dailyScoreAttack()) },
+      { label: "Boss Rush", desc: "Every boss, back to back, with all operations.", disabled: !p.has("bossRush"), onSelect: () => this.startPlan(bossRush()) },
+      { label: "Theorems", desc: "Clear a room under one constraint.", disabled: !THEOREM_CHALLENGES.some((c) => p.has(`theorem:${c.id}`)), onSelect: () => this.theoremMenu(() => this.arcadeMenu(back)) },
+      { label: "Laboratory", desc: "Practice with every operation and unlimited Focus.", disabled: !p.has("laboratory"), onSelect: () => this.startPlan(laboratory()) },
     ];
     const m = new Menu(items, (k) => this.audio.sfx(k), back);
-    this.ui.show(this.ui.panel("", m), m);
+    this.ui.showBars(m);
   }
 
   private trialPicker(go: (n: number) => void, back: () => void): void {
     const items: MenuItem[] = TRIALS.map((t) => ({ label: LAWS[t.law].name, disabled: !this.progress.data.trialsCleared.includes(t.index), value: () => { const b = this.progress.data.bestTimes[`timeAttack:Trial ${t.index}`]; return b ? `${(b / 60).toFixed(1)}s` : ""; }, onSelect: () => go(t.index) }));
     const m = new Menu(items, (k) => this.audio.sfx(k), back);
-    this.ui.show(this.ui.panel("", m), m);
+    this.ui.showBars(m);
   }
 
   private theoremMenu(back: () => void): void {
@@ -634,12 +638,13 @@ export class App {
   codexMenu(back: () => void): void {
     this.mode = "menu";
     const unlocked = CODEX.filter((c) => this.progress.data.codex.includes(c.id));
-    const entry = el("div", "entry");
+    const entry = el("div", "entry card");
     const show = (i: number) => {
       const c = unlocked[i]; if (!c) { entry.innerHTML = ""; return; }
       const marg = this.progress.data.marginalia.includes(c.id) ? c.marginalia.map((m) => `<div class="marg">${m.text}<small>${m.ref}</small></div>`).join("") : "";
       const plate = this.assets.url(`codex.${c.id}`);
-      entry.innerHTML = `<div class="plate" style="${plate ? `background-image:url(${plate})` : ""}">${plate ? "" : codexArt(c.id)}</div><h3 class="serif">${c.title}</h3><div>${c.note}</div>${marg}`;
+      entry.style.borderImage = `${Ui.tierFrame(c.category)} 22 fill / 22px stretch`;
+      entry.innerHTML = `<div class="cat" style="--c:${TIER[c.category]}">${CATEGORY_NAME[c.category]}</div>${Ui.hex(plate ? "" : codexArt(c.id), c.category, plate ?? "")}<h3 class="serif">${c.title}</h3><div class="note">${c.note}</div>${marg}`;
     };
     const items: MenuItem[] = unlocked.map((c, i) => ({ label: c.title, onSelect: () => show(i) }));
     const m = new Menu(items.length ? items : [{ label: "—", disabled: true }], (k) => this.audio.sfx(k), back);
@@ -679,29 +684,29 @@ export class App {
         { label: "Effects", value: () => pct(S.get("sfxVolume")), onLeft: step("sfxVolume", -0.1), onRight: step("sfxVolume", 0.1), onSelect: step("sfxVolume", 0.1) },
       ]],
       ["Gameplay", [
-        { label: "Difficulty", value: () => DIFFICULTIES[S.get("difficulty")].name, onSelect: () => void S.patch({ difficulty: diffs[(diffs.indexOf(S.get("difficulty")) + 1) % diffs.length]! }) },
-        { label: "Game speed", value: () => pct(A().gameSpeed), onSelect: () => a("gameSpeed", A().gameSpeed <= 0.7 ? 1 : Math.round((A().gameSpeed - 0.1) * 10) / 10) },
-        { label: "Compound window", value: () => (A().compoundAssist ? "30f" : "18f"), onSelect: () => a("compoundAssist", !A().compoundAssist) },
-        { label: "Auto-aim", value: () => pct(A().autoAim), onSelect: () => a("autoAim", A().autoAim >= 1 ? 0 : Math.round((A().autoAim + 0.25) * 100) / 100) },
+        { label: "Difficulty", desc: () => ({ scholar: "8 Seals, slower telegraphs, fewer enemies attacking at once.", savant: "6 Seals. The intended balance.", paragon: "4 Seals, faster telegraphs, more attackers, and every Law starts one tier stronger." } as Record<string, string>)[S.get("difficulty")] ?? "", value: () => DIFFICULTIES[S.get("difficulty")].name, onSelect: () => void S.patch({ difficulty: diffs[(diffs.indexOf(S.get("difficulty")) + 1) % diffs.length]! }) },
+        { label: "Game speed", desc: "Runs the whole game slower, down to 70%.", value: () => pct(A().gameSpeed), onSelect: () => a("gameSpeed", A().gameSpeed <= 0.7 ? 1 : Math.round((A().gameSpeed - 0.1) * 10) / 10) },
+        { label: "Compound window", desc: "Time allowed between two operations to fuse them into a compound. 30 frames is the assisted window.", value: () => (A().compoundAssist ? "30f" : "18f"), onSelect: () => a("compoundAssist", !A().compoundAssist) },
+        { label: "Auto-aim", desc: "Widens the cone used to pick a target from your aim.", value: () => pct(A().autoAim), onSelect: () => a("autoAim", A().autoAim >= 1 ? 0 : Math.round((A().autoAim + 0.25) * 100) / 100) },
       ]],
       ["Display", [
-        { label: "Subtitles", value: () => (A().subtitles ? A().subtitleSize : "Off"), onSelect: () => { const o = ["S", "M", "L"] as const; if (!A().subtitles) { a("subtitles", true); a("subtitleSize", "S"); } else if (A().subtitleSize === "L") a("subtitles", false); else a("subtitleSize", o[o.indexOf(A().subtitleSize) + 1]!); } },
-        { label: "Text size", value: () => pct(A().textScale), onLeft: () => a("textScale", Math.max(0.8, A().textScale - 0.1)), onRight: () => a("textScale", Math.min(1.6, A().textScale + 0.1)), onSelect: () => a("textScale", A().textScale >= 1.6 ? 0.8 : A().textScale + 0.1) },
-        { label: "Screen shake", value: () => pct(A().screenShake), onLeft: () => a("screenShake", Math.max(0, A().screenShake - 0.25)), onRight: () => a("screenShake", Math.min(1, A().screenShake + 0.25)), onSelect: () => a("screenShake", A().screenShake <= 0 ? 1 : A().screenShake - 0.25) },
-        { label: "Flash intensity", value: () => pct(A().flashIntensity), onLeft: () => a("flashIntensity", Math.max(0, A().flashIntensity - 0.25)), onRight: () => a("flashIntensity", Math.min(1, A().flashIntensity + 0.25)), onSelect: () => a("flashIntensity", A().flashIntensity <= 0 ? 1 : A().flashIntensity - 0.25) },
-        { label: "Inversion → rim pulse", value: () => (A().inversionAsRim ? "On" : "Off"), onSelect: () => a("inversionAsRim", !A().inversionAsRim) },
-        { label: "Reduce motion", value: () => (A().reducedMotion ? "On" : "Off"), onSelect: () => a("reducedMotion", !A().reducedMotion) },
-        { label: "High-contrast telegraphs", value: () => (A().highContrastTelegraphs ? "On" : "Off"), onSelect: () => a("highContrastTelegraphs", !A().highContrastTelegraphs) },
+        { label: "Subtitles", desc: "Size of spoken-line subtitles, or off.", value: () => (A().subtitles ? A().subtitleSize : "Off"), onSelect: () => { const o = ["S", "M", "L"] as const; if (!A().subtitles) { a("subtitles", true); a("subtitleSize", "S"); } else if (A().subtitleSize === "L") a("subtitles", false); else a("subtitleSize", o[o.indexOf(A().subtitleSize) + 1]!); } },
+        { label: "Text size", desc: "Scales all interface text.", value: () => pct(A().textScale), onLeft: () => a("textScale", Math.max(0.8, A().textScale - 0.1)), onRight: () => a("textScale", Math.min(1.6, A().textScale + 0.1)), onSelect: () => a("textScale", A().textScale >= 1.6 ? 0.8 : A().textScale + 0.1) },
+        { label: "Screen shake", desc: "Strength of camera shake on impacts.", value: () => pct(A().screenShake), onLeft: () => a("screenShake", Math.max(0, A().screenShake - 0.25)), onRight: () => a("screenShake", Math.min(1, A().screenShake + 0.25)), onSelect: () => a("screenShake", A().screenShake <= 0 ? 1 : A().screenShake - 0.25) },
+        { label: "Flash intensity", desc: "Brightness of white flashes, including the Q.E.D. inversion.", value: () => pct(A().flashIntensity), onLeft: () => a("flashIntensity", Math.max(0, A().flashIntensity - 0.25)), onRight: () => a("flashIntensity", Math.min(1, A().flashIntensity + 0.25)), onSelect: () => a("flashIntensity", A().flashIntensity <= 0 ? 1 : A().flashIntensity - 0.25) },
+        { label: "Inversion → rim pulse", desc: "Replaces the full-screen colour inversion on Q.E.D. and room clears with a pulse at the screen edge.", value: () => (A().inversionAsRim ? "On" : "Off"), onSelect: () => a("inversionAsRim", !A().inversionAsRim) },
+        { label: "Reduce motion", desc: "Less camera movement and no menu animation.", value: () => (A().reducedMotion ? "On" : "Off"), onSelect: () => a("reducedMotion", !A().reducedMotion) },
+        { label: "High-contrast telegraphs", desc: "Draws enemy attack warnings bolder.", value: () => (A().highContrastTelegraphs ? "On" : "Off"), onSelect: () => a("highContrastTelegraphs", !A().highContrastTelegraphs) },
       ]],
       ["Controls", [
-        { label: "Button layout", onSelect: () => this.remapMenu(() => this.settingsMenu(back)) },
-        { label: "Hold → toggle", value: () => (A().holdToToggle ? "On" : "Off"), onSelect: () => a("holdToToggle", !A().holdToToggle) },
-        { label: "Deadzone L", value: () => A().deadzoneLeft.toFixed(2), onSelect: () => a("deadzoneLeft", A().deadzoneLeft >= 0.35 ? 0.08 : Math.round((A().deadzoneLeft + 0.03) * 100) / 100) },
-        { label: "Deadzone R", value: () => A().deadzoneRight.toFixed(2), onSelect: () => a("deadzoneRight", A().deadzoneRight >= 0.4 ? 0.1 : Math.round((A().deadzoneRight + 0.03) * 100) / 100) },
-        { label: "Vibration", value: () => (S.get("vibration") ? "On" : "Off"), onSelect: () => void S.patch({ vibration: !S.get("vibration") }) },
+        { label: "Button layout", desc: "Rebind every action for keyboard, mouse and controller.", onSelect: () => this.remapMenu(() => this.settingsMenu(back)) },
+        { label: "Hold → toggle", desc: "Held operations switch on with one press and off with the next.", value: () => (A().holdToToggle ? "On" : "Off"), onSelect: () => a("holdToToggle", !A().holdToToggle) },
+        { label: "Deadzone L", desc: "How far the left stick must move before it registers.", value: () => A().deadzoneLeft.toFixed(2), onSelect: () => a("deadzoneLeft", A().deadzoneLeft >= 0.35 ? 0.08 : Math.round((A().deadzoneLeft + 0.03) * 100) / 100) },
+        { label: "Deadzone R", desc: "How far the right stick must move before it registers.", value: () => A().deadzoneRight.toFixed(2), onSelect: () => a("deadzoneRight", A().deadzoneRight >= 0.4 ? 0.1 : Math.round((A().deadzoneRight + 0.03) * 100) / 100) },
+        { label: "Vibration", desc: "Controller rumble.", value: () => (S.get("vibration") ? "On" : "Off"), onSelect: () => void S.patch({ vibration: !S.get("vibration") }) },
       ]],
       ["Other", [
-        { label: "Export diagnostics", onSelect: () => this.exportDiagnostics() },
+        { label: "Export diagnostics", desc: "Saves a file of recent events and performance data to attach to a bug report.", onSelect: () => this.exportDiagnostics() },
       ]],
     ];
     const tab = Math.max(0, Math.min(TABS.length - 1, this.settingsTab));
@@ -713,7 +718,7 @@ export class App {
     head.querySelectorAll<HTMLElement>(".t").forEach((t) => t.addEventListener("click", () => go(Number(t.dataset.t))));
     head.querySelector<HTMLElement>("[data-ui=tabL]")!.addEventListener("click", () => go(tab - 1));
     head.querySelector<HTMLElement>("[data-ui=tabR]")!.addEventListener("click", () => go(tab + 1));
-    const p = this.ui.panel("", m, head); p.style.maxHeight = "90vh"; p.style.overflow = "auto"; p.style.minWidth = "min(560px,92vw)";
+    const p = this.ui.panel("", null, head); p.appendChild(this.ui.withDesc(m)); p.style.maxHeight = "90vh"; p.style.overflow = "auto"; p.style.minWidth = "min(860px,94vw)";
     this.ui.show(p, m);
   }
 
@@ -737,6 +742,7 @@ export class App {
     const icon = action === "strike" ? strikeIcon(44) : (["vector", "phase", "order", "null"] as const).includes(action as OpIcon) ? opIcon(action as OpIcon, 44) : "";
     const p = el("div", "panel capture", `${icon}<div class="act">${action}</div><div class="glyph-prompt"><i></i></div>`);
     this.ui.show(p, null);
+    p.parentElement!.appendChild(this.ui.topHint("Press the new key, mouse button or controller button"));
     const bar = el("div", "prompts custom", `<span><b data-ui="cancel"></b>Cancel</span>`); p.parentElement!.appendChild(bar); this.ui.refreshGlyphs();
     bar.querySelector("span")!.addEventListener("click", () => finish(() => undefined));
     const finish = (patch: (b: Binding) => void) => {
