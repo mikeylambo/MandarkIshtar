@@ -114,7 +114,7 @@ export class App {
     this.input.setBindings(this.settings.get("bindings"));
     this.ui = new Ui(uiRoot, (k) => this.audio.sfx(k));
     this.view = new WorldView(this.rig.scene);
-    this.vfx = new Vfx(this.rig.scene, this.view.afterimages, this.rig.look);
+    this.vfx = new Vfx(this.rig.scene, this.view.afterimages, this.rig.look, this.rig.camera);
     const look = this.rig.look;
     this.feel = new FeelKit({
       vfx: (id, position, scale, tint) => { look.play(id, { ...(position ? { position } : {}), scale, ...(tint ? { tint } : {}) }); },
@@ -135,7 +135,8 @@ export class App {
     this.recovery.hide();
     window.addEventListener("error", (e) => this.fail(e.error ?? e.message));
     window.addEventListener("unhandledrejection", (e) => this.fail(e.reason));
-    new BrowserInputFamilyDetector({ onChange: (f) => { this.shell.production.glyphs.setFamily(f); } }).attach();
+    new BrowserInputFamilyDetector({ onChange: (f) => { this.shell.production.glyphs.setFamily(f); this.ui.setFamily(f); } }).attach();
+    this.ui.bindings = () => this.input.bindings;
     const pwa = new PWAController(); pwa.attach();
     if (import.meta.env.PROD) void pwa.register("./sw.js").catch(() => undefined);
     this.toTitle();

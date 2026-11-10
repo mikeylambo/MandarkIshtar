@@ -7,6 +7,9 @@ import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
 import { lawArt } from "./cardArt";
 import { opIcon, type OpIcon } from "./icons";
+import { GLYPH_CSS, actionGlyph, uiGlyph } from "./glyphs";
+import type { InputDeviceFamily } from "@slu/web-shell";
+import type { Binding } from "../data/input";
 import { FOCUS } from "../data/resources";
 import { STEP } from "../data/movement";
 
@@ -21,7 +24,7 @@ export class Menu {
   index = 0;
   readonly root = el("div", "menu");
   private rows: HTMLDivElement[] = [];
-  constructor(private items: MenuItem[], private readonly sfx: (k: string) => void, private readonly onBack?: () => void) {
+  constructor(private items: MenuItem[], private readonly sfx: (k: string) => void, readonly onBack?: () => void) {
     this.render();
     this.index = Math.max(0, items.findIndex((i) => !i.disabled));
     this.paint();
@@ -77,9 +80,13 @@ export class Ui {
   private hudEls: Record<string, HTMLElement> = {};
   private subTimer = 0;
 
+  /** Active input family (from the shell's BrowserInputFamilyDetector) and live bindings, for button prompts. */
+  family: InputDeviceFamily = "keyboard-mouse";
+  bindings: () => Binding[] = () => [];
+
   constructor(root: HTMLElement, readonly sfx: (k: string) => void) {
     this.root = root;
-    const style = document.createElement("style"); style.textContent = CSS; document.head.appendChild(style);
+    const style = document.createElement("style"); style.textContent = CSS + GLYPH_CSS; document.head.appendChild(style);
     root.append(this.hudLayer, this.screen, this.overlay, this.subs, this.flash);
   }
 
@@ -90,8 +97,25 @@ export class Ui {
     this.screen.innerHTML = "";
     const s = el("div", "screen" + (clear ? " clear" : ""));
     s.appendChild(content);
+    if (menu && menu.root.style.display !== "none") s.appendChild(el("div", "prompts"));
     this.screen.appendChild(s);
     this.menu = menu;
+    this.refreshGlyphs();
+  }
+
+  setFamily(f: InputDeviceFamily): void { if (f !== this.family) { this.family = f; this.refreshGlyphs(); } }
+
+  /** Re-render every button prompt for the current family + bindings (menu prompt bar and HUD op badges). */
+  refreshGlyphs(): void {
+    const f = this.family;
+    const bar = this.screen.querySelector(".prompts");
+    if (bar) bar.innerHTML = `<span>${uiGlyph("accept", f)}Select</span>${this.menu?.onBack ? `<span>${uiGlyph("back", f)}Back</span>` : ""}`;
+    const binds = this.bindings();
+    for (const o of this.hudLayer.querySelectorAll<HTMLElement>(".op")) {
+      o.querySelector(".gl")?.remove();
+      const g = actionGlyph(binds.find((b) => b.action === o.dataset.op), f);
+      if (g) o.insertAdjacentHTML("beforeend", g);
+    }
   }
   hideScreen(): void { this.screen.innerHTML = ""; this.menu = null; }
   get screenOpen(): boolean { return this.screen.childElementCount > 0; }
@@ -118,6 +142,7 @@ export class Ui {
     this.hudLayer.appendChild(h);
     for (const k of ["hubris", "sealrow", "score", "rank", "lawmini", "bossbar", "meter", "dock", "focusbar", "ops", "steps"]) this.hudEls[k] = h.querySelector(`.${k}`) as HTMLElement;
     this.hudEls.scoreNum = h.querySelector(".score b") as HTMLElement;
+    this.refreshGlyphs();
     h.querySelectorAll("svg.sigil path").forEach((p) => ((p as SVGPathElement).style.animation = "none", (p as SVGPathElement).style.strokeDashoffset = "0"));
   }
   hideHud(): void { this.hudLayer.innerHTML = ""; this.hudEls = {}; }

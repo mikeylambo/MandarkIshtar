@@ -5,6 +5,11 @@ import type { World } from "../sim/World";
 import { FEEL } from "../data/feel";
 import { PALETTE } from "../look/palette";
 import type { Afterimages } from "../look/LookKit";
+import { OpGlyphs } from "./OpGlyphs";
+
+/** Op accents from the reference sheet; each op also has its own glyph silhouette (OpGlyphs). */
+const OP_FX = { vector: 0x6ec8ff, phase: 0x9fd0ff, order: PALETTE.gold, null: PALETTE.purple } as const;
+const yawOf = (dx: number, dz: number) => Math.atan2(-dz, dx);
 
 /**
  * The 15 VFX families (GDD §11). Bursts, rings and convergences play through the shell Look Kit's pooled
@@ -31,7 +36,9 @@ export class Vfx {
   readonly counts: Record<string, number> = {};
   private readonly col = new THREE.Color();
 
-  constructor(scene: THREE.Scene, private readonly after: Afterimages, private readonly look: ShellLook) {
+  readonly glyphs: OpGlyphs;
+  constructor(scene: THREE.Scene, private readonly after: Afterimages, private readonly look: ShellLook, private readonly camera: THREE.Camera) {
+    this.glyphs = new OpGlyphs(scene);
     this.lineGeo.setAttribute("position", new THREE.BufferAttribute(this.linePos, 3));
     this.lineGeo.setAttribute("color", new THREE.BufferAttribute(this.lineCol, 3));
     this.lineMesh = new THREE.LineSegments(this.lineGeo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.95 }));
@@ -65,29 +72,59 @@ export class Vfx {
     for (let i = 0; i < seg; i++) { const a0 = (i / seg) * Math.PI * 2, a1 = ((i + 1) / seg) * Math.PI * 2; this.line(x + Math.sin(a0) * r, y, z + Math.cos(a0) * r, x + Math.sin(a1) * r, y, z + Math.cos(a1) * r, color, life); }
   }
 
+  /** A quick op sigil under Markov when an op fires (cast confirmation by silhouette). */
+  private castGlyph(op: keyof typeof OP_FX, x: number, z: number, dx: number, dz: number): void {
+    const color = OP_FX[op]; if (color === undefined) return;
+    const kind = op === "vector" ? "chevron" : op === "phase" ? "shard" : op === "order" ? "clock" : "nullring";
+    this.glyphs.spawn({ kind, x, z, y: 0.1, color, life: 16, size: 1.2, endSize: 2.2, yaw: op === "vector" ? yawOf(dx, dz) : 0, intensity: 1.2 });
+  }
+
   /** Map one sim event to its VFX family (data/feel.ts). */
   onEvent(e: SimEvent, w: World): void {
     const fam = FEEL[e.type]?.vfx as VfxFamily | undefined;
     const x = e.x ?? w.markov.pos.x, z = e.z ?? w.markov.pos.z;
     if (fam) this.counts[fam] = (this.counts[fam] ?? 0) + 1;
     switch (fam) {
-      case "glyph-spark": this.burst(x, 1.2, z, e.type === "StrikeHit" ? PALETTE.gold : PALETTE.goldHot, e.type === "CompoundCast" ? 0.8 : 0.3); if (e.type === "CompoundCast") this.ring(x, z, PALETTE.gold, 2.4); break;
+      case "glyph-spark":
+        if (e.type === "OpCast") this.castGlyph(e.op as keyof typeof OP_FX, x, z, e.dx ?? 0, e.dz ?? 1);
+        this.burst(x, 1.2, z, e.type === "StrikeHit" ? PALETTE.gold : PALETTE.goldHot, e.type === "CompoundCast" ? 0.8 : 0.3); if (e.type === "CompoundCast") this.ring(x, z, PALETTE.gold, 2.4); break;
       case "vector-line": {
         const dx = e.dx ?? 0, dz = e.dz ?? 1, l = Math.hypot(dx, dz) || 1;
         this.line(x, 0.9, z, x + (dx / l) * 14, 0.9, z + (dz / l) * 14, PALETTE.gold, 12);
+        if (e.type === "Redirect") { // three chevrons launched down the new heading
+          const ux = dx / l, uz = dz / l, yaw = yawOf(ux, uz);
+          for (let i = 0; i < 3; i++) this.glyphs.spawn({ kind: "chevron", x: x + ux * i * 0.9, z: z + uz * i * 0.9, y: 0.9, color: OP_FX.vector, life: 16 + i * 3, size: 1.1 - i * 0.15, endSize: 0.7, yaw, vx: ux * (0.32 - i * 0.05), vz: uz * (0.32 - i * 0.05), fadeIn: 1 + i * 2 });
+        }
         break;
       }
       case "orbit-ring": this.orbitT = 180; break;
-      case "phase-ripple": this.ring(x, z, e.value === 2 || e.value === 3 ? PALETTE.blue : 0xffffff, 2.2, 0.9); break;
-      case "clock-stamp": this.circle(x, z, 0.8, PALETTE.gold, 30, 1, 12); for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; this.line(x + Math.sin(a) * 0.7, 1, z + Math.cos(a) * 0.7, x + Math.sin(a) * 0.95, 1, z + Math.cos(a) * 0.95, PALETTE.gold, 30); } break;
+      case "phase-ripple": {
+        this.ring(x, z, e.value === 2 || e.value === 3 ? PALETTE.blue : 0xffffff, 2.2, 0.9);
+        for (let i = 0; i < 7; i++) { // glass shards breaking outward
+          const a = (i / 7) * Math.PI * 2 + this.r(-0.3, 0.3), sp = this.r(0.12, 0.2);
+          this.glyphs.spawn({ kind: "shard", x, z, y: this.r(0.7, 1.8), color: OP_FX.phase, life: Math.round(this.r(18, 26)), size: this.r(0.5, 0.8), endSize: 0.3, flat: false, vx: Math.cos(a) * sp, vz: Math.sin(a) * sp, spin: this.r(-0.15, 0.15), intensity: 1.3 });
+        }
+        break;
+      }
+      case "clock-stamp":
+        this.glyphs.spawn({ kind: "clock", x, z, color: OP_FX.order, life: 60, size: 3.2, endSize: 2.2, fadeIn: 2 });
+        this.glyphs.spawn({ kind: "hand", x, z, y: 0.14, color: OP_FX.order, life: 60, size: 2.4, endSize: 1.7, spin: 0.03, fadeIn: 2 });
+        this.glyphs.spawn({ kind: "hourglass", x, z, y: 2.6, color: OP_FX.order, life: 60, size: 0.9, flat: false, intensity: 1.4 });
+        this.circle(x, z, 0.8, PALETTE.gold, 30, 1, 12); for (let i = 0; i < 12; i++) { const a = (i / 12) * Math.PI * 2; this.line(x + Math.sin(a) * 0.7, 1, z + Math.cos(a) * 0.7, x + Math.sin(a) * 0.95, 1, z + Math.cos(a) * 0.95, PALETTE.gold, 30); } break;
       case "rewind-trail": {
         const a = e.id ? w.actor(e.id) : undefined;
         const p = e.id ? w.projectile(e.id) : undefined;
         const h = a?.history ?? p?.history;
+        this.glyphs.spawn({ kind: "clock", x, z, color: OP_FX.order, life: 40, size: 2.4, endSize: 3, fadeIn: 2 });
+        this.glyphs.spawn({ kind: "hand", x, z, y: 0.14, color: OP_FX.order, life: 40, size: 1.9, endSize: 2.4, spin: -0.35, fadeIn: 2 });
         if (h) for (let i = 0; i + 6 < h.count; i += 6) { const p0 = h.get(i), p1 = h.get(i + 6); this.line(p0.x, 0.9, p0.z, p1.x, 0.9, p1.z, PALETTE.gold, 40); if (i % 18 === 0) this.after.spawn(new THREE.Vector3(p0.x, 0.9, p0.z), 0, PALETTE.gold, PALETTE.blue, 24, 0.7); }
         break;
       }
-      case "null-implode": this.converge(x, 0.9, z, PALETTE.gold, 0.4, 100); break;
+      case "null-implode": // broken violet ring collapsing onto the erased point
+        this.converge(x, 0.9, z, OP_FX.null, 0.4, 100);
+        this.glyphs.spawn({ kind: "nullring", x, z, y: 0.9, color: OP_FX.null, life: 22, size: 3.4, endSize: 0.2, spin: 0.18, flat: false, fadeIn: 1 });
+        this.glyphs.spawn({ kind: "nullring", x, z, color: OP_FX.null, life: 30, size: 0.6, endSize: 3.6, spin: -0.06, intensity: 1 });
+        break;
       case "property-peel": this.burst(x, 1.6, z, PALETTE.gold, 0.6); break;
       case "contradiction-fracture": {
         for (let i = 0; i < 10; i++) {
@@ -138,9 +175,10 @@ export class Vfx {
     (rays.material as THREE.MeshBasicMaterial).opacity = this.dawnLevel * 0.16;
     rays.visible = this.dawnLevel > 0.01;
     this.lineMesh.visible = li > 0;
+    this.glyphs.update(this.camera);
   }
 
-  clear(): void { this.lines.length = 0; this.dawnLevel = 0; this.orbitT = 0; }
+  clear(): void { this.glyphs.clear(); this.lines.length = 0; this.dawnLevel = 0; this.orbitT = 0; }
 }
 
 function mergeGeos(gs: THREE.BufferGeometry[]): THREE.BufferGeometry {
