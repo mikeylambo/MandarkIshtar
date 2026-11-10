@@ -42,6 +42,7 @@ import type { Bot } from "../dev/bots/BotKit";
 import { AssetLoader } from "./AssetLoader";
 import { codexArt } from "../ui/cardArt";
 import { installDevHooks } from "../dev/devHooks";
+import { PlaytestLog, quantize } from "../meta/PlaytestLog";
 import type { Bark } from "../data/barks";
 import { PERF } from "../data/perf";
 import { tunables } from "@slu/web-shell/tuning";
@@ -89,6 +90,7 @@ export class App {
   private hintShown = "";
   readonly perf = { frameMs: [] as number[], simMs: [] as number[], drawCalls: 0, triangles: 0, heapMB: 0 };
   readonly allEvents: string[] = [];
+  readonly playtest = new PlaytestLog((() => { try { return window.localStorage; } catch { return null; } })());
   private onArenaDone: ((status: "clear" | "lost") => void) | null = null;
   private recovery: ReturnType<typeof mountRecoveryUI> | null = null;
   private padConnected = false;
@@ -234,13 +236,17 @@ export class App {
     const w = this.world!;
     let f: InputFrame;
     if (this.bot) f = this.bot.next(w);
-    else f = this.input.frameFor({ x: this.view.markovPos.x, z: this.view.markovPos.z }, 0);
+    else f = quantize(this.input.frameFor({ x: this.view.markovPos.x, z: this.view.markovPos.z }, 0));
+    this.playtest.input(f);
     w.step(f);
     this.view.snap(w);
     for (const e of w.events) this.onEvent(e, w);
     this.onboardingTick(w, f);
     if (w.markov.insightT > 0 && w.frame % 2 === 0) this.vfx.insightLines(w);
-    if (w.status === "clear" || w.status === "lost") { const done = this.onArenaDone; this.onArenaDone = null; done?.(w.status); }
+    if (w.status === "clear" || w.status === "lost") {
+      const r = w.status === "clear" ? w.scorer.finalized : null;
+      this.playtest.end(w.status, { frames: w.frame, score: r?.score ?? Math.round(w.scorer.score), compounds: w.ops.compoundsUsed, rank: r?.rank, bossPhase: w.director.bossPhase });
+      const done = this.onArenaDone; this.onArenaDone = null; done?.(w.status); }
   }
 
   private renderScene(): void {
@@ -289,7 +295,7 @@ export class App {
       case "RingOut": this.ui.feed("RING-OUT", "gold"); break;
       case "Redirect": if ((e.value ?? 0) > 1) this.ui.feed(`REDIRECT ×${e.value}`, "gold"); break;
       case "PrismPass": this.ui.feed(`REDIRECT ×${(e.value ?? 0) + 1}`, "gold"); break;
-      case "CompoundCast": this.ui.feed(compoundName(e.kind ?? ""), "gold"); break;
+      case "CompoundCast": this.playtest.compound(w.frame); this.ui.feed(compoundName(e.kind ?? ""), "gold"); break;
       case "Flourish": this.camera.flourish(); this.music.cadence(); break;
       case "WaveStart": this.music.setLayers(3 + (e.value ?? 0) * 2); break;
       case "LawDeclared": if (e.kind && e.kind !== "ishtar") this.ui.lawCard(e.kind as LawId, this.assets.url(`lawcard.${e.kind}`)); break;
@@ -304,7 +310,7 @@ export class App {
       case "HubrisShatter": this.music.stop(); setTimeout(() => this.music.play(this.cueFor(w.def), w.def.law), 2000); break;
       case "BossIntro": this.barks.pick(`boss${(e.kind ?? "").charAt(0).toUpperCase()}${(e.kind ?? "").slice(1)}`, w.frame, true); break;
       case "Interact": this.onInteract(e.text ?? ""); break;
-      case "SealLost": if ((e.value ?? 6) <= 2) this.barks.pick("lowSeals", w.frame); break;
+      case "SealLost": this.playtest.sealLost(e.kind ?? "unknown"); if ((e.value ?? 6) <= 2) this.barks.pick("lowSeals", w.frame); break;
       case "InsightStart": this.shell.production.onboarding.show("stillness"); break;
       default: break;
     }
@@ -462,7 +468,9 @@ export class App {
 
   startWorld(def: EncounterDef, opts: Partial<WorldOptions>, done: (s: "clear" | "lost") => void): World {
     this.seed++;
-    const w = new World(def, { seed: this.seed, ...opts });
+    const wopts = { seed: this.seed, ...opts };
+    this.playtest.begin(def, wopts);
+    const w = new World(def, wopts);
     this.world = w;
     this.view.load(w, this.progress.data.campaignComplete);
     this.vfx.clear();
@@ -781,7 +789,10 @@ export class App {
   }
 
   exportDiagnostics(): string {
-    const bundle = this.shell.exportPlaytestBundle({ extras: { perf: this.perfSummary(), progress: this.progress.data, events: this.allEvents.slice(-200) } } as never);
+    const bundle = this.shell.exportPlaytestBundle({
+      game: { perf: this.perfSummary(), progress: this.progress.data, events: this.allEvents.slice(-200), playtest: { rollup: this.playtest.rollup(), summaries: this.playtest.summaries } },
+      replay: { recordings: [...this.playtest.recordings, ...[this.playtest.inProgress()].filter((r) => r !== null)] },
+    });
     try {
       const blob = new Blob([bundle], { type: "application/json" });
       const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "mandark-ishtar-diagnostics.json"; a.click();

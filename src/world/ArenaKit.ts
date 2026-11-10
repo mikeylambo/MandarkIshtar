@@ -32,13 +32,18 @@ function glyphFloorTexture(theme: string, accent: number): { map: THREE.CanvasTe
     for (let i = 0; i < 28; i++) { const a = (i / 28) * Math.PI * 2; base.beginPath(); base.moveTo(cx + Math.cos(a) * 0.34 * cx, cx + Math.sin(a) * 0.34 * cx); base.lineTo(cx + Math.cos(a) * cx, cx + Math.sin(a) * cx); base.stroke(); }
     for (const r of [0.48, 0.76]) { base.beginPath(); base.arc(cx, cx, r * cx, 0, Math.PI * 2); base.stroke(); }
   }
-  const blue = `#${accent.toString(16).padStart(6, "0")}`;
+  // Readability: saturated blue is the threat/Law colour (telegraphs, Certainty rings). On dark floors the inlay is
+  // pulled most of the way to the navy ground and never blooms, so blue that glows on the floor is always a threat.
+  const blue = light ? `#${accent.toString(16).padStart(6, "0")}` : inlayTone(accent);
   const gold = light ? "#c9a24a" : "#f2b94a";
   const rng = new DeterministicRng(theme.length * 977 + theme.charCodeAt(0));
   const g = line;
-  // concentric rules: the outer and middle bands are gold inlay, the rest blue light
+  const [goldC, goldG] = mk();
+  // concentric rules: the outer and middle bands are gold inlay, the rest quiet blue
   for (const [r, w, c] of [[0.97, 7, gold], [0.9, 3, blue], [0.62, 4, gold], [0.34, 3, blue], [0.12, 3, gold]] as [number, number, string][]) {
-    g.strokeStyle = c; g.globalAlpha = light ? 0.55 : 0.9; g.lineWidth = w; g.beginPath(); g.arc(cx, cx, r * cx, 0, Math.PI * 2); g.stroke();
+    for (const ctx of c === gold ? [g, goldG] : [g]) {
+      ctx.strokeStyle = c; ctx.globalAlpha = light ? 0.55 : c === gold ? 0.75 : 0.9; ctx.lineWidth = w; ctx.beginPath(); ctx.arc(cx, cx, r * cx, 0, Math.PI * 2); ctx.stroke();
+    }
   }
   // radial ticks (cuneiform-meets-math)
   g.strokeStyle = blue;
@@ -69,11 +74,18 @@ function glyphFloorTexture(theme: string, accent: number): { map: THREE.CanvasTe
   base.drawImage(lineC, 0, 0);
   const [glowC, glowG] = mk();
   glowG.fillStyle = "#000"; glowG.fillRect(0, 0, size, size);
-  if (!light) glowG.drawImage(lineC, 0, 0);
+  if (!light) { glowG.globalAlpha = 0.55; glowG.drawImage(goldC, 0, 0); glowG.globalAlpha = 1; }
   const tex = (c: HTMLCanvasElement) => { const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4; return t; };
   const out = { map: tex(baseC), glow: tex(glowC) };
   texCache.set(theme, out);
   return out;
+}
+
+/** Floor inlay tone for dark floors: the theme accent mixed 60% toward the navy ground. */
+function inlayTone(accent: number): string {
+  const navy = 0x262d63, k = 0.6;
+  const ch = (sh: number) => Math.round(((accent >> sh) & 255) * (1 - k) + ((navy >> sh) & 255) * k);
+  return `rgb(${ch(16)},${ch(8)},${ch(0)})`;
 }
 
 let sky: THREE.Mesh | null = null;
