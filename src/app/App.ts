@@ -660,6 +660,8 @@ export class App {
     this.ui.show(this.ui.panel("", m, body), m);
   }
 
+  /** Last settings tab (kept across Button layout and re-opens). */
+  private settingsTab = 0;
   settingsMenu(back: () => void): void {
     this.mode = this.mode === "play" ? "paused" : this.mode === "paused" ? "paused" : "menu";
     const S = this.settings;
@@ -668,31 +670,50 @@ export class App {
     const a = (k: keyof GameAccessibility, v: GameAccessibility[keyof GameAccessibility]) => void S.patch({ a11y: { ...S.get("a11y"), [k]: v } });
     const A = () => S.get("a11y");
     const diffs: DifficultyId[] = ["scholar", "savant", ...(this.progress.has("difficulty:paragon") ? ["paragon" as DifficultyId] : [])];
-    const items: MenuItem[] = [
-      { label: "Master", value: () => pct(S.get("masterVolume")), onLeft: step("masterVolume", -0.1), onRight: step("masterVolume", 0.1), onSelect: step("masterVolume", 0.1) },
-      { label: "Music", value: () => pct(S.get("musicVolume")), onLeft: step("musicVolume", -0.1), onRight: step("musicVolume", 0.1), onSelect: step("musicVolume", 0.1) },
-      { label: "Effects", value: () => pct(S.get("sfxVolume")), onLeft: step("sfxVolume", -0.1), onRight: step("sfxVolume", 0.1), onSelect: step("sfxVolume", 0.1) },
-      { label: "Difficulty", value: () => DIFFICULTIES[S.get("difficulty")].name, onSelect: () => void S.patch({ difficulty: diffs[(diffs.indexOf(S.get("difficulty")) + 1) % diffs.length]! }) },
-      { label: "Subtitles", value: () => (A().subtitles ? A().subtitleSize : "Off"), onSelect: () => { const o = ["S", "M", "L"] as const; if (!A().subtitles) { a("subtitles", true); a("subtitleSize", "S"); } else if (A().subtitleSize === "L") a("subtitles", false); else a("subtitleSize", o[o.indexOf(A().subtitleSize) + 1]!); } },
-      { label: "Text size", value: () => pct(A().textScale), onLeft: () => a("textScale", Math.max(0.8, A().textScale - 0.1)), onRight: () => a("textScale", Math.min(1.6, A().textScale + 0.1)), onSelect: () => a("textScale", A().textScale >= 1.6 ? 0.8 : A().textScale + 0.1) },
-      { label: "Screen shake", value: () => pct(A().screenShake), onLeft: () => a("screenShake", Math.max(0, A().screenShake - 0.25)), onRight: () => a("screenShake", Math.min(1, A().screenShake + 0.25)), onSelect: () => a("screenShake", A().screenShake <= 0 ? 1 : A().screenShake - 0.25) },
-      { label: "Flash intensity", value: () => pct(A().flashIntensity), onLeft: () => a("flashIntensity", Math.max(0, A().flashIntensity - 0.25)), onRight: () => a("flashIntensity", Math.min(1, A().flashIntensity + 0.25)), onSelect: () => a("flashIntensity", A().flashIntensity <= 0 ? 1 : A().flashIntensity - 0.25) },
-      { label: "Inversion → rim pulse", value: () => (A().inversionAsRim ? "On" : "Off"), onSelect: () => a("inversionAsRim", !A().inversionAsRim) },
-      { label: "Reduce motion", value: () => (A().reducedMotion ? "On" : "Off"), onSelect: () => a("reducedMotion", !A().reducedMotion) },
-      { label: "High-contrast telegraphs", value: () => (A().highContrastTelegraphs ? "On" : "Off"), onSelect: () => a("highContrastTelegraphs", !A().highContrastTelegraphs) },
-      { label: "Game speed", value: () => pct(A().gameSpeed), onSelect: () => a("gameSpeed", A().gameSpeed <= 0.7 ? 1 : Math.round((A().gameSpeed - 0.1) * 10) / 10) },
-      { label: "Compound window", value: () => (A().compoundAssist ? "30f" : "18f"), onSelect: () => a("compoundAssist", !A().compoundAssist) },
-      { label: "Auto-aim", value: () => pct(A().autoAim), onSelect: () => a("autoAim", A().autoAim >= 1 ? 0 : Math.round((A().autoAim + 0.25) * 100) / 100) },
-      { label: "Hold → toggle", value: () => (A().holdToToggle ? "On" : "Off"), onSelect: () => a("holdToToggle", !A().holdToToggle) },
-      { label: "Deadzone L", value: () => A().deadzoneLeft.toFixed(2), onSelect: () => a("deadzoneLeft", A().deadzoneLeft >= 0.35 ? 0.08 : Math.round((A().deadzoneLeft + 0.03) * 100) / 100) },
-      { label: "Deadzone R", value: () => A().deadzoneRight.toFixed(2), onSelect: () => a("deadzoneRight", A().deadzoneRight >= 0.4 ? 0.1 : Math.round((A().deadzoneRight + 0.03) * 100) / 100) },
-      { label: "Vibration", value: () => (S.get("vibration") ? "On" : "Off"), onSelect: () => void S.patch({ vibration: !S.get("vibration") }) },
-      { label: "Controls", onSelect: () => this.remapMenu(() => this.settingsMenu(back)) },
-      { label: "Export diagnostics", onSelect: () => this.exportDiagnostics() },
-      { label: "Back", onSelect: back },
+    // cycle-only rows also take left/right (BB-style ‹ value ›)
+    const cyc = (it: MenuItem): MenuItem => (it.value && it.onSelect && !it.onLeft ? { ...it, onLeft: it.onSelect, onRight: it.onSelect } : it);
+    const TABS: [string, MenuItem[]][] = [
+      ["Audio", [
+        { label: "Master", value: () => pct(S.get("masterVolume")), onLeft: step("masterVolume", -0.1), onRight: step("masterVolume", 0.1), onSelect: step("masterVolume", 0.1) },
+        { label: "Music", value: () => pct(S.get("musicVolume")), onLeft: step("musicVolume", -0.1), onRight: step("musicVolume", 0.1), onSelect: step("musicVolume", 0.1) },
+        { label: "Effects", value: () => pct(S.get("sfxVolume")), onLeft: step("sfxVolume", -0.1), onRight: step("sfxVolume", 0.1), onSelect: step("sfxVolume", 0.1) },
+      ]],
+      ["Gameplay", [
+        { label: "Difficulty", value: () => DIFFICULTIES[S.get("difficulty")].name, onSelect: () => void S.patch({ difficulty: diffs[(diffs.indexOf(S.get("difficulty")) + 1) % diffs.length]! }) },
+        { label: "Game speed", value: () => pct(A().gameSpeed), onSelect: () => a("gameSpeed", A().gameSpeed <= 0.7 ? 1 : Math.round((A().gameSpeed - 0.1) * 10) / 10) },
+        { label: "Compound window", value: () => (A().compoundAssist ? "30f" : "18f"), onSelect: () => a("compoundAssist", !A().compoundAssist) },
+        { label: "Auto-aim", value: () => pct(A().autoAim), onSelect: () => a("autoAim", A().autoAim >= 1 ? 0 : Math.round((A().autoAim + 0.25) * 100) / 100) },
+      ]],
+      ["Display", [
+        { label: "Subtitles", value: () => (A().subtitles ? A().subtitleSize : "Off"), onSelect: () => { const o = ["S", "M", "L"] as const; if (!A().subtitles) { a("subtitles", true); a("subtitleSize", "S"); } else if (A().subtitleSize === "L") a("subtitles", false); else a("subtitleSize", o[o.indexOf(A().subtitleSize) + 1]!); } },
+        { label: "Text size", value: () => pct(A().textScale), onLeft: () => a("textScale", Math.max(0.8, A().textScale - 0.1)), onRight: () => a("textScale", Math.min(1.6, A().textScale + 0.1)), onSelect: () => a("textScale", A().textScale >= 1.6 ? 0.8 : A().textScale + 0.1) },
+        { label: "Screen shake", value: () => pct(A().screenShake), onLeft: () => a("screenShake", Math.max(0, A().screenShake - 0.25)), onRight: () => a("screenShake", Math.min(1, A().screenShake + 0.25)), onSelect: () => a("screenShake", A().screenShake <= 0 ? 1 : A().screenShake - 0.25) },
+        { label: "Flash intensity", value: () => pct(A().flashIntensity), onLeft: () => a("flashIntensity", Math.max(0, A().flashIntensity - 0.25)), onRight: () => a("flashIntensity", Math.min(1, A().flashIntensity + 0.25)), onSelect: () => a("flashIntensity", A().flashIntensity <= 0 ? 1 : A().flashIntensity - 0.25) },
+        { label: "Inversion → rim pulse", value: () => (A().inversionAsRim ? "On" : "Off"), onSelect: () => a("inversionAsRim", !A().inversionAsRim) },
+        { label: "Reduce motion", value: () => (A().reducedMotion ? "On" : "Off"), onSelect: () => a("reducedMotion", !A().reducedMotion) },
+        { label: "High-contrast telegraphs", value: () => (A().highContrastTelegraphs ? "On" : "Off"), onSelect: () => a("highContrastTelegraphs", !A().highContrastTelegraphs) },
+      ]],
+      ["Controls", [
+        { label: "Button layout", onSelect: () => this.remapMenu(() => this.settingsMenu(back)) },
+        { label: "Hold → toggle", value: () => (A().holdToToggle ? "On" : "Off"), onSelect: () => a("holdToToggle", !A().holdToToggle) },
+        { label: "Deadzone L", value: () => A().deadzoneLeft.toFixed(2), onSelect: () => a("deadzoneLeft", A().deadzoneLeft >= 0.35 ? 0.08 : Math.round((A().deadzoneLeft + 0.03) * 100) / 100) },
+        { label: "Deadzone R", value: () => A().deadzoneRight.toFixed(2), onSelect: () => a("deadzoneRight", A().deadzoneRight >= 0.4 ? 0.1 : Math.round((A().deadzoneRight + 0.03) * 100) / 100) },
+        { label: "Vibration", value: () => (S.get("vibration") ? "On" : "Off"), onSelect: () => void S.patch({ vibration: !S.get("vibration") }) },
+      ]],
+      ["Other", [
+        { label: "Export diagnostics", onSelect: () => this.exportDiagnostics() },
+      ]],
     ];
+    const tab = Math.max(0, Math.min(TABS.length - 1, this.settingsTab));
+    const items: MenuItem[] = [...TABS[tab]![1].map(cyc), { label: "Back", onSelect: back }];
     const m = new Menu(items, (k) => this.audio.sfx(k), back);
-    const p = this.ui.panel("", m); p.style.maxHeight = "86vh"; p.style.overflow = "auto";
+    const go = (t: number) => { this.settingsTab = (t + TABS.length) % TABS.length; this.settingsMenu(back); };
+    m.onTab = (d) => go(tab + d);
+    const head = el("div", "tabs", `<b class="tg" data-ui="tabL"></b>${TABS.map(([n], i) => `<span class="t${i === tab ? " on" : ""}" data-t="${i}">${n}</span>`).join("")}<b class="tg" data-ui="tabR"></b>`);
+    head.querySelectorAll<HTMLElement>(".t").forEach((t) => t.addEventListener("click", () => go(Number(t.dataset.t))));
+    head.querySelector<HTMLElement>("[data-ui=tabL]")!.addEventListener("click", () => go(tab - 1));
+    head.querySelector<HTMLElement>("[data-ui=tabR]")!.addEventListener("click", () => go(tab + 1));
+    const p = this.ui.panel("", m, head); p.style.maxHeight = "90vh"; p.style.overflow = "auto"; p.style.minWidth = "min(560px,92vw)";
     this.ui.show(p, m);
   }
 
@@ -716,7 +737,8 @@ export class App {
     const icon = action === "strike" ? strikeIcon(44) : (["vector", "phase", "order", "null"] as const).includes(action as OpIcon) ? opIcon(action as OpIcon, 44) : "";
     const p = el("div", "panel capture", `${icon}<div class="act">${action}</div><div class="glyph-prompt"><i></i></div>`);
     this.ui.show(p, null);
-    const bar = el("div", "prompts", `<span><b class="gl gl-key">Esc</b>Cancel</span>`); p.parentElement!.appendChild(bar);
+    const bar = el("div", "prompts custom", `<span><b data-ui="cancel"></b>Cancel</span>`); p.parentElement!.appendChild(bar); this.ui.refreshGlyphs();
+    bar.querySelector("span")!.addEventListener("click", () => finish(() => undefined));
     const finish = (patch: (b: Binding) => void) => {
       window.removeEventListener("keydown", onKey, true); window.removeEventListener("mousedown", onMouse, true); cancelAnimationFrame(raf); this.input.endProbe();
       const bindings = structuredClone(S.get("bindings"));
@@ -729,7 +751,9 @@ export class App {
     let raf = 0;
     this.input.padButtonsPressed();
     const pads = () => {
-      const b = this.input.padButtonsPressed().filter((x) => x !== 9);
+      const pressed = this.input.padButtonsPressed();
+      if (pressed.includes(9)) { finish(() => undefined); return; } // Start / Menu / Options cancels
+      const b = pressed.filter((x) => x !== 9);
       if (b.length) { this.input.endProbe(); finish((x) => { x.gamepadButtons = [b[0]!]; }); return; }
       raf = requestAnimationFrame(pads);
     };

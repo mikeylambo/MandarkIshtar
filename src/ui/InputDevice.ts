@@ -13,6 +13,8 @@ const UI_BINDINGS: InputBinding[] = [
   { action: "ui_right", keyboard: ["ArrowRight", "KeyD"], gamepadButtons: [15], gamepadAxes: [{ axis: 0, direction: 1, threshold: 0.6 }] },
   { action: "ui_accept", keyboard: ["Enter", "Space"], gamepadButtons: [0] },
   { action: "ui_back", keyboard: ["Escape", "Backspace"], gamepadButtons: [1] },
+  { action: "ui_tabL", keyboard: ["KeyQ"], gamepadButtons: [4] },
+  { action: "ui_tabR", keyboard: ["KeyE"], gamepadButtons: [5] },
   { action: "ui_any", keyboard: ["Enter", "Space", "KeyF", "Escape"], mouseButtons: [0], gamepadButtons: [0, 1, 2, 3, 9] },
 ];
 const STICKS: InputBinding[] = [

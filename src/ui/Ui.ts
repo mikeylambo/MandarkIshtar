@@ -7,7 +7,7 @@ import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
 import { lawArt } from "./cardArt";
 import { opIcon, strikeIcon, type OpIcon } from "./icons";
-import { GLYPH_CSS, actionGlyph, isPad, uiGlyph, type PadFamily } from "./glyphs";
+import { GLYPH_CSS, actionGlyph, isPad, uiGlyph, type PadFamily, type UiAct } from "./glyphs";
 import type { InputDeviceFamily } from "@slu/web-shell";
 import type { Binding } from "../data/input";
 import { FOCUS } from "../data/resources";
@@ -23,6 +23,8 @@ export function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", html
 export class Menu {
   index = 0;
   readonly root = el("div", "menu");
+  /** Bumper/Q-E tab switching (settings). */
+  onTab?: (d: -1 | 1) => void;
   private rows: HTMLDivElement[] = [];
   constructor(private items: MenuItem[], private readonly sfx: (k: string) => void, readonly onBack?: () => void) {
     this.render();
@@ -34,7 +36,8 @@ export class Menu {
     this.root.innerHTML = "";
     this.rows = this.items.map((it, i) => {
       const r = el("div", "item" + (it.disabled ? " disabled" : ""));
-      r.innerHTML = `<span>${it.label}</span>${it.value ? `<span class="val">${it.value()}</span>` : ""}`;
+      const val = it.value ? `<span class="val">${it.value()}</span>` : "";
+      r.innerHTML = `<span>${it.label}</span>${it.value && (it.onLeft || it.onRight) ? `<span class="adj"><i>‹</i>${val}<i>›</i></span>` : val}`;
       r.addEventListener("mouseenter", () => { this.index = i; this.paint(); });
       r.addEventListener("click", (e) => { this.index = i; if ((e as MouseEvent).offsetX > r.clientWidth * 0.6 && it.onRight) it.onRight(); else this.activate(); });
       this.root.appendChild(r);
@@ -63,6 +66,8 @@ export class Menu {
     if (input.pressed("ui_left") && it?.onLeft) { it.onLeft(); this.sfx("ui.move"); this.paint(); }
     if (input.pressed("ui_right") && it?.onRight) { it.onRight(); this.sfx("ui.move"); this.paint(); }
     if (input.pressed("ui_accept")) this.activate();
+    if (this.onTab && input.pressed("ui_tabL")) { this.sfx("ui.move"); this.onTab(-1); return; }
+    if (this.onTab && input.pressed("ui_tabR")) { this.sfx("ui.move"); this.onTab(1); return; }
     if (input.pressed("ui_back") && this.onBack) { this.sfx("ui.back"); this.onBack(); }
   }
 }
@@ -112,8 +117,13 @@ export class Ui {
   /** Re-render every button prompt for the current family + bindings (menu prompt bar and HUD op badges). */
   refreshGlyphs(): void {
     const f = this.family;
-    const bar = this.screen.querySelector(".prompts");
-    if (bar) bar.innerHTML = `<span>${uiGlyph("accept", f)}Select</span>${this.menu?.onBack ? `<span>${uiGlyph("back", f)}Back</span>` : ""}`;
+    const bar = this.screen.querySelector(".prompts:not(.custom)");
+    if (bar) {
+      bar.innerHTML = `<span data-p="accept">${uiGlyph("accept", f)}Select</span>${this.menu?.onBack ? `<span data-p="back">${uiGlyph("back", f)}Back</span>` : ""}`;
+      const m = this.menu;
+      bar.querySelector<HTMLElement>("[data-p=accept]")?.addEventListener("click", () => m?.activate());
+      bar.querySelector<HTMLElement>("[data-p=back]")?.addEventListener("click", () => { this.sfx("ui.back"); m?.onBack?.(); });
+    }
     const binds = this.bindings();
     for (const root of [this.hudLayer, this.screen]) {
       for (const o of root.querySelectorAll<HTMLElement>("[data-act]")) {
@@ -121,7 +131,7 @@ export class Ui {
         const g = actionGlyph(binds.find((b) => b.action === o.dataset.act), f);
         if (g) o.insertAdjacentHTML("beforeend", g);
       }
-      for (const o of root.querySelectorAll<HTMLElement>("[data-ui]")) o.innerHTML = uiGlyph(o.dataset.ui as "accept" | "back", f);
+      for (const o of root.querySelectorAll<HTMLElement>("[data-ui]")) o.innerHTML = uiGlyph(o.dataset.ui as UiAct, f);
     }
     this.menu?.refresh();
   }

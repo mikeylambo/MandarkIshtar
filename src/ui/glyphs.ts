@@ -49,9 +49,11 @@ export function actionGlyph(b: Binding | undefined, f: InputDeviceFamily): strin
 }
 
 /** Fixed UI navigation prompts (not remappable). */
-export function uiGlyph(act: "accept" | "back", f: InputDeviceFamily): string {
-  if (isPad(f)) return padGlyph(act === "accept" ? 0 : 1, f);
-  return keyGlyph(act === "accept" ? "Enter" : "Escape");
+export type UiAct = "accept" | "back" | "tabL" | "tabR" | "cancel";
+const UI_PAD: Record<UiAct, number> = { accept: 0, back: 1, tabL: 4, tabR: 5, cancel: 9 };
+const UI_KEY: Record<UiAct, string> = { accept: "Enter", back: "Escape", tabL: "KeyQ", tabR: "KeyE", cancel: "Escape" };
+export function uiGlyph(act: UiAct, f: InputDeviceFamily): string {
+  return isPad(f) ? padGlyph(UI_PAD[act], f) : keyGlyph(UI_KEY[act]);
 }
 
 /** Pad glyphs only (for the remap screen's controller column). */
@@ -83,7 +85,19 @@ export const GLYPH_CSS = `
 .gl-dpad[data-dir="0"] i{left:7px;top:0}.gl-dpad[data-dir="1"] i{left:7px;bottom:0}.gl-dpad[data-dir="2"] i{left:0;top:7px}.gl-dpad[data-dir="3"] i{right:0;top:7px}
 /* prompt bar (bottom-right, navigation only) */
 .prompts{position:absolute;right:0;bottom:22px;display:flex;gap:22px;align-items:center;padding:8px 34px 8px 40px;background:linear-gradient(90deg,transparent,rgba(5,6,16,.85) 22%);clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);font-family:var(--display);font-style:italic;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:calc(16px*var(--ts));color:#dfe3f5;pointer-events:none}
-.prompts span{display:inline-flex;align-items:center;gap:9px}
+.prompts span{display:inline-flex;align-items:center;gap:9px;pointer-events:auto;cursor:pointer}
+.prompts span:hover{color:#fff}
+/* tabs (settings) */
+.tabs{display:flex;align-items:center;gap:4px;margin:2px -6px 12px;border-bottom:1px solid rgba(242,185,74,.25);padding-bottom:8px}
+.tabs .t{font-family:var(--display);font-style:italic;font-weight:700;letter-spacing:.1em;text-transform:uppercase;font-size:calc(16px*var(--ts));color:#7f86ab;padding:4px 12px;cursor:pointer;position:relative}
+.tabs .t.on{color:#fff}
+.tabs .t.on:after{content:"";position:absolute;left:10px;right:10px;bottom:-9px;height:3px;background:var(--gold);box-shadow:0 0 10px rgba(242,185,74,.7)}
+.tabs .tg{display:inline-flex;margin:0 6px;cursor:pointer}
+.tabs .sp{flex:1}
+/* adjustable values */
+.item .adj{display:inline-flex;align-items:center;gap:10px}
+.item .adj i{font-style:normal;color:var(--gold);opacity:0;font-weight:800;transition:opacity .12s}
+.item.focus .adj i{opacity:1}
 .binds{display:inline-flex;gap:6px;align-items:center;min-width:150px;justify-content:flex-end}
 .binds .sep{width:1px;height:20px;background:rgba(242,185,74,.35);margin:0 6px}
 .binds .kbm,.binds .pad{display:inline-flex;gap:4px;align-items:center;min-width:56px;justify-content:center}
