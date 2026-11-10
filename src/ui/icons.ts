@@ -17,6 +17,11 @@ export function opIcon(op: OpIcon, size = 30): string {
   return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" fill="currentColor" style="color:${OP_COLOR[op]}" aria-hidden="true">${PATHS[op]}</svg>`;
 }
 
+/** Strike: a gold claw-slash (secondary verb, deliberately plainer than the four ops). */
+export function strikeIcon(size = 26): string {
+  return `<svg viewBox="0 0 48 48" width="${size}" height="${size}" fill="#f2b94a" aria-hidden="true"><path d="M8 38L34 6l5 3-25 33z"/><path d="M18 42L40 16l3 4-21 25z" opacity=".65"/><path d="M36 30l8-2-3 7z"/></svg>`;
+}
+
 /** 9-slice chamfered frame (top-left + bottom-right cut) for CSS border-image. */
 export function frameSvg(stroke: string, fill: string, tick = stroke): string {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64"><path d="M16.5 .5H63.5V47.5L47.5 63.5H.5V16.5Z" fill="${fill}" stroke="${stroke}" stroke-width="1"/><path d="M3 12.5L12.5 3M51.5 61L61 51.5" stroke="${tick}" stroke-width="2.5"/></svg>`;

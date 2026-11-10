@@ -6,14 +6,14 @@ import { RANK_BANDS, RANK_GLYPH, type RankId } from "../data/ranks";
 import type { Bark } from "../data/barks";
 import type { LawId } from "../sim/types";
 import { lawArt } from "./cardArt";
-import { opIcon, type OpIcon } from "./icons";
-import { GLYPH_CSS, actionGlyph, uiGlyph } from "./glyphs";
+import { opIcon, strikeIcon, type OpIcon } from "./icons";
+import { GLYPH_CSS, actionGlyph, isPad, uiGlyph, type PadFamily } from "./glyphs";
 import type { InputDeviceFamily } from "@slu/web-shell";
 import type { Binding } from "../data/input";
 import { FOCUS } from "../data/resources";
 import { STEP } from "../data/movement";
 
-export interface MenuItem { label: string; value?: () => string; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
+export interface MenuItem { label: string; value?: () => string; valueHtml?: boolean; onSelect?: () => void; onLeft?: () => void; onRight?: () => void; disabled?: boolean }
 
 export function el<K extends keyof HTMLElementTagNameMap>(tag: K, cls = "", html = ""): HTMLElementTagNameMap[K] {
   const e = document.createElement(tag); if (cls) e.className = cls; if (html) e.innerHTML = html; return e;
@@ -41,11 +41,13 @@ export class Menu {
       return r;
     });
   }
+  /** Re-read item values (e.g. after an input-family change). */
+  refresh(): void { this.paint(); }
   private paint(): void {
     this.rows.forEach((r, i) => {
       r.classList.toggle("focus", i === this.index);
       const it = this.items[i]!;
-      if (it.value) { const v = r.querySelector(".val"); if (v) v.textContent = it.value(); }
+      if (it.value) { const v = r.querySelector(".val"); if (v) { const nv = it.value(); if (it.valueHtml) { if (v.innerHTML !== nv) v.innerHTML = nv; } else v.textContent = nv; } }
     });
   }
   private move(d: number): void {
@@ -82,6 +84,8 @@ export class Ui {
 
   /** Active input family (from the shell's BrowserInputFamilyDetector) and live bindings, for button prompts. */
   family: InputDeviceFamily = "keyboard-mouse";
+  /** Last controller family seen (the remap screen shows pad bindings for it while on keyboard/mouse). */
+  padFamily: PadFamily = "xbox";
   bindings: () => Binding[] = () => [];
 
   constructor(root: HTMLElement, readonly sfx: (k: string) => void) {
@@ -103,7 +107,7 @@ export class Ui {
     this.refreshGlyphs();
   }
 
-  setFamily(f: InputDeviceFamily): void { if (f !== this.family) { this.family = f; this.refreshGlyphs(); } }
+  setFamily(f: InputDeviceFamily): void { if (isPad(f)) this.padFamily = f; if (f !== this.family) { this.family = f; this.refreshGlyphs(); } }
 
   /** Re-render every button prompt for the current family + bindings (menu prompt bar and HUD op badges). */
   refreshGlyphs(): void {
@@ -111,11 +115,15 @@ export class Ui {
     const bar = this.screen.querySelector(".prompts");
     if (bar) bar.innerHTML = `<span>${uiGlyph("accept", f)}Select</span>${this.menu?.onBack ? `<span>${uiGlyph("back", f)}Back</span>` : ""}`;
     const binds = this.bindings();
-    for (const o of this.hudLayer.querySelectorAll<HTMLElement>(".op")) {
-      o.querySelector(".gl")?.remove();
-      const g = actionGlyph(binds.find((b) => b.action === o.dataset.op), f);
-      if (g) o.insertAdjacentHTML("beforeend", g);
+    for (const root of [this.hudLayer, this.screen]) {
+      for (const o of root.querySelectorAll<HTMLElement>("[data-act]")) {
+        o.querySelector(":scope > .gl")?.remove();
+        const g = actionGlyph(binds.find((b) => b.action === o.dataset.act), f);
+        if (g) o.insertAdjacentHTML("beforeend", g);
+      }
+      for (const o of root.querySelectorAll<HTMLElement>("[data-ui]")) o.innerHTML = uiGlyph(o.dataset.ui as "accept" | "back", f);
     }
+    this.menu?.refresh();
   }
   hideScreen(): void { this.screen.innerHTML = ""; this.menu = null; }
   get screenOpen(): boolean { return this.screen.childElementCount > 0; }
@@ -135,12 +143,13 @@ export class Ui {
     const sig = SIGIL_SVG.replace('width="180" height="180"', 'width="46" height="46"');
     h.innerHTML = `<div class="hubris"><i></i></div>
       <div class="dock"><div class="portrait">${sig}</div><div class="dockcol"><div class="sealrow"></div><div class="focusbar"><i></i></div>
-        <div class="ops">${OPS.map((o) => `<div class="op" data-op="${o}">${opIcon(o, 26)}</div>`).join("")}<div class="steps"></div></div></div></div>
+        <div class="ops">${OPS.map((o) => `<div class="op" data-op="${o}" data-act="${o}">${opIcon(o, 26)}</div>`).join("")}<div class="verb stepslot" data-act="step"><div class="steps"></div></div><div class="op strikeslot" data-act="strike">${strikeIcon(26)}</div></div></div></div>
+      <div class="hubris-gl" data-act="hubris"></div>
       <div class="score"><span class="rank"></span><b>0</b></div><div class="lawmini" style="display:none"></div>
       <div class="bossbar" style="display:none"><i></i></div><div class="meter" style="display:none"><i></i></div>`;
     h.appendChild(this.feedEl);
     this.hudLayer.appendChild(h);
-    for (const k of ["hubris", "sealrow", "score", "rank", "lawmini", "bossbar", "meter", "dock", "focusbar", "ops", "steps"]) this.hudEls[k] = h.querySelector(`.${k}`) as HTMLElement;
+    for (const k of ["hubris", "sealrow", "score", "rank", "lawmini", "bossbar", "meter", "dock", "focusbar", "ops", "steps", "stepslot", "strikeslot", "hubris-gl"]) this.hudEls[k] = h.querySelector(`.${k}`) as HTMLElement;
     this.hudEls.scoreNum = h.querySelector(".score b") as HTMLElement;
     this.refreshGlyphs();
     h.querySelectorAll("svg.sigil path").forEach((p) => ((p as SVGPathElement).style.animation = "none", (p as SVGPathElement).style.strokeDashoffset = "0"));
@@ -156,17 +165,20 @@ export class Ui {
     e.sealrow.style.display = w.def.noSealLoss ? "none" : "flex";
     e.dock!.style.display = w.def.kind === "hub" ? "none" : "flex";
     (e.focusbar!.firstElementChild as HTMLElement).style.width = `${(m.focus / FOCUS.max) * 100}%`;
-    for (const o of e.ops!.querySelectorAll<HTMLElement>(".op")) {
+    for (const o of e.ops!.querySelectorAll<HTMLElement>(".op[data-op]")) {
       const op = o.dataset.op as OpIcon;
       const lost = !m.regalia.has(op);
       o.classList.toggle("lost", lost);
       o.classList.toggle("low", !lost && m.focus < FOCUS.cost[op] && !w.opts.infiniteFocus);
     }
     const steps = e.steps!;
-    steps.style.display = m.regalia.has("step") ? "flex" : "none";
+    e.stepslot!.style.display = m.regalia.has("step") ? "flex" : "none";
+    e.strikeslot!.classList.toggle("lost", !m.regalia.has("strike"));
+    e["hubris-gl"]!.style.display = m.regalia.has("hubris") ? "block" : "none";
     if (steps.childElementCount !== STEP.charges) { steps.innerHTML = ""; for (let i = 0; i < STEP.charges; i++) steps.appendChild(el("i")); }
     [...steps.children].forEach((s, i) => s.classList.toggle("off", i >= m.stepCharges));
     const hub = e.hubris!;
+    if (!e["hubris-gl"]) return;
     hub.style.display = m.regalia.has("hubris") ? "block" : "none";
     (hub.firstElementChild as HTMLElement).style.width = `${m.hubris}%`;
     hub.classList.toggle("full", m.hubris >= 100);

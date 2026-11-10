@@ -54,6 +54,15 @@ export function uiGlyph(act: "accept" | "back", f: InputDeviceFamily): string {
   return keyGlyph(act === "accept" ? "Enter" : "Escape");
 }
 
+/** Pad glyphs only (for the remap screen's controller column). */
+export function padBindingGlyph(b: Binding | undefined, f: PadFamily): string { const p = b?.gamepadButtons?.[0]; return p === undefined ? "<i class='gl-none'>—</i>" : padGlyph(p, f); }
+/** Keyboard + mouse glyphs for a binding (all of them, e.g. Space and Shift for Step). */
+export function kbmBindingGlyphs(b: Binding | undefined): string {
+  if (!b) return "";
+  const g = [...(b.mouseButtons ?? []).map(mouseGlyph), ...b.keyboard.map(keyGlyph)];
+  return g.length ? g.join("") : "<i class='gl-none'>—</i>";
+}
+
 export const GLYPH_CSS = `
 .gl{display:inline-flex;align-items:center;justify-content:center;flex:none;font-family:var(--display);font-style:normal;font-weight:800;line-height:1;color:#0a0d1f;background:#ece8dc;letter-spacing:0;font-size:13px;height:22px;min-width:22px;box-shadow:0 2px 0 rgba(0,0,0,.45)}
 .gl-face{border-radius:50%;width:22px}
@@ -75,6 +84,16 @@ export const GLYPH_CSS = `
 /* prompt bar (bottom-right, navigation only) */
 .prompts{position:absolute;right:0;bottom:22px;display:flex;gap:22px;align-items:center;padding:8px 34px 8px 40px;background:linear-gradient(90deg,transparent,rgba(5,6,16,.85) 22%);clip-path:polygon(18px 0,100% 0,100% 100%,0 100%);font-family:var(--display);font-style:italic;font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:calc(16px*var(--ts));color:#dfe3f5;pointer-events:none}
 .prompts span{display:inline-flex;align-items:center;gap:9px}
+.binds{display:inline-flex;gap:6px;align-items:center;min-width:150px;justify-content:flex-end}
+.binds .sep{width:1px;height:20px;background:rgba(242,185,74,.35);margin:0 6px}
+.binds .kbm,.binds .pad{display:inline-flex;gap:4px;align-items:center;min-width:56px;justify-content:center}
+.gl-none{font-style:normal;color:#5d6280}
+.title-gl{margin-top:20px;height:24px;display:flex;justify-content:center;opacity:.9}
+.verb{position:relative;display:flex;align-items:center;height:44px;padding:0 6px}
+.verb .gl{position:absolute;right:-8px;bottom:-4px;transform:scale(.78);transform-origin:100% 100%}
+.hubris-gl{position:absolute;left:252px;bottom:114px;transform:scale(.78);transform-origin:0 100%}
+.capture{display:flex;flex-direction:column;align-items:center;gap:22px;padding:18px 40px}
+.capture .act{font-family:var(--display);font-style:italic;font-weight:800;font-size:calc(30px*var(--ts));text-transform:uppercase;letter-spacing:.06em;color:#fff}
 /* op slot binding badge */
 .op{position:relative}
 .op .gl{position:absolute;right:-12px;bottom:-12px;transform:scale(.78);transform-origin:100% 100%}

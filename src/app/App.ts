@@ -18,6 +18,8 @@ import { AudioEngine } from "../audio/AudioEngine";
 import { ResolutionMusic } from "../audio/ResolutionMusic";
 import { BarkSystem } from "../audio/Barks";
 import { Ui, Menu, el, SIGIL_SVG, type MenuItem } from "../ui/Ui";
+import { kbmBindingGlyphs, padBindingGlyph } from "../ui/glyphs";
+import { opIcon, strikeIcon, type OpIcon } from "../ui/icons";
 import { InputDevice } from "../ui/InputDevice";
 import { Progress } from "../meta/Progress";
 import { COLD_OPEN, LABORATORY, OBSERVATORY, TRIALS, encounterById } from "../data/trials";
@@ -335,7 +337,7 @@ export class App {
     this.ui.hideHud();
     const c = el("div", "");
     c.style.cssText = "display:flex;flex-direction:column;align-items:center";
-    c.innerHTML = `${SIGIL_SVG.replace('width="180" height="180"', 'width="120" height="120"')}<div class="wordmark"><b>MANDARK</b><span>ISHTAR</span><i></i></div><div class="glyph-prompt"><i></i></div>`;
+    c.innerHTML = `${SIGIL_SVG.replace('width="180" height="180"', 'width="120" height="120"')}<div class="wordmark"><b>MANDARK</b><span>ISHTAR</span><i></i></div><div class="glyph-prompt"><i></i></div><div class="title-gl" data-ui="accept"></div>`;
     this.ui.show(c);
     this.loadBackdrop(OBSERVATORY);
   }
@@ -697,21 +699,24 @@ export class App {
   /** Full remapping per device: select an action, then press the new key / mouse button / pad button. */
   remapMenu(back: () => void): void {
     const S = this.settings;
-    const label = (b: Binding) => [...b.keyboard.map((k) => k.replace(/^Key|^Digit/, "")), ...(b.mouseButtons ?? []).map((m) => ["LMB", "MMB", "RMB"][m] ?? `M${m}`), ...(b.gamepadButtons ?? []).map((g) => `◉${g}`)].join(" / ");
+    const glyphs = (b: Binding | undefined) => `<span class="binds"><span class="kbm">${kbmBindingGlyphs(b)}</span><i class="sep"></i><span class="pad">${padBindingGlyph(b, this.ui.padFamily)}</span></span>`;
     const items: MenuItem[] = REMAPPABLE.map((act) => ({
-      label: act, value: () => label(S.get("bindings").find((b) => b.action === act)!),
+      label: act, valueHtml: true, value: () => glyphs(S.get("bindings").find((b) => b.action === act)),
       onSelect: () => this.captureBinding(act, () => this.remapMenu(back)),
     }));
     items.push({ label: "Reset", onSelect: () => { void S.patch({ bindings: structuredClone(DEFAULT_BINDINGS) }).then(() => { this.input.setBindings(S.get("bindings")); this.remapMenu(back); }); } });
     items.push({ label: "Back", onSelect: back });
     const m = new Menu(items, (k) => this.audio.sfx(k), back);
-    this.ui.show(this.ui.panel("", m), m);
+    const p = this.ui.panel("", m); p.style.maxHeight = "94vh"; p.style.overflow = "auto";
+    this.ui.show(p, m);
   }
 
   private captureBinding(action: string, done: () => void): void {
     const S = this.settings;
-    const p = el("div", "panel", `<div class="glyph-prompt"><i></i></div>`);
+    const icon = action === "strike" ? strikeIcon(44) : (["vector", "phase", "order", "null"] as const).includes(action as OpIcon) ? opIcon(action as OpIcon, 44) : "";
+    const p = el("div", "panel capture", `${icon}<div class="act">${action}</div><div class="glyph-prompt"><i></i></div>`);
     this.ui.show(p, null);
+    const bar = el("div", "prompts", `<span><b class="gl gl-key">Esc</b>Cancel</span>`); p.parentElement!.appendChild(bar);
     const finish = (patch: (b: Binding) => void) => {
       window.removeEventListener("keydown", onKey, true); window.removeEventListener("mousedown", onMouse, true); cancelAnimationFrame(raf); this.input.endProbe();
       const bindings = structuredClone(S.get("bindings"));
