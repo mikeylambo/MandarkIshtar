@@ -13,10 +13,13 @@ export class CameraRig {
   private introT = 0;
   zoom = 1;
   reducedMotion = false;
+  /** Title/menu backdrop: a low, slow orbit of the arena centre that lets the moon and skyline pass through frame. */
+  cinematic = false;
 
   constructor(private readonly cam: THREE.PerspectiveCamera) { cam.fov = CAMERA.fovDeg; }
 
   reset(w: World): void {
+    this.cinematic = false;
     this.yaw = this.yawTarget = (w.def.arena.yawDeg * Math.PI) / 180;
     this.focus.set(w.markov.pos.x, 0, w.markov.pos.z);
     this.pitch = w.def.boss === "giant" ? CAMERA.giant.pitchDeg : CAMERA.pitchDeg;
@@ -29,6 +32,7 @@ export class CameraRig {
   /** shake: the shell TraumaShake offset (already scaled by the accessibility slider). */
   update(w: World, mx: number, mz: number, punch: { x: number; z: number; t: number }, shake: { x: number; y: number; z: number }): void {
     const def = w.def;
+    if (this.cinematic) { this.orbit(); return; }
     let pitch: number = CAMERA.pitchDeg, dist: number = CAMERA.distance;
     if (def.boss === "giant") { pitch = CAMERA.giant.pitchDeg; dist = CAMERA.giant.distance; }
     if (def.boss === "child") dist = CAMERA.child.distance;
@@ -65,6 +69,16 @@ export class CameraRig {
     this.cam.position.x += shake.x; this.cam.position.y += shake.y; this.cam.position.z += shake.z;
     const lookY = def.boss === "ishtar" && (w.flags.ishtarPhase ?? 0) >= 3 ? 6 : 0;
     this.cam.lookAt(cx, lookY, cz);
+  }
+  private orbitYaw = 0;
+  private orbit(): void {
+    const C = CAMERA.title;
+    if (!this.reducedMotion) this.orbitYaw += C.yawPerFrame;
+    this.focus.multiplyScalar(0.94); // ease onto the arena centre
+    this.pitch += (C.pitchDeg - this.pitch) * 0.05; this.distance += (C.distance - this.distance) * 0.05;
+    const yaw = this.yaw + this.orbitYaw, pr = (this.pitch * Math.PI) / 180, d = this.distance;
+    this.cam.position.set(this.focus.x - Math.sin(yaw) * Math.cos(pr) * d, Math.sin(pr) * d + C.lookY * 0.4, this.focus.z - Math.cos(yaw) * Math.cos(pr) * d);
+    this.cam.lookAt(this.focus.x, C.lookY, this.focus.z);
   }
   get introActive(): boolean { return this.introT > 0; }
 }

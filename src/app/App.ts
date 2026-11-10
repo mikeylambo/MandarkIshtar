@@ -341,9 +341,12 @@ export class App {
     this.ui.hideHud();
     const c = el("div", "");
     c.style.cssText = "display:flex;flex-direction:column;align-items:center";
-    c.innerHTML = `${SIGIL_SVG.replace('width="180" height="180"', 'width="120" height="120"')}<div class="wordmark"><b>MANDARK</b><span>ISHTAR</span><i></i></div><div class="glyph-prompt"><i></i></div><div class="title-gl" data-ui="accept"></div>`;
-    this.ui.show(c);
+    c.innerHTML = `${SIGIL_SVG.replace('width="180" height="180"', 'width="120" height="120"')}<div class="wordmark"><b>MANDARK</b><span>ISHTAR</span><i></i></div><div class="glyph-prompt"><i></i><b class="burst"></b><b class="burst b2"></b></div><div class="title-gl" data-ui="accept"></div>`;
+    this.titleLeaving = false;
+    this.ui.show(c, null, true);
+    this.ui.screen.firstElementChild?.classList.add("title-screen");
     this.loadBackdrop(OBSERVATORY);
+    this.camera.cinematic = true;
   }
 
   private loadBackdrop(def: EncounterDef): void {
@@ -352,8 +355,19 @@ export class App {
     this.camera.reset(this.world);
   }
 
+  private titleLeaving = false;
+  /** Press-start beat: ring burst + wordmark lift + confirm sound, then the menu (or cold open). */
   private onTitleAccept(): void {
+    if (this.titleLeaving) return;
+    this.titleLeaving = true;
     this.audio.unlock();
+    this.audio.sfx("ui.confirm");
+    const rm = this.a11y.reducedMotion;
+    this.ui.screen.firstElementChild?.classList.add("title-out");
+    if (!rm) this.ui.flashWhite(320, 0.22 * this.a11y.flashIntensity);
+    setTimeout(() => { if (this.mode === "title") this.leaveTitle(); }, rm ? 140 : 560);
+  }
+  private leaveTitle(): void {
     this.music.play("title");
     if (!this.progress.data.seenColdOpen) { this.startCampaignFrom("coldOpen"); return; }
     this.mainMenu();

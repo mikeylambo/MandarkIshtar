@@ -17,7 +17,8 @@ export const tierFrame = (t: Tier) => frameSvg(TIER[t], "rgba(9,12,30,0.94)");
 
 export const BB_CSS = `
 /* slanted choice bars */
-.screen.bars-screen{align-items:flex-end;justify-content:center;padding-right:0}
+.screen.bars-screen{align-items:flex-end;justify-content:center;padding-right:0;background:linear-gradient(90deg,rgba(5,6,11,.05) 25%,rgba(5,6,11,.45) 60%,rgba(5,6,11,.8))}
+.screen.title-screen{background:radial-gradient(ellipse 60% 45% at 50% 52%,rgba(5,6,11,.45),rgba(5,6,11,0) 70%),linear-gradient(rgba(5,6,11,0) 60%,rgba(5,6,11,.55))}
 .menu.bars{gap:12px;min-width:min(620px,62vw);margin:0}
 .menu.bars .item{border:none;border-image:none;margin:0;height:64px;padding:0 64px 0 40px;justify-content:flex-end;gap:18px;font-size:calc(32px*var(--ts));font-weight:800;letter-spacing:.04em;color:#aab0d0;
   clip-path:polygon(26px 0,100% 0,100% 100%,0 100%);background:linear-gradient(90deg,rgba(14,18,44,0) 0%,rgba(14,18,44,.88) 28%,rgba(22,28,64,.95));
@@ -50,6 +51,19 @@ export const BB_CSS = `
 .codex .entry.card .hex{width:170px;height:196px;margin-bottom:16px}
 .codex .entry.card .note{text-align:left;align-self:stretch}
 .codex .entry.card .marg{text-align:left;align-self:stretch}
+/* press-start beat */
+.glyph-prompt{position:relative}
+.glyph-prompt .burst{position:absolute;inset:-2px;border:2px solid var(--gold);opacity:0;pointer-events:none}
+.title-out .glyph-prompt{animation:none;opacity:1}
+.title-out .glyph-prompt .burst{animation:burst .55s cubic-bezier(.15,.8,.3,1) forwards}
+.title-out .glyph-prompt .burst.b2{animation-delay:.08s;border-color:#fff6e0}
+.title-out .glyph-prompt>i{background:#fff6e0;box-shadow:0 0 18px #ffd77a}
+@keyframes burst{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(9);border-width:1px}}
+.title-out .wordmark{animation:wordout .5s cubic-bezier(.5,0,.8,.4) forwards}
+.title-out svg.sigil,.title-out .title-gl{transition:opacity .35s;opacity:0}
+@keyframes wordout{to{opacity:0;transform:translateY(-26px) skewX(-8deg);filter:blur(3px)}}
+.rm .title-out .wordmark{animation:none;opacity:0;transition:opacity .12s}
+.rm .title-out .burst{animation:none!important}
 .rm .screen,.rm .panel,.rm .wordmark,.rm .results .rankbig,.rm .menu.bars .item{animation:none!important}
 .rm .item{transition:none!important}
 `;

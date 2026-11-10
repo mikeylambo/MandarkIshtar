@@ -17,4 +17,6 @@ export const CAMERA = {
   giant: { pitchDeg: 65, distance: 24 },
   child: { distance: 16 },
   ishtarP3: { pitchDeg: 20, distance: 14 },
+  /** Title/menu orbit (presentation only). */
+  title: { pitchDeg: 14, distance: 30, lookY: 6, yawPerFrame: 0.0011 },
 } as const;

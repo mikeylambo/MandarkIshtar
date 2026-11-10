@@ -87,14 +87,14 @@ export function starfield(): THREE.Mesh {
     vertexShader: `varying vec3 vP; void main(){ vP = normalize(position); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
     fragmentShader: `uniform float warm; uniform vec3 moonDir; varying vec3 vP;
       float h(vec3 p){ return fract(sin(dot(p, vec3(12.9898,78.233,37.719))) * 43758.5453); }
-      void main(){ float y = vP.y;
+      void main(){ vec3 n = normalize(vP); float y = n.y;
         vec3 zen = vec3(0.035,0.05,0.14), hor = vec3(0.26,0.16,0.48), low = vec3(0.02,0.025,0.07);
         vec3 col = y > 0.0 ? mix(hor, zen, smoothstep(0.0, 0.55, y)) : mix(hor, low, smoothstep(0.0, -0.35, y));
-        vec3 g = floor(vP * 260.0); float s = step(0.9965, h(g)) * (0.6 + 0.4 * h(g + 1.0)) * smoothstep(-0.1, 0.2, y);
+        vec3 g = floor(n * 260.0); float s = step(0.9965, h(g)) * (0.6 + 0.4 * h(g + 1.0)) * smoothstep(-0.1, 0.2, y);
         col += vec3(s) * vec3(0.8,0.85,1.0);
-        float md = dot(vP, moonDir);
-        col = mix(col, vec3(1.0,0.95,0.78), smoothstep(0.9935, 0.9945, md));
-        col += vec3(0.35,0.3,0.55) * pow(max(md, 0.0), 180.0) * 0.6;
+        float md = dot(n, moonDir);
+        col += vec3(0.4,0.34,0.62) * pow(max(md, 0.0), 260.0) * 0.45;
+        col = mix(col, vec3(0.93,0.88,0.72), smoothstep(0.9935, 0.9943, md));
         vec3 dawn = mix(vec3(1.0,0.86,0.62), vec3(1.0,0.97,0.9), smoothstep(-0.2,0.6,y));
         gl_FragColor = vec4(mix(col, dawn, warm), 1.0); }`,
   });
