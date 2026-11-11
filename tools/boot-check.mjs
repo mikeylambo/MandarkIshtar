@@ -10,6 +10,11 @@ const page = await browser.newPage({ viewport: { width: 1280, height: 720 }, dev
 const problems = [];
 page.on("console", (m) => { if (m.type() === "error" || m.type() === "warning") problems.push(`${m.type()}: ${m.text()}`); });
 page.on("pageerror", (e) => problems.push(`pageerror: ${e.message}`));
+// Static hosts answer missing files 404; vite preview answers them with index.html. Treat both as a missing request.
+page.on("response", (r) => {
+  const req = r.request(), html = (r.headers()["content-type"] ?? "").includes("text/html");
+  if (r.status() === 404 || (html && req.resourceType() !== "document")) problems.push(`missing: ${r.url()}`);
+});
 await page.goto(url, { waitUntil: "load" });
 await page.waitForFunction(() => window.__dev && window.__dev.app.mode === "title", null, { timeout: 30000 });
 await page.waitForTimeout(2600);
